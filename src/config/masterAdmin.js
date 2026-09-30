@@ -18,8 +18,8 @@
  */
 export const MASTER_ADMIN = {
   username: 'jundicomp',
-  password: 'GANTI-PASSWORD-INI-2026',
+  password: '123456',
   nama: 'Admin Induk (Pengembang)',
   role: 'Admin',
-  email: 'dev@jundicomp.local',
+  email: 'jundicomp@gmail.com',
 };
