@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Cegah browser/proxy nge-cache index.html sendiri -- file JS/CSS hasil build sudah
+         otomatis punya nama unik per rilis (content-hash dari Vite), jadi SELALU aman
+         dicache lama. Tapi index.html-nya sendiri TIDAK punya nama unik -- kalau file ini
+         yang kena cache lama, browser bisa terus memuat index.html versi lama yang masih
+         menunjuk ke bundle JS versi lama juga (jadi kelihatan spt "sudah di-deploy tapi
+         kok belum berubah", padahal kodenya di GitHub sudah benar, cuma browser belum
+         ambil index.html yang baru). -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>SPP & Sarpras — MI Ikhlasiyah</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
