@@ -12,6 +12,7 @@ import { SIKAP_OPTIONS, STATUS_RAPOR_OPTIONS, buatLookupKkm, nilaiRaporSiswa, ke
 import { todayWIB, formatTanggal } from '../../db/helpers';
 import { upsertRaporToSheet, addLogEntry, isConfigured } from '../../services/googleSheets';
 import { printElementById } from '../../utils/exportTable';
+import { APP_NAME } from '../../config/appInfo';
 
 const TABS = [{ id: 'kelas', label: 'RAPOR PER KELAS' }];
 const BADGE_STATUS = { Terbit: 'badge-green', Draft: 'badge-gold', 'Belum Diisi': 'badge-muted' };
@@ -22,7 +23,7 @@ function DokumenRapor({ id, d }) {
   return (
     <div id={id} className="doc-print">
       <h2>LAPORAN HASIL BELAJAR PESERTA DIDIK</h2>
-      <p className="doc-sub">{profilSekolah?.nama || 'MI Ikhlasiyah'}{profilSekolah?.alamat ? ` · ${profilSekolah.alamat}` : ''}</p>
+      <p className="doc-sub">{profilSekolah?.nama || APP_NAME}{profilSekolah?.alamat ? ` · ${profilSekolah.alamat}` : ''}</p>
       <div className="doc-meta">
         <div><b>Nama:</b> {d.siswa.nama}</div><div><b>Kelas:</b> {d.rombel.label}</div>
         <div><b>NISN:</b> {d.siswa.nisn || '-'}</div><div><b>Semester:</b> {d.semester}</div>

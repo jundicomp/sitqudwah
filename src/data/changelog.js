@@ -4,6 +4,15 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.38.1',
+    tanggal: '2026-09-30',
+    poin: [
+      'Aplikasi kini bernama "Siskom Qudwah" -- tampil di judul tab browser (mis. "Presensi Siswa · Siskom Qudwah") dan di bawah nama sekolah pada sidebar',
+      'Ikon tab browser (favicon) otomatis memakai logo sekolah dari Pengaturan › Profil Sekolah, dan langsung tampil sejak halaman dibuka',
+      'Tersambung ke tiga file Google Sheets baru milik SIT Qudwah, dan alamat aplikasi pindah ke jundicomp.github.io/sitqudwah',
+    ],
+  },
+  {
     versi: '1.38.0',
     tanggal: '2026-09-27',
     poin: [

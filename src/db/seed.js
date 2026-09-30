@@ -67,7 +67,7 @@ export const usersSeed = [
 
 // ---- Profil Sekolah ----
 export const profilSekolahSeed = {
-  nama: 'MI Ikhlasiyah',
+  nama: '',
   npsn: '60123456',
   alamat: 'Jl. Pendidikan No. 45, Palembang, Sumatera Selatan',
   kepalaSekolah: 'Ahmad Fauzi Rahman',

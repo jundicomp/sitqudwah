@@ -11,6 +11,7 @@ import { exportLaporanKeWord } from '../../utils/exportWord';
 import InfoCard from '../../components/common/InfoCard';
 import { IconCheckCircle, IconAlertTriangle, IconXCircle, IconMoney } from '../../components/common/icons';
 import Rupiah from '../../components/common/Rupiah';
+import { APP_NAME } from '../../config/appInfo';
 
 const KONDISI_LIST = ['Baik', 'Rusak Ringan', 'Rusak Berat'];
 
@@ -63,7 +64,7 @@ export default function LaporanRekapAset() {
   }, [pemeliharaanRes.data]);
 
   const dataSiap = asetLoaded && peminjamanRes.loaded && pemeliharaanRes.loaded;
-  const namaSekolah = profilSekolah?.nama || 'MI Ikhlasiyah';
+  const namaSekolah = profilSekolah?.nama || APP_NAME;
 
   function handleExportPdf() {
     printElementById(printId);

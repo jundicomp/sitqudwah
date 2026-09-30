@@ -19,6 +19,7 @@ import {
   fetchUjianFromSheet, addUjianToSheet, updateUjianInSheet, deleteUjianFromSheet, addLogEntry,
 } from '../../services/googleSheets';
 import { printElementById } from '../../utils/exportTable';
+import { APP_NAME } from '../../config/appInfo';
 
 const TABS = [
   { id: 'soal', label: 'BANK SOAL' },
@@ -101,7 +102,7 @@ function NaskahModal({ ujian, bankSoal, kunci, onClose }) {
       {!soal.length ? <Kosong>Ujian ini belum punya soal. Atur lewat tombol Kelola Soal.</Kosong> : (
         <div id={id} className="doc-print">
           <h2>{ujian.Judul}{kunci ? ' — Kunci Jawaban' : ''}</h2>
-          <p className="doc-sub">{profilSekolah?.nama || 'MI Ikhlasiyah'} · Tahun Ajaran {ujian['Tahun Ajaran']} · Semester {ujian.Semester}</p>
+          <p className="doc-sub">{profilSekolah?.nama || APP_NAME} · Tahun Ajaran {ujian['Tahun Ajaran']} · Semester {ujian.Semester}</p>
           <div className="doc-meta">
             <div><b>Mata Pelajaran:</b> {ujian['Mata Pelajaran']}</div>
             <div><b>Kelas:</b> {labelRombel(ujian.Tingkat, ujian.Rombel)}</div>

@@ -10,6 +10,7 @@ import { KATEGORI_PENGUMUMAN, DITUJUKAN_OPTIONS, pengumumanAktif } from '../../d
 import { sekarangWIB } from '../../db/presensiBarcodeFields';
 import { formatTanggalAngka } from '../../db/helpers';
 import { pengumumanApi } from '../../services/googleSheets';
+import { APP_NAME } from '../../config/appInfo';
 
 const TABS = [
   { id: 'papan', label: 'PAPAN PENGUMUMAN' },
@@ -44,7 +45,7 @@ function Papan() {
     .filter(p => (filter === 'Aktif' ? pengumumanAktif(p, hariIni) : filter === 'Terjadwal' ? p.terbit > hariIni : p.sampai && p.sampai < hariIni))
     .filter(p => !kategori || p.kategori === kategori)
     .sort((a, b) => (b.penting - a.penting) || b.terbit.localeCompare(a.terbit)), [pengumuman, filter, kategori, hariIni]);
-  const sekolah = profilSekolah?.nama || 'MI Ikhlasiyah';
+  const sekolah = profilSekolah?.nama || APP_NAME;
 
   async function salin(p) {
     try { await navigator.clipboard.writeText(teksWa(p, sekolah)); toast('Teks pengumuman disalin.'); }

@@ -14,7 +14,15 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>SPP & Sarpras — MI Ikhlasiyah</title>
+    <title>Siskom Qudwah</title>
+    <script>
+      // Pakai logo sekolah yg tersimpan dari kunjungan sebelumnya sbg favicon, supaya
+      // tidak berkedip ke ikon bawaan dulu. Diperbarui otomatis oleh BrandingHead.jsx.
+      try {
+        var logo = localStorage.getItem('siskom-qudwah-logo');
+        if (logo) { var l = document.querySelector('link[rel="icon"]'); l.removeAttribute('type'); l.href = logo; }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

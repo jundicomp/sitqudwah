@@ -1,3 +1,4 @@
+import { APP_NAME } from '../../config/appInfo';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
 import Page from '../../components/layout/Page';
@@ -59,7 +60,7 @@ export default function PengaturanSistem() {
         }
       }
       const tanggal = todayWIB();
-      XLSX.writeFile(wb, `Backup MI Ikhlasiyah - ${tanggal}.xlsx`);
+      XLSX.writeFile(wb, `Backup ${APP_NAME} - ${tanggal}.xlsx`);
       toast('Backup berhasil diunduh.');
     } catch (err) {
       toast(err.message, 'error');

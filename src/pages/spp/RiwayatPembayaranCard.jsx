@@ -10,6 +10,7 @@ import { akunAktivaOptions } from '../../db/akunBukuBesarFields';
 import { updatePembayaranInSheet, deletePembayaranFromSheet, addLogEntry } from '../../services/googleSheets';
 import { formatRupiah, formatTanggalTampil, normalisasiTanggalUntukInput, todayWIB } from '../../db/helpers';
 import { exportToExcel, printElementById } from '../../utils/exportTable';
+import { APP_NAME } from '../../config/appInfo';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100, 'Semua'];
 
@@ -53,7 +54,7 @@ export default function RiwayatPembayaranCard() {
   const [sampaiTanggal, setSampaiTanggal] = useState('');
   const [printingAll, setPrintingAll] = useState(false);
   const printId = 'print-' + useId().replace(/:/g, '');
-  const namaSekolah = profilSekolah?.nama || 'MI Ikhlasiyah';
+  const namaSekolah = profilSekolah?.nama || APP_NAME;
   const akunOptions = useMemo(() => akunAktivaOptions(akun), [akun]);
   const pembayaranEditFields = useMemo(() => buildPembayaranEditFields(akunOptions), [akunOptions]);
 

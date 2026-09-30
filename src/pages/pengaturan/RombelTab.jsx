@@ -5,6 +5,7 @@ import { exportToExcel, printElementById } from '../../utils/exportTable';
 import { useAppData } from '../../context/AppContext';
 import { fetchSiswaFromSheet, bulkUpdateSiswaInSheet } from '../../services/googleSheets';
 import SaveProgressModal from '../../components/common/SaveProgressModal';
+import { APP_NAME } from '../../config/appInfo';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100, 'Semua'];
 
@@ -197,7 +198,7 @@ export default function RombelTab() {
   const [laporanAktif, setLaporanAktif] = useState(null); // { kelas, rombel } | null
   const [printingAll, setPrintingAll] = useState(false);
   const printId = 'print-' + useId().replace(/:/g, '');
-  const namaSekolah = profilSekolah?.nama || 'MI Ikhlasiyah';
+  const namaSekolah = profilSekolah?.nama || APP_NAME;
 
   // Rombel hanya utk siswa Aktif -- yg Lulus/Pindah/Berhenti ada di tab Riwayat Siswa.
   const siswaAktif = useMemo(() => siswa.filter(s => (s.status || 'Aktif') === 'Aktif'), [siswa]);

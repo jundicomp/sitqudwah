@@ -1,3 +1,4 @@
+import BrandingHead from './components/common/BrandingHead';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -140,6 +141,7 @@ export default function App() {
   return (
     <HashRouter>
       <AppProvider>
+        <BrandingHead />
         <AuthProvider>
           <Gate />
         </AuthProvider>

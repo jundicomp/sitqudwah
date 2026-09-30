@@ -10,6 +10,7 @@ import { pegawaiAktif } from '../../db/kepegawaianFields';
 import { kodeSiswa, kodeGuru } from '../../db/presensiBarcodeFields';
 import { formatTanggalTampil } from '../../db/helpers';
 import { printElementById } from '../../utils/exportTable';
+import { APP_NAME } from '../../config/appInfo';
 
 const TABS = [
   { id: 'siswa', label: 'KARTU SISWA' },
@@ -20,7 +21,7 @@ function Kepala({ profil, jenis }) {
   return (
     <div className="idcard-top">
       {profil?.logo ? <img src={profil.logo} alt="" /> : <div className="logo" />}
-      <div><div className="sek">{profil?.nama || 'MI Ikhlasiyah'}</div><div className="jenis">{jenis}</div></div>
+      <div><div className="sek">{profil?.nama || APP_NAME}</div><div className="jenis">{jenis}</div></div>
     </div>
   );
 }

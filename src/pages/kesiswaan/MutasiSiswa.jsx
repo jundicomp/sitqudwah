@@ -12,6 +12,7 @@ import { sekarangWIB } from '../../db/presensiBarcodeFields';
 import { formatTanggal } from '../../db/helpers';
 import { mutasiApi, fetchSiswaFromSheet, updateSiswaInSheet, addLogEntry, isConfigured } from '../../services/googleSheets';
 import { printElementById } from '../../utils/exportTable';
+import { APP_NAME } from '../../config/appInfo';
 
 const TABS = [
   { id: 'daftar', label: 'DAFTAR MUTASI' },
@@ -30,7 +31,7 @@ function SuratPindah({ m, onClose }) {
     <Modal wide title="Surat keterangan pindah" subtitle={m['Nama Siswa']} onClose={onClose}
       actions={<><button className="btn" onClick={onClose}>Tutup</button><button className="btn btn-primary" onClick={() => printElementById('surat-pindah')}>🖨️ Cetak / PDF</button></>}>
       <div id="surat-pindah" className="doc-print">
-        <h2>{(profilSekolah?.nama || 'MI Ikhlasiyah').toUpperCase()}</h2>
+        <h2>{(profilSekolah?.nama || APP_NAME).toUpperCase()}</h2>
         <p className="doc-sub">{profilSekolah?.alamat || ''}{profilSekolah?.npsn ? ` · NPSN ${profilSekolah.npsn}` : ''}</p>
         <div style={{ borderTop: '3px double #111', margin: '6px 0 16px' }} />
         <h3 style={{ textAlign: 'center', textDecoration: 'underline', margin: 0 }}>SURAT KETERANGAN PINDAH</h3>

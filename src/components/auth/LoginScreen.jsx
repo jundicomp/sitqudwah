@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppContext';
 import ConnectionStatusBadge from './ConnectionStatusBadge';
+import { APP_NAME } from '../../config/appInfo';
 
 export default function LoginScreen() {
   const { login, loginError, loggingIn } = useAuth();
@@ -26,7 +27,7 @@ export default function LoginScreen() {
             <text x="24" y="25" textAnchor="middle" dominantBaseline="central" fontFamily="Arial, sans-serif" fontSize="18" fontWeight="800" fill="#F0B429">MI</text>
           </svg>
         )}
-        <h2>{profilSekolah?.nama || 'MI Ikhlasiyah'}</h2>
+        <h2>{profilSekolah?.nama || APP_NAME}</h2>
         <p className="login-sub">SPP dan Sarpras</p>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
           <ConnectionStatusBadge onDone={() => setCheckingConnection(false)} />

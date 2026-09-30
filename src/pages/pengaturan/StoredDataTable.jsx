@@ -10,6 +10,7 @@ import { formatTanggalAngka } from '../../db/helpers';
 import EditSiswaModal from './EditSiswaModal';
 import ManualForm from './ManualForm';
 import ExcelUpload from './ExcelUpload';
+import { APP_NAME } from '../../config/appInfo';
 
 const ICON_EDIT = (
   <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -112,7 +113,7 @@ export default function StoredDataTable({ refreshKey }) {
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {canAccess('siswa', 'manual') && <button className="btn btn-sm btn-primary" onClick={() => setShowTambah(true)}>+ Tambah Siswa</button>}
           {canAccess('siswa', 'excel') && <button className="btn btn-sm" onClick={() => setShowUpload(true)}>📊 Upload Excel</button>}
-          <button className="btn btn-sm" onClick={() => exportToExcel(exportHeaders, rows, 'Data Siswa', 'Data Siswa - MI Ikhlasiyah')} disabled={rows.length === 0}>📊 Excel</button>
+          <button className="btn btn-sm" onClick={() => exportToExcel(exportHeaders, rows, 'Data Siswa', `Data Siswa - ${APP_NAME}`)} disabled={rows.length === 0}>📊 Excel</button>
           <button className="btn btn-sm" onClick={handlePrint} disabled={rows.length === 0}>🖨️ PDF</button>
           <button className="btn btn-sm" onClick={load} disabled={loading}>{loading ? 'Memuat...' : '↻ Muat Ulang'}</button>
         </div>

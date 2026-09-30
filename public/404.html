@@ -2,12 +2,12 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>SPP & Sarpras — MI Ikhlasiyah</title>
+  <title>Siskom Qudwah</title>
   <script>
-    // Trik standar SPA di GitHub Pages, disesuaikan utk repo project (base path /spp/).
-    // Ubah path biasa (mis. /spp/tunggakan) jadi rute hash (/spp/#/tunggakan)
+    // Trik standar SPA di GitHub Pages, disesuaikan utk repo project (base path /sitqudwah/).
+    // Ubah path biasa (mis. /sitqudwah/tunggakan) jadi rute hash (/sitqudwah/#/tunggakan)
     // lalu redirect balik ke index.html di dalam base path yang sama.
-    var BASE = '/spp/';
+    var BASE = '/sitqudwah/'; // HARUS sama dgn `base` di vite.config.js
     var full = location.pathname + location.search;
     var rest = full.indexOf(BASE) === 0 ? full.slice(BASE.length) : full.replace(/^\/+/, '');
     location.replace(BASE + '#/' + rest);

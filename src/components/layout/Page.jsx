@@ -1,8 +1,11 @@
+import { useEffect } from 'react';
 import Topbar from './Topbar';
+import { APP_NAME } from '../../config/appInfo';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Page({ pageId, title, path, children }) {
   const { canAccess } = useAuth();
+  useEffect(() => { document.title = title ? `${title} · ${APP_NAME}` : APP_NAME; }, [title]);
 
   if (!canAccess(pageId)) {
     return (

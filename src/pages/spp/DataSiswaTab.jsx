@@ -7,6 +7,7 @@ import { shareCardAsImage } from '../../utils/shareCardImage';
 import { bulanTahunAjaran } from '../../db/laporanHelpers';
 import { nominalEfektifTagihan } from '../../db/beasiswaFields';
 import { kelasRombelPadaTahun } from '../../db/riwayatAkademikFields';
+import { APP_NAME } from '../../config/appInfo';
 
 function formatRupiah(n) {
   return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
@@ -396,7 +397,7 @@ export default function DataSiswaTab() {
             const kondisiTahunItu = kelasRombelPadaTahun(selected.nisn, ta, riwayatAkademik, { kelasTingkat: selected.kelasTingkat, rombel: selected.rombel });
             return (
               <TahunSection
-                key={ta} namaSekolah={profilSekolah?.nama || 'MI Ikhlasiyah'} namaSiswa={selected.nama}
+                key={ta} namaSekolah={profilSekolah?.nama || APP_NAME} namaSiswa={selected.nama}
                 kelasLabel={kondisiTahunItu.kelasTingkat ? `Kelas ${kondisiTahunItu.kelasTingkat}` : '-'}
                 rombelLabel={kondisiTahunItu.rombel || 'Rombel belum ditentukan'}
                 tahunAjaran={ta} items={items} defaultOpen={idx === 0}

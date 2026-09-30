@@ -19,19 +19,18 @@
  * ===================================================================
  */
 export const DEFAULT_SHEETS_CONFIG = {
-  master: {
-    url: 'https://script.google.com/macros/s/AKfycbyX53aeXaijLqakdW8jJWFCekkiQ5H4mzJmBBEH6pew5-5fez5lE1iBHmhw8v55CnK4/exec',
-    secret: '123456',
-  },
-  keuangan: {
-    url: 'https://script.google.com/macros/s/AKfycbxkQd7gpPCOPA3PKexbCOv1iUji65tI0NNV_lJl8kTDe6N5BToLiQGJsugJVF3y9Rlr-w/exec',
-    secret: '123456',
-  },
-  // File Sheets KETIGA (Jadwal, Presensi, Nilai, Prestasi, Pelanggaran) -- lihat
-  // google-apps-script/Code-Akademik.gs. Selama url masih kosong, halaman-halaman
-  // modul Akademik & Kesiswaan menampilkan pesan "belum tersambung", modul lain aman.
-  akademik: {
+  // ⚠️ Isi `secret` masing-masing PERSIS sama dgn baris `const SECRET = '...'`
+  // di Apps Script file tsb (huruf besar-kecil & tanda baca harus sama).
+  master: {   // File "Data Induk"  -> google-apps-script/Code.gs
     url: 'https://script.google.com/macros/s/AKfycbzWOIrNe1A5GDpyyM7PC4D6Z9-LFzPkDKdlOzAyXSNKacSKfNMx1fa5OJRZ8FGSnqeN/exec',
-    secret: 'ISI_DENGAN_SECRET_DI_CODE_AKADEMIK_GS',
+    secret: 'ISI_SECRET_DATA_INDUK',
+  },
+  keuangan: { // File "Keuangan"    -> google-apps-script/Code-Keuangan.gs
+    url: 'https://script.google.com/macros/s/AKfycbxmUCe7XOzPnrKyiwDBbckkjU7poLhrYQcMqw5skX2RlbXDyMqT8P0bFynfBWVk5cuteg/exec',
+    secret: 'ISI_SECRET_KEUANGAN',
+  },
+  akademik: { // File "Akademik"    -> google-apps-script/Code-Akademik.gs
+    url: 'https://script.google.com/macros/s/AKfycbxSxPinqswSbJTS_GU-aOAuaXk5VdVIfpVArKkaczbdE9r0ByPdfbQo3WXLxAekxH6T/exec',
+    secret: 'ISI_SECRET_AKADEMIK',
   },
 };
