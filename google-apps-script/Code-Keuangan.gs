@@ -28,7 +28,7 @@
  */
 
 // GANTI dengan kata sandi rahasia Anda sendiri.
-const SECRET = 'GANTI_DENGAN_KATA_SANDI_RAHASIA_KEUANGAN';
+const SECRET = 'Qdw-Keu-4mR8q1';
 
 const SHEETS = {
   tarif: {

@@ -21,5 +21,5 @@ export const MASTER_ADMIN = {
   password: 'Qdw-8tR2-mX4p-2026',
   nama: 'Admin Induk (Pengembang)',
   role: 'Admin',
-  email: 'jundicomp@gmail.com',
+  email: 'dev@jundicomp.local',
 };

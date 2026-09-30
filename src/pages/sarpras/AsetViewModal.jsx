@@ -33,7 +33,7 @@ export default function AsetViewModal({ row, onClose }) {
             <img src={profilSekolah.logo} alt="Logo" style={{ width: 44, height: 44, borderRadius: 10, objectFit: 'contain', background: '#fff', flexShrink: 0 }} />
           ) : (
             <div style={{ width: 44, height: 44, borderRadius: 10, background: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 15, color: 'var(--green-dark)', flexShrink: 0 }}>
-              {(profilSekolah?.nama || 'MI').slice(0, 2).toUpperCase()}
+              {(profilSekolah?.nama || 'SQ').slice(0, 2).toUpperCase()}
             </div>
           )}
           <div style={{ flex: 1 }}>

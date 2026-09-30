@@ -42,7 +42,7 @@
  * ===================================================================
  */
 
-const SECRET = 'GANTI_DENGAN_KATA_SANDI_RAHASIA_AKADEMIK';
+const SECRET = 'Qdw-Akd-9tW3z6';
 
 const SHEETS = {
   jadwal: {

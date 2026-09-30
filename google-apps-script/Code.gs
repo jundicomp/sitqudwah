@@ -29,7 +29,7 @@
  */
 
 // GANTI dengan kata sandi rahasia Anda sendiri (bebas, jangan dibagikan ke publik).
-const SECRET = 'GANTI_DENGAN_KATA_SANDI_RAHASIA_ANDA';
+const SECRET = 'Qdw-Induk-7kP2x9';
 
 const SHEETS = {
   siswa: {

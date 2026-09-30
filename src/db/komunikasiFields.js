@@ -46,9 +46,9 @@ export function nomorSuratBerikutnya(surat, tanggal, kodeKlas, kodeInstansi) {
   const urut = surat.filter(x => x.jenis === 'Keluar' && x.tanggal.slice(0, 4) === tahun)
     .reduce((m, x) => { const n = Number((x.nomor.match(/^(\d+)/) || [])[1]); return n > m ? n : m; }, 0) + 1;
   const klas = String(kodeKlas || '').split(' ')[0] || 'TU';
-  return `${String(urut).padStart(3, '0')}/${klas}/${kodeInstansi || 'MI'}/${ROMAWI[Number(tanggal.slice(5, 7)) - 1]}/${tahun}`;
+  return `${String(urut).padStart(3, '0')}/${klas}/${kodeInstansi || 'SQ'}/${ROMAWI[Number(tanggal.slice(5, 7)) - 1]}/${tahun}`;
 }
 export function kodeInstansiDari(namaSekolah) {
-  const kata = String(namaSekolah || 'MI').split(/\s+/).filter(Boolean);
+  const kata = String(namaSekolah || 'SQ').split(/\s+/).filter(Boolean);
   return kata.length > 1 ? `${kata[0].toUpperCase()}.${kata.slice(1).map(k => k.slice(0, 3).toUpperCase()).join('')}` : kata[0].toUpperCase();
 }

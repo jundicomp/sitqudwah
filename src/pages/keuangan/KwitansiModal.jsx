@@ -28,7 +28,7 @@ export default function KwitansiModal({ pembayaran, onClose }) {
           ) : (
             <svg width="46" height="46" viewBox="0 0 48 48" style={{ flexShrink: 0 }}>
               <circle cx="24" cy="24" r="21" fill="#1C7A3C" />
-              <text x="24" y="25" textAnchor="middle" dominantBaseline="central" fontFamily="Arial, sans-serif" fontSize="16" fontWeight="800" fill="#F0B429">MI</text>
+              <text x="24" y="25" textAnchor="middle" dominantBaseline="central" fontFamily="Arial, sans-serif" fontSize="16" fontWeight="800" fill="#F0B429">SQ</text>
             </svg>
           )}
           <div style={{ textAlign: 'center', flex: 1 }}>

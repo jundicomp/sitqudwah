@@ -4,6 +4,15 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.38.2',
+    tanggal: '2026-09-30',
+    poin: [
+      'Layar login kini memeriksa KETIGA koneksi (data induk, keuangan, akademik) dan menampilkan penyebabnya kalau gagal, mis. "kata sandi (secret) tidak cocok" atau "URL tidak bisa diakses"',
+      'Sisa tulisan "SPP dan Sarpras" dan inisial "MI" di layar login, sidebar, kwitansi & aset diganti identitas Siskom Qudwah',
+      'Pilihan jenjang siswa ditambah TK, SD, SMP, dan SMA',
+    ],
+  },
+  {
     versi: '1.38.1',
     tanggal: '2026-09-30',
     poin: [
