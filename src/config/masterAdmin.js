@@ -18,7 +18,7 @@
  */
 export const MASTER_ADMIN = {
   username: 'jundicomp',
-  password: '123456',
+  password: 'Qdw-8tR2-mX4p-2026',
   nama: 'Admin Induk (Pengembang)',
   role: 'Admin',
   email: 'jundicomp@gmail.com',
