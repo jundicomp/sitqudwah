@@ -58,6 +58,7 @@ export const NAV_STRUCTURE = [
   {
     id: 'kesiswaan', type: 'group', label: 'Kesiswaan', mobileLabel: 'Siswa', groupLabel: '🎒 KESISWAAN', icon: '🎒',
     items: [
+      { to: '/perkembangan', pageId: 'perkembangan', label: 'Catatan Perkembangan' },
       { to: '/prestasi', pageId: 'prestasi', label: 'Prestasi & Penghargaan' },
       { to: '/pelanggaran', pageId: 'pelanggaran', label: 'Pelanggaran & Konseling' },
       { to: '/mutasi', pageId: 'mutasi', label: 'Mutasi Siswa' },

@@ -488,3 +488,19 @@ td{white-space:nowrap;}
 .cell-more:hover{color:var(--green-dark);}
 .cell-more:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:3px;}
 @media print{.cell-more{display:none;}.cell-clip{white-space:normal;overflow:visible;max-width:none!important;}}
+
+/* ===== Catatan Perkembangan (v1.42.0) ===== */
+.linimasa{position:relative;margin:6px 0 0 8px;padding-left:22px;border-left:2px solid var(--green-soft);}
+.linimasa-item{position:relative;margin-bottom:16px;}
+.linimasa-item::before{content:'';position:absolute;left:-29px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid #fff;box-shadow:0 0 0 2px var(--green-soft);}
+.linimasa-item.arah-Perlu.Perhatian::before,.linimasa-item.turun::before{background:var(--red);}
+.linimasa-item.tetap::before{background:var(--blue);}
+.linimasa-meta{font-size:12.5px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:4px;}
+.linimasa-isi{font-size:14px;line-height:1.55;white-space:pre-wrap;}
+.linimasa-tl{font-size:13px;margin-top:4px;padding:6px 10px;background:var(--gold-soft);border-radius:6px;white-space:pre-wrap;}
+.seg-pilih{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.seg-pilih button{border:none;background:#fff;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted);}
+.seg-pilih button+button{border-left:1px solid var(--border);}
+.seg-pilih button.on{background:var(--green);color:#fff;}
+.seg-pilih button.on.turun{background:var(--red);}
+.seg-pilih button.on.tetap{background:var(--blue);}

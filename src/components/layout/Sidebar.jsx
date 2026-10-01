@@ -111,6 +111,7 @@ export default function Sidebar() {
         </NavGroup>
 
         <NavGroup id="kesiswaan" label="🎒 KESISWAAN" open={openGroups.kesiswaan} onToggle={toggle}>
+          <Item to="/perkembangan" canAccess={canAccess('perkembangan')}>Catatan Perkembangan</Item>
           <Item to="/prestasi" canAccess={canAccess('prestasi')}>Prestasi &amp; Penghargaan</Item>
           <Item to="/pelanggaran" canAccess={canAccess('pelanggaran')}>Pelanggaran &amp; Konseling</Item>
           <Item to="/mutasi" canAccess={canAccess('mutasi')}>Mutasi Siswa</Item>

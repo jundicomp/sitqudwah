@@ -69,7 +69,8 @@ function DokumenRapor({ id, d }) {
 }
 
 function RaporModal({ baris, ta, semester, rombel, onClose }) {
-  const { refreshRapor, toast } = useAppData();
+  const { refreshRapor, toast, perkembangan } = useAppData();
+  const catatanSemester = perkembangan.filter(x => x.nisn === baris.siswa.nisn && x.tahunAjaran === ta && x.semester === semester).sort((a, b) => a.tanggal.localeCompare(b.tanggal));
   const { currentUser } = useAuth();
   const awal = baris.rapor;
   const [form, setForm] = useState(() => ({
@@ -150,6 +151,13 @@ function RaporModal({ baris, ta, semester, rombel, onClose }) {
             <div className="field"><label>Izin (hari)</label><input type="number" min="0" value={form.izin} onChange={e => set('izin', e.target.value)} /></div>
             <div className="field"><label>Tanpa keterangan (hari)</label><input type="number" min="0" value={form.alpha} onChange={e => set('alpha', e.target.value)} /></div>
             <div className="field"><label>Status</label><select value={form.status} onChange={e => set('status', e.target.value)}>{STATUS_RAPOR_OPTIONS.map(o => <option key={o}>{o}</option>)}</select></div>
+            {catatanSemester.length > 0 && (
+              <div className="field span2"><label>Catatan perkembangan semester ini ({catatanSemester.length}) — bahan menulis catatan wali kelas</label>
+                <ul className="warn-list" style={{ maxHeight: 140, overflowY: 'auto', background: 'var(--green-soft)', borderRadius: 8, padding: '8px 12px 8px 26px', margin: 0 }}>
+                  {catatanSemester.map(x => <li key={x.id}><b>{x.aspek}</b>{x.arah ? ` (${x.arah})` : ''}: {x.catatan}</li>)}
+                </ul>
+              </div>
+            )}
             <div className="field span2"><label>Catatan Wali Kelas</label><textarea rows={3} value={form.catatan} onChange={e => set('catatan', e.target.value)} /></div>
           </div>
           <p style={{ fontSize: 12.5, color: 'var(--muted)', marginBottom: 0 }}>

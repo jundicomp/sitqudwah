@@ -33,6 +33,7 @@
  *   pengaturanPresensi -> "Pengaturan Presensi" (v1.35.0)
  *   buku, sirkulasi, dendaPerpus, reservasiBuku, pengaturanPerpus -> Perpustakaan (v1.37.0)
  *   akreditasi, semester, mutasi, pengumuman, surat -> (v1.38.0)
+ *   perkembangan, aspekPerkembangan -> Catatan Perkembangan Siswa (v1.42.0)
  *
  * Beda dgn Code.gs / Code-Keuangan.gs:
  * - Nomor "No" baru = No TERBESAR + 1 (bukan getLastRow()). Versi lama bisa
@@ -163,6 +164,18 @@ const SHEETS = {
     name: 'Surat Menyurat',
     headers: ['No', 'Jenis', 'Nomor Surat', 'Tanggal Surat', 'Tanggal Diterima / Dikirim', 'Pengirim / Tujuan', 'Perihal', 'Kode Klasifikasi', 'Sifat', 'Disposisi', 'Status', 'Tautan Berkas', 'Keterangan', 'Dicatat Oleh'],
     textColumns: ['Nomor Surat', 'Kode Klasifikasi'],
+  },
+  perkembangan: {
+    name: 'Catatan Perkembangan',
+    // "No Kasus" = No baris di tab "Pelanggaran & Konseling" (opsional) -- utk catatan
+    // tindak lanjut pembinaan sebuah kasus.
+    headers: ['No', 'Tanggal', 'NISN', 'Nama Siswa', 'Tingkat', 'Rombel', 'Aspek', 'Catatan', 'Arah', 'Tindak Lanjut', 'No Kasus', 'Tahun Ajaran', 'Semester', 'Dicatat Oleh'],
+    textColumns: ['NISN', 'Tingkat', 'Tahun Ajaran', 'Catatan', 'Tindak Lanjut'],
+  },
+  aspekPerkembangan: {
+    name: 'Aspek Perkembangan',
+    // Daftar kategori aspek yg dikelola admin dari aplikasi (urutan baris = urutan tampil).
+    headers: ['No', 'Nama', 'Keterangan', 'Aktif'],
   },
   kinerja: {
     name: 'Penilaian Kinerja',

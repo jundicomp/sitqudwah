@@ -43,6 +43,9 @@ Dipakai modul Jadwal Pelajaran, Presensi Siswa, Nilai Akademik, Prestasi, Pelang
 
 Beda dari dua script lama: nomor `No` baru dihitung dari No terbesar + 1 (bukan jumlah baris), jadi tidak bisa kembar setelah ada baris yang dihapus, dan ada aksi `bulkUpsert` untuk presensi/nilai supaya simpan ulang tidak menggandakan data.
 
+### Update ke v1.42.0 — Code-Akademik.gs
+Tempel ulang `Code-Akademik.gs` terbaru ke Apps Script file Akademik → Deploy → Manage deployments → New version. Menambah tab "Catatan Perkembangan" dan "Aspek Perkembangan". Sebelum diperbarui, menu Catatan Perkembangan tampil tapi catatan & aspek belum bisa disimpan.
+
 ### Update ke v1.40.0 — Code.gs (Data Induk)
 Tempel ulang `Code.gs` terbaru ke Apps Script file Data Induk → Deploy → Manage deployments → New version. Menambah tab "Jenjang & Tingkat". Sebelum diperbarui, aplikasi tetap jalan dgn jenjang bawaan (TK, SD, SMP, SMA), tapi daftar jenjang belum bisa disimpan.
 

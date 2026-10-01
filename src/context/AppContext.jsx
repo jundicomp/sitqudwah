@@ -17,6 +17,7 @@ import { normalizeSheetRiwayatAkademik } from '../db/riwayatAkademikFields';
 import { normalizeSheetJadwal, normalizeSheetPresensi, normalizeSheetNilai, normalizeSheetPrestasi, normalizeSheetPelanggaran } from '../db/akademikFields';
 import { normalizeSheetPresensiGuru, normalizeSheetKinerja, normalizeSheetPelatihan } from '../db/kepegawaianFields';
 import { setJenjang, normalizeSheetJenjang, jenjangDariSheets } from '../config/jenjang';
+import { normalizeSheetPerkembangan, normalizeSheetAspek, ASPEK_BAWAAN } from '../db/perkembanganFields';
 import { normalizeSheetAkreditasi, normalizeSheetSemester, normalizeSheetMutasi, normalizeSheetPengumuman, normalizeSheetSurat, setPeriodeSemester } from '../db/komunikasiFields';
 import { normalizeSheetBuku, normalizeSheetSirkulasi, normalizeSheetDendaPerpus, normalizeSheetReservasi } from '../db/perpusFields';
 import { normalizeSheetKkm, normalizeSheetAgenda, normalizeSheetBankSoal, normalizeSheetUjian, normalizeSheetRapor } from '../db/akademikLanjutanFields';
@@ -31,6 +32,7 @@ import {
   fetchJadwalFromSheet, fetchPresensiFromSheet, fetchNilaiFromSheet, fetchPrestasiFromSheet, fetchPelanggaranFromSheet,
   fetchPresensiGuruFromSheet, fetchKinerjaFromSheet, fetchPelatihanFromSheet, fetchPengaturanPresensiFromSheet,
   fetchJenjangFromSheet,
+  perkembanganApi, fetchAspekPerkembanganFromSheet,
   akreditasiApi, semesterApi, mutasiApi, pengumumanApi, suratApi,
   fetchBukuFromSheet, fetchSirkulasiFromSheet, fetchDendaPerpusFromSheet, fetchReservasiFromSheet, fetchPengaturanPerpusFromSheet,
   fetchKkmFromSheet, fetchAgendaFromSheet, fetchBankSoalFromSheet, fetchUjianFromSheet, fetchRaporFromSheet,
@@ -76,6 +78,7 @@ const HAK_AKSES_PAGES = [
   { id: 'denda-perpus', label: 'Denda & Keterlambatan', grup: 'Perpustakaan' },
   { id: 'reservasi-buku', label: 'Reservasi Buku', grup: 'Perpustakaan' },
   { id: 'laporan-perpus', label: 'Laporan Sirkulasi', grup: 'Perpustakaan' },
+  { id: 'perkembangan', label: 'Catatan Perkembangan', grup: 'Kesiswaan' },
   { id: 'pengumuman', label: 'Pengumuman', grup: 'Komunikasi' },
   { id: 'surat', label: 'Surat Menyurat', grup: 'Komunikasi' },
   { id: 'mutasi', label: 'Mutasi Siswa', grup: 'Kesiswaan' },
@@ -226,6 +229,12 @@ const HAK_AKSES_TABS = {
   'reservasi-buku': [
     { id: 'daftar', label: 'Daftar Reservasi' },
     { id: 'tambah', label: 'Buat Reservasi' },
+  ],
+  perkembangan: [
+    { id: 'linimasa', label: 'Linimasa Siswa' },
+    { id: 'daftar', label: 'Semua Catatan' },
+    { id: 'catat', label: 'Catat Perkembangan' },
+    { id: 'aspek', label: 'Kategori Aspek' },
   ],
   pengumuman: [
     { id: 'papan', label: 'Papan Pengumuman' },
@@ -464,6 +473,8 @@ export function AppProvider({ children }) {
   const pelatihanRes = useSheetResource(fetchPelatihanFromSheet, normalizeSheetPelatihan, 'akademik', defer);
   const pengaturanPresensiRes = useSheetResource(fetchPengaturanPresensiFromSheet, null, 'akademik', defer);
   const jenjangRes = useSheetResource(fetchJenjangFromSheet, normalizeSheetJenjang, 'master', defer);
+  const perkembanganRes = useSheetResource(perkembanganApi.fetch, normalizeSheetPerkembangan, 'akademik', defer);
+  const aspekRes = useSheetResource(fetchAspekPerkembanganFromSheet, normalizeSheetAspek, 'akademik', defer);
   const akreditasiRes = useSheetResource(akreditasiApi.fetch, normalizeSheetAkreditasi, 'akademik', defer);
   const semesterRes = useSheetResource(semesterApi.fetch, normalizeSheetSemester, 'akademik', defer);
   const mutasiRes = useSheetResource(mutasiApi.fetch, normalizeSheetMutasi, 'akademik', defer);
@@ -577,6 +588,8 @@ export function AppProvider({ children }) {
       kkmRes.setFromBatch(semua.kkm || []);
       bukuRes.setFromBatch(semua.buku || []);
       akreditasiRes.setFromBatch(semua.akreditasi || []);
+      perkembanganRes.setFromBatch(semua.perkembangan || []);
+      aspekRes.setFromBatch(semua.aspekPerkembangan || []);
       semesterRes.setFromBatch(semua.semester || []);
       mutasiRes.setFromBatch(semua.mutasi || []);
       pengumumanRes.setFromBatch(semua.pengumuman || []);
@@ -596,6 +609,7 @@ export function AppProvider({ children }) {
     } catch (err) {
       if (!withFallback) return;
       jadwalRes.refresh(); presensiRes.refresh(); nilaiRes.refresh(); prestasiRes.refresh(); pelanggaranRes.refresh();
+      perkembanganRes.refresh(); aspekRes.refresh();
       akreditasiRes.refresh(); semesterRes.refresh(); mutasiRes.refresh(); pengumumanRes.refresh(); suratRes.refresh();
       bukuRes.refresh(); sirkulasiRes.refresh(); dendaPerpusRes.refresh(); reservasiRes.refresh(); pengaturanPerpusRes.refresh();
       presensiGuruRes.refresh(); pengaturanPresensiRes.refresh(); kinerjaRes.refresh(); pelatihanRes.refresh();
@@ -611,6 +625,10 @@ export function AppProvider({ children }) {
     setJenjang(list);
     return list;
   }, [jenjangRes.data]);
+
+  // Aspek perkembangan: daftar milik sekolah, atau bawaan kalau belum pernah disimpan.
+  const aspekTersimpan = useMemo(() => (aspekRes.data || []).filter(Boolean), [aspekRes.data]);
+  const aspekSemua = aspekTersimpan.length ? aspekTersimpan : ASPEK_BAWAAN;
 
   // Periode semester (kalau diatur) dipakai semua modul lewat semesterDariTanggal().
   useEffect(() => { setPeriodeSemester(semesterRes.data); }, [semesterRes.data]);
@@ -726,6 +744,8 @@ export function AppProvider({ children }) {
     kinerja: kinerjaRes.data, kinerjaLoaded: kinerjaRes.loaded, refreshKinerja: kinerjaRes.refresh,
     pelatihan: pelatihanRes.data, pelatihanLoaded: pelatihanRes.loaded, refreshPelatihan: pelatihanRes.refresh,
     pengaturanPresensiRows: pengaturanPresensiRes.data, refreshPengaturanPresensi: pengaturanPresensiRes.refresh,
+    perkembangan: perkembanganRes.data, refreshPerkembangan: perkembanganRes.refresh,
+    aspekSemua, aspekAktif: aspekSemua.filter(a => a.aktif), aspekDariSheets: aspekTersimpan.length > 0, refreshAspek: aspekRes.refresh,
     jenjangList, jenjangTersimpan: jenjangDariSheets(), refreshJenjang: jenjangRes.refresh,
     akreditasi: akreditasiRes.data, refreshAkreditasi: akreditasiRes.refresh,
     periodeSemester: semesterRes.data, refreshSemester: semesterRes.refresh,

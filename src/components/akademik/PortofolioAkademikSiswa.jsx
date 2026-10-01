@@ -9,7 +9,7 @@ const judul = { fontSize: 11.5, fontWeight: 700, textTransform: 'uppercase', col
 // Bagian akademik & kesiswaan di Portofolio Siswa (v1.38.0): rekap per semester, prestasi,
 // pelanggaran, rapor, mutasi, dan peminjaman buku. Semua dari data yg sudah ada.
 export default function PortofolioAkademikSiswa({ nisn }) {
-  const { nilai, presensi, prestasi, pelanggaran, rapor, mutasi, sirkulasi } = useAppData();
+  const { nilai, presensi, prestasi, pelanggaran, rapor, mutasi, sirkulasi, perkembangan } = useAppData();
   const d = useMemo(() => {
     const nil = nilai.filter(n => n.nisn === nisn && n.nilai !== null);
     const pres = presensi.filter(p => p.nisn === nisn);
@@ -28,9 +28,10 @@ export default function PortofolioAkademikSiswa({ nisn }) {
       semester, hadir, totalPres: pres.length, telat: pres.filter(p => p.menitTerlambat > 0).length,
       prestasi: prestasi.filter(p => p.nisn === nisn).sort((a, b) => b.tanggal.localeCompare(a.tanggal)),
       pelanggaran: pelanggaran.filter(p => p.nisn === nisn).sort((a, b) => b.tanggal.localeCompare(a.tanggal)),
+      perkembangan: perkembangan.filter(x => x.nisn === nisn).sort((a, b) => b.tanggal.localeCompare(a.tanggal)),
       mutasi: mutasi.filter(m => m.nisn === nisn), pinjam: sirkulasi.filter(x => x.kodeAnggota === `S:${nisn}`).length,
     };
-  }, [nisn, nilai, presensi, prestasi, pelanggaran, rapor, mutasi, sirkulasi]);
+  }, [nisn, nilai, presensi, prestasi, pelanggaran, rapor, mutasi, sirkulasi, perkembangan]);
 
   if (!nisn) return <p style={{ fontSize: 13, color: 'var(--muted)' }}>Siswa ini belum punya NISN, data akademik tidak bisa ditautkan.</p>;
   return (
@@ -55,6 +56,11 @@ export default function PortofolioAkademikSiswa({ nisn }) {
       <div style={judul}>Catatan Pelanggaran ({d.pelanggaran.length}{d.pelanggaran.length ? `, ${d.pelanggaran.reduce((a, p) => a + p.poin, 0)} poin` : ''})</div>
       {!d.pelanggaran.length ? <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>Tidak ada.</p> : (
         <ul className="warn-list">{d.pelanggaran.map(p => <li key={p.id}>{formatTanggalAngka(p.tanggal)}: {p.jenis} ({p.kategori}, {p.poin} poin, {p.statusTL})</li>)}</ul>
+      )}
+      <div style={judul}>Catatan Perkembangan ({d.perkembangan.length})</div>
+      {!d.perkembangan.length ? <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>Belum ada.</p> : (
+        <ul className="warn-list">{d.perkembangan.slice(0, 6).map(x => <li key={x.id}>{formatTanggalAngka(x.tanggal)} · <b>{x.aspek}</b>{x.arah ? ` (${x.arah})` : ''}: {x.catatan}</li>)}
+          {d.perkembangan.length > 6 && <li style={{ color: 'var(--muted)' }}>…dan {d.perkembangan.length - 6} catatan lain di menu Catatan Perkembangan.</li>}</ul>
       )}
       {d.mutasi.length > 0 && (<>
         <div style={judul}>Mutasi</div>

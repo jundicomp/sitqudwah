@@ -4,6 +4,17 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.42.0',
+    tanggal: '2026-10-01',
+    poin: [
+      'MENU BARU -- Kesiswaan › "Catatan Perkembangan": catat pengamatan perkembangan siswa dari waktu ke waktu (aspek, arah Membaik / Tetap / Perlu Perhatian, rencana tindak lanjut). Bisa ditulis oleh wali kelas, guru mapel, maupun guru BK',
+      'Linimasa per siswa: semua catatan satu anak berurutan, lengkap dgn ringkasan arah terakhir tiap aspek, sehingga terlihat polanya membaik atau menurun',
+      'Kategori aspek diatur sendiri oleh sekolah lewat tab "Kategori Aspek" (tombol + Tambah, urutkan, nonaktifkan). Aspek yang sudah dipakai catatan tidak bisa dihapus atau diganti namanya',
+      'Catatan bisa ditautkan sbg tindak lanjut sebuah kasus pelanggaran; daftar Pelanggaran & Konseling menandai kasus yang sudah punya catatan lanjutan',
+      'Catatan perkembangan semester berjalan ikut tampil di Rapor Digital (membantu wali kelas menulis catatan) dan di Portofolio Siswa',
+    ],
+  },
+  {
     versi: '1.41.0',
     tanggal: '2026-10-01',
     poin: [

@@ -27,7 +27,8 @@ function lengkapiPoin(row) {
 }
 
 export default function Pelanggaran() {
-  const { pelanggaran, refreshPelanggaran } = useAppData();
+  const { pelanggaran, perkembangan, refreshPelanggaran } = useAppData();
+  const tindakLanjutPerKasus = useMemo(() => perkembangan.reduce((m, x) => { if (x.noKasus) m[x.noKasus] = (m[x.noKasus] || 0) + 1; return m; }, {}), [perkembangan]);
   const { tab, setTab, bolehTab } = useTabAccess('pelanggaran', TABS.map(t => t.id));
   const { tahunAjaranOptions, taAktif, siswaOptions, guruOptions, withKelasVirtual, fromSiswaVirtual } = useAkademikOptions();
 
@@ -103,7 +104,12 @@ export default function Pelanggaran() {
               target="akademik"
               columnRenderers={{
                 Kategori: r => <span className={`badge ${BADGE_KATEGORI[r.Kategori] || 'badge-muted'}`}>{r.Kategori}</span>,
-                'Status Tindak Lanjut': r => <span className={`badge ${BADGE_STATUS[r['Status Tindak Lanjut']] || 'badge-muted'}`}>{r['Status Tindak Lanjut']}</span>,
+                'Status Tindak Lanjut': r => (
+                  <>
+                    <span className={`badge ${BADGE_STATUS[r['Status Tindak Lanjut']] || 'badge-muted'}`}>{r['Status Tindak Lanjut']}</span>
+                    {tindakLanjutPerKasus[String(r.No)] > 0 && <span className="badge badge-blue" style={{ marginLeft: 4 }} title="Jumlah catatan perkembangan yang menindaklanjuti kasus ini">📝 {tindakLanjutPerKasus[String(r.No)]}</span>}
+                  </>
+                ),
               }}
               searchFn={(r, t) => `${r['Nama Siswa']} ${r['Jenis Pelanggaran']} ${r.Kelas} ${r['Status Tindak Lanjut']}`.toLowerCase().includes(t)}
               onChanged={refreshPelanggaran}

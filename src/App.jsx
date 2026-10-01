@@ -34,6 +34,7 @@ import NilaiAkademik from './pages/akademik/NilaiAkademik';
 import Prestasi from './pages/kesiswaan/Prestasi';
 import Pelanggaran from './pages/kesiswaan/Pelanggaran';
 import LaporanSiswa from './pages/kesiswaan/LaporanSiswa';
+import CatatanPerkembangan from './pages/kesiswaan/CatatanPerkembangan';
 import Pengumuman from './pages/komunikasi/Pengumuman';
 import SuratMenyurat from './pages/komunikasi/SuratMenyurat';
 import MutasiSiswa from './pages/kesiswaan/MutasiSiswa';
@@ -99,6 +100,7 @@ function Gate() {
         <Route path="/kkm" element={<KurikulumKkm />} />
         <Route path="/rapor" element={<RaporDigital />} />
         <Route path="/bank-soal" element={<BankSoalUjian />} />
+        <Route path="/perkembangan" element={<CatatanPerkembangan />} />
         <Route path="/pengumuman" element={<Pengumuman />} />
         <Route path="/surat" element={<SuratMenyurat />} />
         <Route path="/mutasi" element={<MutasiSiswa />} />

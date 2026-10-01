@@ -455,3 +455,8 @@ export async function replaceAllInSheet(sheetName, rows, target) {
 // ---- Jenjang & Tingkat (v1.40.0) -- di file Data Induk ----
 export const fetchJenjangFromSheet = () => fetchFromSheet('jenjang');
 export const simpanJenjangKeSheet = (rows) => replaceAllInSheet('jenjang', rows, 'master');
+
+// ---- Catatan Perkembangan Siswa (v1.42.0) ----
+export const perkembanganApi = crudAkademik('perkembangan');
+export const fetchAspekPerkembanganFromSheet = () => fetchFromSheet('aspekPerkembangan', 'akademik');
+export const simpanAspekPerkembanganKeSheet = (rows) => replaceAllInSheet('aspekPerkembangan', rows, 'akademik');
