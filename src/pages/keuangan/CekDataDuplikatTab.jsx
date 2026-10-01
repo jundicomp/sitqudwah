@@ -1,3 +1,4 @@
+import ClipCell from '../../components/common/ClipCell';
 import { tarifBerlakuUntuk } from '../../db/tarifFields';
 import { useMemo, useState, Fragment } from 'react';
 import { useAppData } from '../../context/AppContext';
@@ -536,7 +537,7 @@ export default function CekDataDuplikatTab() {
                     <Fragment key={k.kunci}>
                       <tr>
                         <td>{k.namaSiswa}</td>
-                        <td>{k.labelTagihan}</td>
+                        <td><ClipCell value={k.labelTagihan} maxWidth={240} /></td>
                         <td>{formatRupiah(k.nominal)}</td>
                         <td>{k.tanggalBayar}</td>
                         <td>{k.metode}</td>
@@ -605,7 +606,7 @@ export default function CekDataDuplikatTab() {
                   <tr key={`${t.refType}-${t.no}`}>
                     <td>{t.nisn}</td>
                     <td>{t.namaSiswa}</td>
-                    <td>{t.label}</td>
+                    <td><ClipCell value={t.label} maxWidth={240} /></td>
                     <td>Kelas {t.kelasSiswaSekarang}</td>
                     <td>Kelas {t.kelasSeharusnya}</td>
                     <td>

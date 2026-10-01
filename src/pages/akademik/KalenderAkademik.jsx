@@ -1,3 +1,4 @@
+import ClipCell from '../../components/common/ClipCell';
 import { useCallback, useMemo, useState } from 'react';
 import Page from '../../components/layout/Page';
 import useTabAccess from '../../hooks/useTabAccess';
@@ -94,7 +95,7 @@ function KalenderBulanan() {
               {bulanIni.map(a => (
                 <tr key={a.id}>
                   <td style={{ whiteSpace: 'nowrap' }}>{rentangTeks(a)}</td>
-                  <td><b>{a.judul}</b>{a.keterangan && <div style={{ fontSize: 12, color: 'var(--muted)' }}>{a.keterangan}</div>}</td>
+                  <td><b><ClipCell value={a.judul} maxWidth={280} /></b>{a.keterangan && <div style={{ fontSize: 12, color: 'var(--muted)' }}><ClipCell value={a.keterangan} maxWidth={280} /></div>}</td>
                   <td><span className="badge badge-muted" style={{ borderLeft: `3px solid ${WARNA_AGENDA[a.kategori]}` }}>{a.kategori}</span></td>
                   <td>{a.cakupan}</td>
                 </tr>

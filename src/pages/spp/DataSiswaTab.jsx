@@ -1,3 +1,4 @@
+import ClipCell from '../../components/common/ClipCell';
 import { useMemo, useRef, useState } from 'react';
 import { useAppData } from '../../context/AppContext';
 import { statusTagihan } from '../../db/tagihanHelpers';
@@ -177,7 +178,7 @@ function TahunSection({ namaSekolah, namaSiswa, kelasLabel, rombelLabel, tahunAj
               rows={lain}
               renderBaris={(t) => (
                 <tr key={t.id}>
-                  <td>{t.label}</td>
+                  <td><ClipCell value={t.label} maxWidth={240} /></td>
                   <td style={{ textAlign: 'right' }}>
                     {t.potonganBeasiswa ? (
                       <>

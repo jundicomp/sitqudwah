@@ -1,3 +1,4 @@
+import ClipCell from '../../components/common/ClipCell';
 import { useMemo, useState } from 'react';
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
@@ -300,7 +301,7 @@ export default function CekDataKeuanganTab() {
               <tbody>
                 {duplikatPemasukanLain.map(k => (
                   <tr key={k.kunci}>
-                    <td>{k.simpan.tanggal}</td><td>{k.simpan.kategori}</td><td>{k.simpan.keterangan}</td>
+                    <td>{k.simpan.tanggal}</td><td>{k.simpan.kategori}</td><td><ClipCell value={k.simpan.keterangan} maxWidth={240} /></td>
                     <td>{formatRupiah(k.simpan.nominal)}</td><td style={{ fontWeight: 700 }}>{k.jumlahBaris} baris (hapus {k.hapus.length})</td>
                   </tr>
                 ))}
@@ -380,7 +381,7 @@ export default function CekDataKeuanganTab() {
               <tbody>
                 {duplikatPengeluaran.map(k => (
                   <tr key={k.kunci}>
-                    <td>{k.simpan.tanggal}</td><td>{k.simpan.kategori}</td><td>{k.simpan.keterangan}</td>
+                    <td>{k.simpan.tanggal}</td><td>{k.simpan.kategori}</td><td><ClipCell value={k.simpan.keterangan} maxWidth={240} /></td>
                     <td>{formatRupiah(k.simpan.nominal)}</td><td style={{ fontWeight: 700 }}>{k.jumlahBaris} baris (hapus {k.hapus.length})</td>
                   </tr>
                 ))}
@@ -398,7 +399,7 @@ export default function CekDataKeuanganTab() {
               <thead><tr><th>Tanggal</th><th>Kategori</th><th>Keterangan</th><th>Akun (tidak dikenal)</th><th>Nominal</th></tr></thead>
               <tbody>
                 {akunTakDikenalKeluar.map((r, i) => (
-                  <tr key={i}><td>{r.tanggal}</td><td>{r.kategori}</td><td>{r.keterangan}</td><td style={{ color: 'var(--red)' }}>{r.akun}</td><td>{formatRupiah(r.nominal)}</td></tr>
+                  <tr key={i}><td>{r.tanggal}</td><td>{r.kategori}</td><td><ClipCell value={r.keterangan} maxWidth={240} /></td><td style={{ color: 'var(--red)' }}>{r.akun}</td><td>{formatRupiah(r.nominal)}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -414,7 +415,7 @@ export default function CekDataKeuanganTab() {
               <thead><tr><th>Tanggal</th><th>Kategori (tidak valid)</th><th>Keterangan</th><th>Nominal</th></tr></thead>
               <tbody>
                 {kategoriTidakValid.map((r, i) => (
-                  <tr key={i}><td>{r.tanggal}</td><td style={{ color: 'var(--red)' }}>{r.kategori}</td><td>{r.keterangan}</td><td>{formatRupiah(r.nominal)}</td></tr>
+                  <tr key={i}><td>{r.tanggal}</td><td style={{ color: 'var(--red)' }}>{r.kategori}</td><td><ClipCell value={r.keterangan} maxWidth={240} /></td><td>{formatRupiah(r.nominal)}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -428,7 +429,7 @@ export default function CekDataKeuanganTab() {
               <thead><tr><th>Tanggal</th><th>Keterangan</th><th>Nominal</th></tr></thead>
               <tbody>
                 {nominalTidakValidKeluar.map((r, i) => (
-                  <tr key={i}><td>{r.tanggal}</td><td>{r.keterangan}</td><td style={{ color: 'var(--red)' }}>{formatRupiah(r.nominal)}</td></tr>
+                  <tr key={i}><td>{r.tanggal}</td><td><ClipCell value={r.keterangan} maxWidth={240} /></td><td style={{ color: 'var(--red)' }}>{formatRupiah(r.nominal)}</td></tr>
                 ))}
               </tbody>
             </table>

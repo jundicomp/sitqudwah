@@ -1,3 +1,4 @@
+import ClipCell from '../../components/common/ClipCell';
 import { useMemo, useRef, useState } from 'react';
 import Page from '../../components/layout/Page';
 import useTabAccess from '../../hooks/useTabAccess';
@@ -147,7 +148,7 @@ function Peminjaman() {
             <div className="table-scroll" style={{ marginTop: 14 }}>
               {!keranjang.length ? <Kosong>Belum ada buku dipilih.</Kosong> : (
                 <table><thead><tr><th>Kode</th><th>Judul</th><th>Rak</th><th></th></tr></thead>
-                  <tbody>{keranjang.map(b => <tr key={b.kode}><td>{b.kode}</td><td><b>{b.judul}</b></td><td>{b.rak || '—'}</td><td><button className="btn btn-sm" onClick={() => setKeranjang(k => k.filter(x => x.kode !== b.kode))}>Hapus</button></td></tr>)}</tbody></table>
+                  <tbody>{keranjang.map(b => <tr key={b.kode}><td>{b.kode}</td><td><b><ClipCell value={b.judul} maxWidth={320} /></b></td><td>{b.rak || '—'}</td><td><button className="btn btn-sm" onClick={() => setKeranjang(k => k.filter(x => x.kode !== b.kode))}>Hapus</button></td></tr>)}</tbody></table>
               )}
             </div>
             <div className="save-bar">
@@ -237,7 +238,7 @@ function Pengembalian() {
                   const telat = Math.max(0, selisihHari(x.jatuhTempo, tglKembali));
                   return (
                     <tr key={x.id}>
-                      <td><b>{x.judul}</b><div style={{ fontSize: 12, color: 'var(--muted)' }}>{x.kodeBuku}</div></td>
+                      <td><b><ClipCell value={x.judul} maxWidth={240} /></b><div style={{ fontSize: 12, color: 'var(--muted)' }}>{x.kodeBuku}</div></td>
                       <td>{x.nama}<div style={{ fontSize: 12, color: 'var(--muted)' }}>{x.kelas}</div></td>
                       <td>{formatTanggalAngka(x.pinjam)}</td><td>{formatTanggalAngka(x.jatuhTempo)}</td>
                       <td>{telat ? <span className="badge badge-red">Terlambat {telat} hari · {formatRupiah(telat * tarif)}</span> : <span className="badge badge-green">Tepat waktu</span>}</td>

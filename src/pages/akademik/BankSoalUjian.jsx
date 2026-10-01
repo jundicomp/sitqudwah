@@ -1,3 +1,4 @@
+import ClipCell from '../../components/common/ClipCell';
 import { useCallback, useMemo, useState } from 'react';
 import Page from '../../components/layout/Page';
 import useTabAccess from '../../hooks/useTabAccess';
@@ -79,7 +80,7 @@ function KelolaSoalModal({ ujian, bankSoal, onClose, onSaved }) {
               {kandidat.map(b => (
                 <tr key={b.no}>
                   <td><input type="checkbox" checked={dipilih.includes(b.no)} onChange={() => toggle(b.no)} aria-label={`Pilih soal ${b.no}`} /></td>
-                  <td style={{ fontSize: 13 }}>{b.pertanyaan}</td><td>{b.jenis}</td><td>{b.kesulitan}</td><td>{b.poin}</td>
+                  <td style={{ fontSize: 13 }}><ClipCell value={b.pertanyaan} maxWidth={380} /></td><td>{b.jenis}</td><td>{b.kesulitan}</td><td>{b.poin}</td>
                 </tr>
               ))}
             </tbody>
@@ -187,7 +188,7 @@ export default function BankSoalUjian() {
               headers={BANK_SOAL_TABEL} fields={soalFields}
               fetchFn={fetchBankSoalFromSheet} updateFn={updateSoal} deleteFn={deleteBankSoalFromSheet}
               moduleLabel="Bank Soal" labelKey="Pertanyaan" target="akademik"
-              columnRenderers={{ Pertanyaan: r => <span title={r.Pertanyaan}>{String(r.Pertanyaan).length > 70 ? String(r.Pertanyaan).slice(0, 70) + '…' : r.Pertanyaan}</span> }}
+              columnRenderers={{ Pertanyaan: r => <ClipCell value={r.Pertanyaan} maxWidth={340} /> }}
               searchFn={(r, t) => `${r['Mata Pelajaran']} ${r.Pertanyaan} ${r['Jenis Soal']} kelas ${r.Tingkat}`.toLowerCase().includes(t)}
               onChanged={refreshBankSoal}
             />

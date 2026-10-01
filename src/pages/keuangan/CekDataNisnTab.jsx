@@ -1,3 +1,4 @@
+import ClipCell from '../../components/common/ClipCell';
 import { useMemo, useState, Fragment } from 'react';
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
@@ -314,7 +315,7 @@ export default function CekDataNisnTab() {
                       <thead><tr><th>Nama</th><th>Detail</th></tr></thead>
                       <tbody>
                         {h.daftarTidakAda.map((r, i) => (
-                          <tr key={i}><td>{r.nama}</td><td style={{ fontSize: 12, color: 'var(--muted)' }}>{r.detail}</td></tr>
+                          <tr key={i}><td>{r.nama}</td><td style={{ fontSize: 12, color: 'var(--muted)' }}><ClipCell value={r.detail} maxWidth={240} /></td></tr>
                         ))}
                       </tbody>
                     </table>
@@ -349,7 +350,7 @@ export default function CekDataNisnTab() {
                                 <thead><tr><th>Nama</th><th>Kenapa Tidak Bisa Otomatis</th></tr></thead>
                                 <tbody>
                                   {h.otomatis.tidakBisa.map((r, i) => (
-                                    <tr key={i}><td>{r.nama}</td><td style={{ fontSize: 12, color: 'var(--muted)' }}>{r.alasan}</td></tr>
+                                    <tr key={i}><td>{r.nama}</td><td style={{ fontSize: 12, color: 'var(--muted)' }}><ClipCell value={r.alasan} maxWidth={240} /></td></tr>
                                   ))}
                                 </tbody>
                               </table>

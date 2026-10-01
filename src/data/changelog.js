@@ -4,6 +4,14 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.41.0',
+    tanggal: '2026-10-01',
+    poin: [
+      'Semua tabel kini lebih rapi: setiap baris hanya 1 baris teks. Isi yang panjang (mis. alamat, keterangan, pertanyaan soal, judul buku) dipotong dgn tanda "…" dan tombol "more" untuk membuka seluruh isinya, lalu "less" untuk melipat lagi',
+      'Arahkan kursor ke teks yang terpotong untuk melihat isi lengkapnya tanpa mengeklik; saat dicetak/PDF, isi lengkap tetap ditampilkan',
+    ],
+  },
+  {
     versi: '1.40.0',
     tanggal: '2026-10-01',
     poin: [

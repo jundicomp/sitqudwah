@@ -1,3 +1,4 @@
+import ClipCell from '../../components/common/ClipCell';
 import { useEffect, useMemo, useState } from 'react';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import Page from '../../components/layout/Page';
@@ -22,7 +23,7 @@ function Tabel({ judul, sub, kolom, data, file }) {
       <div className="card-body table-scroll">
         {!data.length ? <p style={{ color: 'var(--muted)', fontSize: 13.5, margin: 0 }}>Belum ada data.</p> : (
           <table><thead><tr><th>#</th>{kolom.map(([, l]) => <th key={l}>{l}</th>)}</tr></thead>
-            <tbody>{data.map((d, i) => <tr key={i}><td>{i + 1}</td>{kolom.map(([k], j) => <td key={k}>{j === 0 ? <b>{d[k]}</b> : d[k]}</td>)}</tr>)}</tbody></table>
+            <tbody>{data.map((d, i) => <tr key={i}><td>{i + 1}</td>{kolom.map(([k], j) => <td key={k}>{j === 0 ? <b><ClipCell value={d[k]} maxWidth={240} /></b> : d[k]}</td>)}</tr>)}</tbody></table>
         )}
       </div>
     </div>

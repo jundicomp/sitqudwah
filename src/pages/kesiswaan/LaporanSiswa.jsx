@@ -1,3 +1,4 @@
+import ClipCell from '../../components/common/ClipCell';
 import { useEffect, useMemo, useState } from 'react';
 import Page from '../../components/layout/Page';
 import useTabAccess from '../../hooks/useTabAccess';
@@ -136,7 +137,7 @@ function RekapPerSiswa(props) {
     { key: 'jmlPrestasi', label: 'Prestasi', sortable: true, accessor: r => r.prestasi.length },
     { key: 'poin', label: 'Poin Pelanggaran', sortable: true,
       render: r => <span className={`badge ${r.poin >= AMBANG_POIN_TINGGI ? 'badge-red' : r.poin > 0 ? 'badge-gold' : 'badge-green'}`}>{r.poin}</span> },
-    { key: 'catatan', label: 'Perlu perhatian', render: r => r.catatan.length ? <span style={{ color: 'var(--red)', fontSize: 12.5 }}>{r.catatan.join(', ')}</span> : '—' },
+    { key: 'catatan', label: 'Perlu perhatian', render: r => r.catatan.length ? <span style={{ color: 'var(--red)', fontSize: 12.5 }}><ClipCell value={r.catatan.join(', ')} maxWidth={200} /></span> : '—' },
     { key: 'aksi', label: '', headerClassName: 'no-print', render: r => <button className="btn btn-sm no-print" onClick={() => setDetail(r)}>Detail</button> },
   ];
 

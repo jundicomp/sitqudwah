@@ -476,3 +476,15 @@ tr:hover td{background:var(--row-hover);}
 .chip button{border:none;background:rgba(0,0,0,.08);border-radius:99px;width:20px;height:20px;line-height:20px;padding:0;cursor:pointer;font-size:12px;}
 .chip button:hover{background:var(--red);color:#fff;}
 .chip-input{border:1px dashed var(--border);border-radius:99px;padding:4px 10px;font-size:13px;width:150px;}
+
+/* ===== Sel tabel 1 baris + "more" (v1.41.0) ===== */
+td{white-space:nowrap;}
+.doc-print td,.doc-print th,.jadwal-grid td,td.wrap{white-space:normal;}
+.cell-clip-wrap{display:flex;align-items:baseline;gap:6px;}
+.cell-clip{display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;}
+.cell-clip-wrap.buka{align-items:flex-start;}
+.cell-clip-wrap.buka .cell-clip{white-space:normal;overflow:visible;overflow-wrap:anywhere;min-width:220px;}
+.cell-more{border:none;background:none;padding:0;color:var(--green);font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline;flex-shrink:0;}
+.cell-more:hover{color:var(--green-dark);}
+.cell-more:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:3px;}
+@media print{.cell-more{display:none;}.cell-clip{white-space:normal;overflow:visible;max-width:none!important;}}
