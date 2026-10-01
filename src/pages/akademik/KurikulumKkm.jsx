@@ -8,6 +8,7 @@ import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { MAPEL_OPTIONS } from '../../db/akademikFields';
 import { KKM_HEADERS, TINGKAT_LIST, kkmStandar } from '../../db/akademikLanjutanFields';
+import { JENJANG, namaTingkat } from '../../config/jenjang';
 import { fetchKkmFromSheet, updateKkmInSheet, deleteKkmFromSheet, upsertKkmToSheet, addLogEntry, isConfigured } from '../../services/googleSheets';
 import { exportToExcel } from '../../utils/exportTable';
 
@@ -28,6 +29,9 @@ function MatriksKkm() {
   const { tahunAjaranOptions, taAktif } = useAkademikOptions();
   const [ta, setTa] = useState('');
   const [salinDari, setSalinDari] = useState('');
+  const [jenjang, setJenjang] = useState(JENJANG[0]?.kode || '');
+  // Tabel cuma menampilkan 1 jenjang (biar tidak 14 kolom); isian & simpan tetap mencakup semua.
+  const tingkatTampil = JENJANG.find(j => j.kode === jenjang)?.tingkat || TINGKAT_LIST;
   const [isian, setIsian] = useState({});
   const [berubah, setBerubah] = useState(false);
   const [menyimpan, setMenyimpan] = useState(false);
@@ -78,8 +82,8 @@ function MatriksKkm() {
   }
 
   function exportMatriks() {
-    const headers = ['Mata Pelajaran', ...TINGKAT_LIST.map(t => `Kelas ${t}`)];
-    exportToExcel(headers, mapelTampil.map(m => ({ 'Mata Pelajaran': m, ...Object.fromEntries(TINGKAT_LIST.map(t => [`Kelas ${t}`, isian[k(t, m)] ?? ''])) })),
+    const headers = ['Mata Pelajaran', ...TINGKAT_LIST.map(namaTingkat)];
+    exportToExcel(headers, mapelTampil.map(m => ({ 'Mata Pelajaran': m, ...Object.fromEntries(TINGKAT_LIST.map(t => [namaTingkat(t), isian[k(t, m)] ?? ''])) })),
       `KKM_${ta}`.replace(/[^\w-]+/g, '_'), `KKM/KKTP per Mata Pelajaran — ${ta}`);
   }
 
@@ -92,6 +96,7 @@ function MatriksKkm() {
       <div className="card-body">
         <div className="filter-bar">
           <Field label="Tahun Ajaran"><Select value={ta} onChange={setTa} options={tahunAjaranOptions} /></Field>
+          {JENJANG.length > 1 && <Field label="Jenjang"><Select value={jenjang} onChange={setJenjang} options={JENJANG.map(j => ({ value: j.kode, label: j.nama }))} /></Field>}
           <Field label="Salin dari tahun ajaran">
             <Select value={salinDari} onChange={setSalinDari} placeholder="— pilih —" options={tahunAjaranOptions.filter(x => x !== ta)} />
           </Field>
@@ -100,17 +105,17 @@ function MatriksKkm() {
         </div>
         <div className="table-scroll">
           <table className="kkm-grid">
-            <thead><tr><th>Mata Pelajaran</th>{TINGKAT_LIST.map(t => <th key={t}>Kelas {t}</th>)}</tr></thead>
+            <thead><tr><th>Mata Pelajaran</th>{tingkatTampil.map(t => <th key={t}>{namaTingkat(t)}</th>)}</tr></thead>
             <tbody>
               {mapelTampil.map(m => (
                 <tr key={m}>
                   <td><b>{m}</b></td>
-                  {TINGKAT_LIST.map(t => {
+                  {tingkatTampil.map(t => {
                     const v = isian[k(t, m)] ?? '';
                     return (
                       <td key={t}>
                         <input className={`input-cell${valid(v) ? '' : ' invalid'}`} type="number" min="0" max="100" value={v}
-                          aria-label={`KKM ${m} kelas ${t}`} onChange={e => set(t, m, e.target.value)} />
+                          aria-label={`KKM ${m} ${namaTingkat(t)}`} onChange={e => set(t, m, e.target.value)} />
                       </td>
                     );
                   })}

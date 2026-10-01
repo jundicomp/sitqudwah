@@ -1,3 +1,4 @@
+import { JENJANG, TINGKAT_OPTIONS, namaTingkat, LABEL_JENJANG, onJenjangBerubah } from '../config/jenjang';
 // v1.38.0: Akreditasi, Periode Semester, Mutasi Siswa, Pengumuman, Surat Menyurat.
 export { setPeriodeSemester } from './akademikFields';
 
@@ -8,7 +9,9 @@ export const PERINGKAT_AKREDITASI = ['Unggul', 'Baik Sekali', 'Baik', 'A', 'B', 
 export const JENIS_MUTASI = ['Mutasi Masuk', 'Mutasi Keluar', 'Mengundurkan Diri', 'Dikeluarkan', 'Meninggal Dunia'];
 export const STATUS_SISWA_SETELAH = { 'Mutasi Keluar': 'Pindah', 'Mengundurkan Diri': 'Berhenti', Dikeluarkan: 'Berhenti', 'Meninggal Dunia': 'Berhenti' };
 export const KATEGORI_PENGUMUMAN = ['Umum', 'Akademik', 'Kegiatan', 'Keuangan', 'Libur', 'Kepegawaian'];
-export const DITUJUKAN_OPTIONS = ['Semua', 'Guru & Staff', 'Siswa & Orang Tua', 'Kelas 1', 'Kelas 2', 'Kelas 3', 'Kelas 4', 'Kelas 5', 'Kelas 6'];
+export const DITUJUKAN_OPTIONS = [];
+onJenjangBerubah(() => DITUJUKAN_OPTIONS.splice(0, DITUJUKAN_OPTIONS.length,
+  'Semua', 'Guru & Staff', 'Siswa & Orang Tua', ...(JENJANG.length > 1 ? JENJANG.map(j => LABEL_JENJANG(j.kode)) : []), ...TINGKAT_OPTIONS.map(namaTingkat)));
 export const SIFAT_SURAT = ['Biasa', 'Penting', 'Segera', 'Rahasia'];
 export const STATUS_SURAT_MASUK = ['Diterima', 'Didisposisi', 'Ditindaklanjuti', 'Selesai', 'Diarsipkan'];
 export const STATUS_SURAT_KELUAR = ['Draft', 'Ditandatangani', 'Terkirim', 'Diarsipkan'];

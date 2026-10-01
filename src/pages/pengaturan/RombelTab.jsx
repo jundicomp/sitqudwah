@@ -1,3 +1,4 @@
+import { namaTingkat, bandingTingkat } from '../../config/jenjang';
 import { useId, useMemo, useState } from 'react';
 import DataTable from '../../components/common/DataTable';
 import { hitungUsia } from '../../db/helpers';
@@ -23,7 +24,7 @@ function PindahRombelMassal() {
 
   const daftarKelasSumber = useMemo(() => {
     const set = new Set(siswaAktif.map(s => s.kelasTingkat).filter(Boolean));
-    return Array.from(set).sort();
+    return Array.from(set).sort(bandingTingkat);
   }, [siswaAktif]);
 
   // Dipisah dulu berdasar Kelas & sudah/belum py Rombel -- SEBELUM pencarian nama/NISN,
@@ -112,7 +113,7 @@ function PindahRombelMassal() {
             <label>Filter Kelas (Sumber)</label>
             <select value={filterKelasSumber} onChange={e => { setFilterKelasSumber(e.target.value); setTerpilih({}); }}>
               <option value="Semua">Semua Kelas</option>
-              {daftarKelasSumber.map(k => <option key={k} value={k}>Kelas {k}</option>)}
+              {daftarKelasSumber.map(k => <option key={k} value={k}>{namaTingkat(k)}</option>)}
             </select>
           </div>
           <div className="field">
@@ -120,7 +121,7 @@ function PindahRombelMassal() {
             <select value={rombelTujuan} onChange={e => setRombelTujuan(e.target.value)}>
               <option value="">— pilih rombel tujuan —</option>
               {kelas.slice().sort((a, b) => a.tingkat.localeCompare(b.tingkat)).map(k => (
-                <option key={k.id} value={k.id}>Kelas {k.tingkat} — Rombel {k.namaKelas}</option>
+                <option key={k.id} value={k.id}>{namaTingkat(k.tingkat)} — Rombel {k.namaKelas}</option>
               ))}
             </select>
           </div>
@@ -216,7 +217,7 @@ export default function RombelTab() {
   // dan belum py siswa pun tetap muncul di dropdown.
   const daftarKelasOptions = useMemo(() => {
     const set = new Set(kelas.map(k => k.tingkat).filter(Boolean));
-    return Array.from(set).sort();
+    return Array.from(set).sort(bandingTingkat);
   }, [kelas]);
 
   const daftarRombelOptions = useMemo(() => {
@@ -246,7 +247,7 @@ export default function RombelTab() {
       });
   }, [siswaAktif, laporanAktif, waliKelasByRombel]);
 
-  const judulLaporan = laporanAktif ? `Kelas ${laporanAktif.kelas} — Rombel ${laporanAktif.rombel}` : '';
+  const judulLaporan = laporanAktif ? `${namaTingkat(laporanAktif.kelas)} — Rombel ${laporanAktif.rombel}` : '';
 
   const columns = [
     { key: 'nisn', label: 'NISN', accessor: r => r.nisn || '-' },
@@ -303,7 +304,7 @@ export default function RombelTab() {
               <label>Pilih Kelas</label>
               <select value={kelasDipilih} onChange={e => gantiKelasDipilih(e.target.value)}>
                 <option value="">— pilih kelas —</option>
-                {daftarKelasOptions.map(k => <option key={k} value={k}>Kelas {k}</option>)}
+                {daftarKelasOptions.map(k => <option key={k} value={k}>{namaTingkat(k)}</option>)}
               </select>
             </div>
             <div className="field">

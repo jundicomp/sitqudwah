@@ -1,3 +1,4 @@
+import { tarifBerlakuUntuk, labelCakupanTarif } from '../../db/tarifFields';
 import { useMemo, useState } from 'react';
 import { bulkAddToSheet, addLogEntry, fetchTagihanLainFromSheet, updateTagihanLainInSheet, deleteTagihanLainFromSheet } from '../../services/googleSheets';
 import { formatRupiah, todayWIB, parseTanggalFleksibel } from '../../db/helpers';
@@ -30,7 +31,7 @@ export default function PenerbitanLainTab() {
 
   const daftarTarif = useMemo(() => {
     return tarifTahunIni.map(t => {
-      const targetSiswa = siswaAktif.filter(s => t.kelasTingkat === 'Semua Kelas' || s.kelasTingkat === t.kelasTingkat);
+      const targetSiswa = siswaAktif.filter(s => tarifBerlakuUntuk(t.kelasTingkat, s.kelasTingkat));
       const sudahTertagih = new Set(tagihanTahunIni.filter(x => x.label === t.jenis).map(x => x.nisn));
       const belumTertagih = targetSiswa.filter(s => !sudahTertagih.has(s.nisn));
       return { tarif: t, targetSiswa, jumlahSudah: sudahTertagih.size, jumlahBelum: belumTertagih.length, belumTertagih };
@@ -132,7 +133,7 @@ export default function PenerbitanLainTab() {
                   {daftarTarif.map(item => (
                     <tr key={item.tarif.id}>
                       <td>{item.tarif.jenis}</td>
-                      <td>{item.tarif.kelasTingkat === 'Semua Kelas' ? 'Semua Kelas' : `Kelas ${item.tarif.kelasTingkat}`}</td>
+                      <td>{labelCakupanTarif(item.tarif.kelasTingkat)}</td>
                       <td>{formatRupiah(item.tarif.nominal)}</td>
                       <td>{item.jumlahSudah} siswa</td>
                       <td>{item.jumlahBelum} siswa</td>

@@ -1,22 +1,36 @@
+import { JENJANG, TINGKAT_OPTIONS, namaTingkat, jenjangDariTingkat, LABEL_JENJANG, onJenjangBerubah } from '../config/jenjang';
 // Akademik Lanjutan: KKM, Kalender Akademik, Bank Soal & Ujian, Rapor Digital.
 // Istilah & daftar pilihan mengikuti versi HTML (sumber_migrasi.html).
 import { MAPEL_OPTIONS, SEMESTER_OPTIONS, semesterDariTanggal, dalamRentang } from './akademikFields';
 
 export const KATEGORI_AGENDA_OPTIONS = ['Ujian', 'Libur', 'Kegiatan Sekolah', 'Rapat', 'Lainnya'];
-export const CAKUPAN_AGENDA_OPTIONS = ['Semua Kelas', 'Kelas 1', 'Kelas 2', 'Kelas 3', 'Kelas 4', 'Kelas 5', 'Kelas 6'];
+export const CAKUPAN_AGENDA_OPTIONS = [];
+onJenjangBerubah(() => CAKUPAN_AGENDA_OPTIONS.splice(0, CAKUPAN_AGENDA_OPTIONS.length,
+  'Semua Kelas', ...(JENJANG.length > 1 ? JENJANG.map(j => LABEL_JENJANG(j.kode)) : []), ...TINGKAT_OPTIONS.map(namaTingkat)));
+// Agenda dgn cakupan `c` berlaku utk pilihan filter `f`? ("Jenjang SD" mencakup Kelas 1-6.)
+export function cakupanMencakup(c, f) {
+  if (!f || c === 'Semua Kelas' || c === f) return true;
+  const t = TINGKAT_OPTIONS.find(x => namaTingkat(x) === f);
+  return !!t && c === LABEL_JENJANG(jenjangDariTingkat(t));
+}
 export const JENIS_SOAL_OPTIONS = ['Pilihan Ganda', 'Isian Singkat', 'Esai'];
 export const KESULITAN_OPTIONS = ['Mudah', 'Sedang', 'Sulit'];
 export const STATUS_UJIAN_OPTIONS = ['Draft', 'Aktif', 'Selesai'];
 export const STATUS_RAPOR_OPTIONS = ['Draft', 'Terbit'];
 export const SIKAP_OPTIONS = ['Sangat Baik', 'Baik', 'Cukup', 'Perlu Bimbingan'];
-export const TINGKAT_LIST = ['1', '2', '3', '4', '5', '6'];
+export const TINGKAT_LIST = TINGKAT_OPTIONS;
 
 // KKM bawaan per mapel dari versi HTML -- dipakai tombol "Isi nilai standar".
 export const KKM_BASE = {
   "Al-Qur'an Hadits": 72, 'Akidah Akhlak': 72, Fiqih: 70, SKI: 68, 'Bahasa Arab': 65,
   PPKn: 70, 'Bahasa Indonesia': 68, Matematika: 65, IPA: 66, IPS: 68, SBdP: 75, PJOK: 75, 'Bahasa Inggris': 65,
 };
-export const kkmStandar = (mapel, tingkat) => Math.min(80, (KKM_BASE[mapel] || 68) + (Number(tingkat) - 1));
+// Naik 1 poin per tingkat di dalam jenjangnya (kelas 1 / 7 / 10 / TK A = dasar).
+export const kkmStandar = (mapel, tingkat) => {
+  const j = JENJANG.find(x => x.tingkat.includes(String(tingkat)));
+  const idx = j ? j.tingkat.indexOf(String(tingkat)) : 0;
+  return Math.min(80, (KKM_BASE[mapel] || 68) + Math.max(0, idx));
+};
 
 export const WARNA_AGENDA = { Ujian: 'var(--red)', Libur: 'var(--gold)', 'Kegiatan Sekolah': 'var(--green)', Rapat: 'var(--blue)', Lainnya: 'var(--muted)' };
 

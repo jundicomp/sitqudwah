@@ -7,7 +7,7 @@ import GenericStoredTable from '../../components/sheetCrud/GenericStoredTable';
 import Modal from '../../components/common/Modal';
 import { TabBar, AkademikBelumTersambung, Field, Select, Kosong } from '../../components/akademik/shared';
 import { useAppData } from '../../context/AppContext';
-import { AGENDA_HEADERS, KATEGORI_AGENDA_OPTIONS, CAKUPAN_AGENDA_OPTIONS, WARNA_AGENDA, buildAgendaFields, agendaPadaTanggal } from '../../db/akademikLanjutanFields';
+import { cakupanMencakup, AGENDA_HEADERS, KATEGORI_AGENDA_OPTIONS, CAKUPAN_AGENDA_OPTIONS, WARNA_AGENDA, buildAgendaFields, agendaPadaTanggal } from '../../db/akademikLanjutanFields';
 import { todayWIB, formatTanggalAngka } from '../../db/helpers';
 import { fetchAgendaFromSheet, addAgendaToSheet, updateAgendaInSheet, deleteAgendaFromSheet } from '../../services/googleSheets';
 
@@ -37,7 +37,7 @@ function KalenderBulanan() {
   const [cakupan, setCakupan] = useState('');
   const [detail, setDetail] = useState(null);
 
-  const tampil = useMemo(() => agenda.filter(a => !cakupan || a.cakupan === 'Semua Kelas' || a.cakupan === cakupan), [agenda, cakupan]);
+  const tampil = useMemo(() => agenda.filter(a => cakupanMencakup(a.cakupan, cakupan)), [agenda, cakupan]);
 
   const sel = useMemo(() => {
     const first = new Date(ym.y, ym.m, 1);

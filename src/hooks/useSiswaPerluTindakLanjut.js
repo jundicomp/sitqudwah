@@ -1,3 +1,4 @@
+import { tarifBerlakuUntuk } from '../db/tarifFields';
 import { useMemo } from 'react';
 import { useAppData } from '../context/AppContext';
 
@@ -47,7 +48,7 @@ export default function useSiswaPerluTindakLanjut() {
       // Tagihan Lain: HANYA cek tarif yg cakupan kelasnya relevan buat siswa ini
       // (Semua Kelas, ATAU spesifik = kelasTingkat siswa ini), DAN yg sudah pernah
       // diterbitkan ke SETIDAKNYA SATU siswa lain dlm cakupan yg sama.
-      const relevantTarif = tarifLainTA.filter(t => t.kelasTingkat === 'Semua Kelas' || t.kelasTingkat === s.kelasTingkat);
+      const relevantTarif = tarifLainTA.filter(t => tarifBerlakuUntuk(t.kelasTingkat, s.kelasTingkat));
       const jenisLainKurang = relevantTarif
         .filter(t => {
           const sudahTertagihUtk = tagihanLainTA.filter(x => x.label === t.jenis).map(x => x.nisn);

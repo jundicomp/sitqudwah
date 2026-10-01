@@ -1,3 +1,4 @@
+import { namaTingkat, bandingTingkat } from '../../config/jenjang';
 import { useMemo } from 'react';
 import Page from '../../components/layout/Page';
 import StoredDataTable from './StoredDataTable';
@@ -24,7 +25,7 @@ export default function DataSiswaSheets() {
     });
     return { total: siswaAktif.length, perTingkat };
   }, [siswaAktif]);
-  const tingkatList = Object.keys(stats.perTingkat).sort();
+  const tingkatList = Object.keys(stats.perTingkat).sort(bandingTingkat);
 
   return (
     <Page pageId="siswa" title="Data Siswa" path="Pengaturan / Modul / Data Siswa">
@@ -53,7 +54,7 @@ export default function DataSiswaSheets() {
                     return (
                       <div key={t} className="kelas-card" style={{ background: gradients[i % gradients.length] }}>
                         <div className="val">{stats.perTingkat[t]}</div>
-                        <div className="lbl">Kelas {t}</div>
+                        <div className="lbl">{namaTingkat(t)}</div>
                       </div>
                     );
                   })}

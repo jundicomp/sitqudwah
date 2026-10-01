@@ -1,6 +1,8 @@
 export const KELAS_HEADERS = ['No', 'Nama Kelas', 'Tingkat', 'Wali Kelas', 'Ruang', 'Kapasitas'];
 
-export const TINGKAT_OPTIONS = ['1', '2', '3', '4', '5', '6'];
+// Daftar tingkat diatur di src/config/jenjang.js
+export { TINGKAT_OPTIONS } from '../config/jenjang';
+import { TINGKAT_OPTIONS } from '../config/jenjang';
 
 // waliKelasOptions diisi dinamis dari data Guru asli (lihat DataKelas.jsx)
 export function buildKelasFields(waliKelasOptions) {

@@ -1,3 +1,4 @@
+import { JENJANG, TINGKAT_OPTIONS, jenjangDariTingkat, LABEL_SEMUA_JENJANG, namaTingkat, onJenjangBerubah } from '../config/jenjang';
 // "Kelas/Tingkat", "Cicilan" & "Nominal Tetap" SENGAJA ditaruh di AKHIR (bukan disisip
 // di tengah) supaya kalau Anda sudah punya data Tarif lama di Sheets, cukup tambah
 // kolom baru di paling kanan -- tidak perlu menggeser kolom yang sudah ada.
@@ -7,7 +8,18 @@ export const TIPE_TARIF_OPTIONS = ['Bulanan (SPP)', 'Sekali Masuk', 'Per Tahun',
 
 // 'Semua Kelas' = berlaku sama utk semua tingkat (perilaku lama/default).
 // Pilih tingkat spesifik (1-6) kalau nominalnya beda per angkatan/kelas.
-export const KELAS_TINGKAT_TARIF_OPTIONS = ['Semua Kelas', '1', '2', '3', '4', '5', '6'];
+// 'Semua SD' dst = berlaku utk semua tingkat di jenjang itu (v1.39.0).
+export const KELAS_TINGKAT_TARIF_OPTIONS = [];
+onJenjangBerubah(() => KELAS_TINGKAT_TARIF_OPTIONS.splice(0, KELAS_TINGKAT_TARIF_OPTIONS.length,
+  'Semua Kelas', ...(JENJANG.length > 1 ? JENJANG.map(j => LABEL_SEMUA_JENJANG(j.kode)) : []), ...TINGKAT_OPTIONS));
+
+// Apakah tarif dgn cakupan `cakupan` berlaku utk siswa di `tingkat`?
+export function tarifBerlakuUntuk(cakupan, tingkat) {
+  if (cakupan === 'Semua Kelas' || cakupan === String(tingkat)) return true;
+  const j = jenjangDariTingkat(tingkat);
+  return !!j && cakupan === LABEL_SEMUA_JENJANG(j);
+}
+export const labelCakupanTarif = (c) => (c === 'Semua Kelas' || String(c).startsWith('Semua ') ? c : namaTingkat(c));
 
 export function buildTarifFields(tahunAjaranOptions) {
   return [
@@ -67,12 +79,17 @@ export function cariTarifSppUntukKelas(tarifList, tahunAjaran, kelasTingkat) {
 }
 
 // Versi generik -- dipakai jg utk Tagihan Lain (Uang Pangkal, Seragam, dst),
-// bukan cuma SPP. Prioritas: tarif spesifik kelas > tarif 'Semua Kelas'.
+// bukan cuma SPP. Prioritas: tarif spesifik kelas > tarif jenjang ('Semua SD') > 'Semua Kelas'.
 export function cariTarifUntukKelas(tarifList, tahunAjaran, tipe, kelasTingkat) {
   const spesifik = tarifList.find(t =>
     t.tahunAjaran === tahunAjaran && t.tipe === tipe && t.kelasTingkat === String(kelasTingkat)
   );
   if (spesifik) return spesifik;
+  const j = jenjangDariTingkat(kelasTingkat);
+  const perJenjang = j && tarifList.find(t =>
+    t.tahunAjaran === tahunAjaran && t.tipe === tipe && t.kelasTingkat === LABEL_SEMUA_JENJANG(j)
+  );
+  if (perJenjang) return perJenjang;
   return tarifList.find(t =>
     t.tahunAjaran === tahunAjaran && t.tipe === tipe && t.kelasTingkat === 'Semua Kelas'
   ) || null;

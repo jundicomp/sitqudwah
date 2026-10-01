@@ -451,3 +451,7 @@ export async function replaceAllInSheet(sheetName, rows, target) {
   if (!json.ok) throw new Error(json.error || `Gagal memulihkan tab ${sheetName}.`);
   return json.jumlah;
 }
+
+// ---- Jenjang & Tingkat (v1.40.0) -- di file Data Induk ----
+export const fetchJenjangFromSheet = () => fetchFromSheet('jenjang');
+export const simpanJenjangKeSheet = (rows) => replaceAllInSheet('jenjang', rows, 'master');

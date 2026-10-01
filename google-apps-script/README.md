@@ -43,6 +43,9 @@ Dipakai modul Jadwal Pelajaran, Presensi Siswa, Nilai Akademik, Prestasi, Pelang
 
 Beda dari dua script lama: nomor `No` baru dihitung dari No terbesar + 1 (bukan jumlah baris), jadi tidak bisa kembar setelah ada baris yang dihapus, dan ada aksi `bulkUpsert` untuk presensi/nilai supaya simpan ulang tidak menggandakan data.
 
+### Update ke v1.40.0 — Code.gs (Data Induk)
+Tempel ulang `Code.gs` terbaru ke Apps Script file Data Induk → Deploy → Manage deployments → New version. Menambah tab "Jenjang & Tingkat". Sebelum diperbarui, aplikasi tetap jalan dgn jenjang bawaan (TK, SD, SMP, SMA), tapi daftar jenjang belum bisa disimpan.
+
 ### Update ke v1.38.0 — PENTING: ketiga script
 Versi ini menambahkan aksi `replaceAll` (dipakai fitur Restore) ke **KETIGA** script. Tempel ulang `Code.gs`, `Code-Keuangan.gs`, **dan** `Code-Akademik.gs` terbaru ke masing-masing Apps Script-nya, lalu Deploy → Manage deployments → New version di ketiganya. URL tidak berubah.
 Tanpa langkah ini, Backup tetap jalan, tetapi Restore akan menolak dgn pesan "aksi replaceAll tidak dikenal".

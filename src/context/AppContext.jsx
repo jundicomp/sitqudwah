@@ -16,6 +16,7 @@ import { normalizeSheetBeasiswaKategori, normalizeSheetBeasiswaSiswa } from '../
 import { normalizeSheetRiwayatAkademik } from '../db/riwayatAkademikFields';
 import { normalizeSheetJadwal, normalizeSheetPresensi, normalizeSheetNilai, normalizeSheetPrestasi, normalizeSheetPelanggaran } from '../db/akademikFields';
 import { normalizeSheetPresensiGuru, normalizeSheetKinerja, normalizeSheetPelatihan } from '../db/kepegawaianFields';
+import { setJenjang, normalizeSheetJenjang, jenjangDariSheets } from '../config/jenjang';
 import { normalizeSheetAkreditasi, normalizeSheetSemester, normalizeSheetMutasi, normalizeSheetPengumuman, normalizeSheetSurat, setPeriodeSemester } from '../db/komunikasiFields';
 import { normalizeSheetBuku, normalizeSheetSirkulasi, normalizeSheetDendaPerpus, normalizeSheetReservasi } from '../db/perpusFields';
 import { normalizeSheetKkm, normalizeSheetAgenda, normalizeSheetBankSoal, normalizeSheetUjian, normalizeSheetRapor } from '../db/akademikLanjutanFields';
@@ -29,6 +30,7 @@ import {
   fetchHakAksesFromSheet, saveHakAksesRole,
   fetchJadwalFromSheet, fetchPresensiFromSheet, fetchNilaiFromSheet, fetchPrestasiFromSheet, fetchPelanggaranFromSheet,
   fetchPresensiGuruFromSheet, fetchKinerjaFromSheet, fetchPelatihanFromSheet, fetchPengaturanPresensiFromSheet,
+  fetchJenjangFromSheet,
   akreditasiApi, semesterApi, mutasiApi, pengumumanApi, suratApi,
   fetchBukuFromSheet, fetchSirkulasiFromSheet, fetchDendaPerpusFromSheet, fetchReservasiFromSheet, fetchPengaturanPerpusFromSheet,
   fetchKkmFromSheet, fetchAgendaFromSheet, fetchBankSoalFromSheet, fetchUjianFromSheet, fetchRaporFromSheet,
@@ -279,6 +281,7 @@ const HAK_AKSES_TABS = {
   kelas: [
     { id: 'tabel', label: 'Data Kelas (Tabel)' },
     { id: 'manual', label: 'Tambah Manual' },
+    { id: 'jenjang', label: 'Jenjang & Tingkat' },
   ],
   guru: [
     { id: 'tabel', label: 'Data Guru & Staff (Tabel)' },
@@ -460,6 +463,7 @@ export function AppProvider({ children }) {
   const kinerjaRes = useSheetResource(fetchKinerjaFromSheet, normalizeSheetKinerja, 'akademik', defer);
   const pelatihanRes = useSheetResource(fetchPelatihanFromSheet, normalizeSheetPelatihan, 'akademik', defer);
   const pengaturanPresensiRes = useSheetResource(fetchPengaturanPresensiFromSheet, null, 'akademik', defer);
+  const jenjangRes = useSheetResource(fetchJenjangFromSheet, normalizeSheetJenjang, 'master', defer);
   const akreditasiRes = useSheetResource(akreditasiApi.fetch, normalizeSheetAkreditasi, 'akademik', defer);
   const semesterRes = useSheetResource(semesterApi.fetch, normalizeSheetSemester, 'akademik', defer);
   const mutasiRes = useSheetResource(mutasiApi.fetch, normalizeSheetMutasi, 'akademik', defer);
@@ -518,6 +522,7 @@ export function AppProvider({ children }) {
       const semua = await fetchAllFromSheet('master');
       siswaRes.setFromBatch(semua.siswa || []);
       kelasRes.setFromBatch(semua.kelas || []);
+      jenjangRes.setFromBatch(semua.jenjang || []);
       guruRes.setFromBatch(semua.guru || []);
       asetRes.setFromBatch(semua.aset || []);
       tahunAjaranRes.setFromBatch(semua.tahunAjaran || []);
@@ -527,6 +532,7 @@ export function AppProvider({ children }) {
     } catch (err) {
       if (!withFallback) return; // polling berkala: diam saja, coba lagi siklus berikutnya
       siswaRes.refresh(); kelasRes.refresh(); guruRes.refresh(); asetRes.refresh(); tahunAjaranRes.refresh();
+      jenjangRes.refresh();
       riwayatAkademikRes.refresh();
       refreshProfil();
       muatRolesDanHakAkses();
@@ -597,6 +603,14 @@ export function AppProvider({ children }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Jenjang & tingkat dari Sheets (kosong = pakai bawaan). useMemo -> dijalankan saat
+  // render, SEBELUM komponen anak dirender, jadi pilihan tingkat tidak sempat basi.
+  const jenjangList = useMemo(() => {
+    const list = (jenjangRes.data || []).filter(Boolean);
+    setJenjang(list);
+    return list;
+  }, [jenjangRes.data]);
 
   // Periode semester (kalau diatur) dipakai semua modul lewat semesterDariTanggal().
   useEffect(() => { setPeriodeSemester(semesterRes.data); }, [semesterRes.data]);
@@ -712,6 +726,7 @@ export function AppProvider({ children }) {
     kinerja: kinerjaRes.data, kinerjaLoaded: kinerjaRes.loaded, refreshKinerja: kinerjaRes.refresh,
     pelatihan: pelatihanRes.data, pelatihanLoaded: pelatihanRes.loaded, refreshPelatihan: pelatihanRes.refresh,
     pengaturanPresensiRows: pengaturanPresensiRes.data, refreshPengaturanPresensi: pengaturanPresensiRes.refresh,
+    jenjangList, jenjangTersimpan: jenjangDariSheets(), refreshJenjang: jenjangRes.refresh,
     akreditasi: akreditasiRes.data, refreshAkreditasi: akreditasiRes.refresh,
     periodeSemester: semesterRes.data, refreshSemester: semesterRes.refresh,
     mutasi: mutasiRes.data, refreshMutasi: mutasiRes.refresh,

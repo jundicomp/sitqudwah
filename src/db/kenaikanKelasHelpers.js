@@ -1,23 +1,22 @@
-import { TINGKAT_OPTIONS } from './kelasFields';
+import { TINGKAT_OPTIONS, tingkatTerakhirJenjang, jenjangDariTingkat } from '../config/jenjang';
 import { cariRiwayatAkademik } from './riwayatAkademikFields';
 
-// Tingkat tertinggi di jenjang MI (Kelas 6) -- siswa di tingkat ini defaultnya Lulus,
-// bukan Naik Kelas, krn tidak ada Kelas 7. Kalau suatu saat aplikasi ini dipakai utk
-// jenjang lain (MTs/MA) dgn tingkat berbeda, cukup ganti TINGKAT_OPTIONS di kelasFields.js.
-const TINGKAT_TERTINGGI = TINGKAT_OPTIONS[TINGKAT_OPTIONS.length - 1];
+// Siswa di tingkat TERAKHIR jenjangnya (TK B, 6, 9, 12) defaultnya Lulus -- tidak
+// otomatis naik ke jenjang berikutnya. Daftar jenjang: src/config/jenjang.js.
 
 // Tingkat berikutnya sesudah `tingkat` -- null kalau sudah tingkat tertinggi ATAU
 // tingkatnya tidak dikenali (mis. data lama yg kosong/aneh).
 export function tingkatBerikutnya(tingkat) {
   const idx = TINGKAT_OPTIONS.indexOf(String(tingkat));
-  if (idx === -1 || idx === TINGKAT_OPTIONS.length - 1) return null;
-  return TINGKAT_OPTIONS[idx + 1];
+  if (idx === -1 || tingkatTerakhirJenjang(tingkat)) return null;
+  const next = TINGKAT_OPTIONS[idx + 1];
+  return next && jenjangDariTingkat(next) === jenjangDariTingkat(tingkat) ? next : null;
 }
 
 // Keputusan DEFAULT utk 1 siswa, sebelum admin override manual -- siswa di tingkat
 // tertinggi otomatis disarankan "Lulus", selainnya disarankan "Naik Kelas".
 export function keputusanDefault(kelasTingkatSaatIni) {
-  return String(kelasTingkatSaatIni) === TINGKAT_TERTINGGI ? 'Lulus' : 'Naik Kelas';
+  return tingkatTerakhirJenjang(kelasTingkatSaatIni) ? 'Lulus' : 'Naik Kelas';
 }
 
 // Kelas/Tingkat TUJUAN utk 1 keputusan -- "Naik Kelas" pindah ke tingkat berikutnya,

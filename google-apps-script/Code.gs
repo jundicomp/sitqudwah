@@ -47,6 +47,12 @@ const SHEETS = {
       'Status', 'Jenis Pendaftaran', 'Rombel',
     ],
   },
+  // v1.40.0: daftar jenjang & tingkat yg dipakai sekolah (dikelola dari aplikasi:
+  // Pengaturan › Data Kelas & Rombel › Jenjang & Tingkat). "Tingkat" = dipisah koma.
+  jenjang: {
+    name: 'Jenjang & Tingkat',
+    headers: ['No', 'Kode', 'Nama', 'Tingkat', 'Aktif'],
+  },
   kelas: {
     name: 'Data Kelas',
     headers: ['No', 'Nama Kelas', 'Tingkat', 'Wali Kelas', 'Ruang', 'Kapasitas'],

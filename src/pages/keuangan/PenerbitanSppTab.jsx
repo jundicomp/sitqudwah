@@ -1,3 +1,4 @@
+import { bandingTingkat, namaTingkat } from '../../config/jenjang';
 import { useMemo, useState } from 'react';
 import { BULAN_ID, parseTanggalFleksibel } from '../../db/helpers';
 import { cariTarifSppUntukKelas } from '../../db/tarifFields';
@@ -24,7 +25,7 @@ export default function PenerbitanSppTab() {
 
   // Semua tingkat kelas yang genuinely ada siswa AKTIF-nya saat ini.
   const tingkatDipakai = useMemo(
-    () => Array.from(new Set(siswaAktif.map(s => s.kelasTingkat).filter(Boolean))).sort(),
+    () => Array.from(new Set(siswaAktif.map(s => s.kelasTingkat).filter(Boolean))).sort(bandingTingkat),
     [siswaAktif]
   );
 
@@ -173,7 +174,7 @@ export default function PenerbitanSppTab() {
           <div className="card-body" style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {cakupanTarif.map(c => (
               <div key={c.tingkat} style={{ padding: '8px 14px', borderRadius: 8, fontSize: 13, background: c.tarif ? 'var(--green-soft)' : 'var(--red-soft)', color: c.tarif ? 'var(--green-dark)' : 'var(--red)' }}>
-                Kelas {c.tingkat}: {c.tarif ? `${formatRupiah(c.tarif.nominal)}${c.tarif.kelasTingkat === 'Semua Kelas' ? ' (umum)' : ' (khusus)'}` : '✕ Belum ada tarif'}
+                {namaTingkat(c.tingkat)}: {c.tarif ? `${formatRupiah(c.tarif.nominal)}${c.tarif.kelasTingkat === 'Semua Kelas' ? ' (umum)' : String(c.tarif.kelasTingkat).startsWith('Semua ') ? ` (${c.tarif.kelasTingkat})` : ' (khusus)'}` : '✕ Belum ada tarif'}
               </div>
             ))}
           </div>

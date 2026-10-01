@@ -1,3 +1,4 @@
+import { namaTingkat, bandingTingkat } from '../../config/jenjang';
 import { useMemo, useRef, useState } from 'react';
 import DataTable from '../../components/common/DataTable';
 import { useAppData } from '../../context/AppContext';
@@ -30,7 +31,7 @@ function TimelineRiwayat({ siswa, riwayat }) {
             <strong> Data Siswa &gt; Kenaikan Kelas</strong> pertama kali dijalankan.
           </p>
           <div style={{ border: '1px dashed var(--border)', borderRadius: 8, padding: '10px 14px', fontSize: 13 }}>
-            <span style={{ color: 'var(--muted)' }}>Kondisi saat ini (belum tercatat sbg riwayat)</span>: <b>Kelas {siswa.kelasTingkat || '-'}</b>
+            <span style={{ color: 'var(--muted)' }}>Kondisi saat ini (belum tercatat sbg riwayat)</span>: <b>{siswa.kelasTingkat ? namaTingkat(siswa.kelasTingkat) : 'Kelas -'}</b>
             {siswa.rombel ? <> · Rombel <b>{siswa.rombel}</b></> : ''}
           </div>
         </div>
@@ -47,7 +48,7 @@ function TimelineRiwayat({ siswa, riwayat }) {
               <div style={{ position: 'absolute', left: -22, top: 3, width: 12, height: 12, borderRadius: '50%', background: '#fff', border: '3px solid var(--green)' }} />
               <div style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
-                  <strong style={{ fontSize: 13.5 }}>{r.tahunAjaran} — Kelas {r.kelasTingkat || '-'}{r.rombel ? ` · ${r.rombel}` : ''}</strong>
+                  <strong style={{ fontSize: 13.5 }}>{r.tahunAjaran} — {r.kelasTingkat ? namaTingkat(r.kelasTingkat) : 'Kelas -'}{r.rombel ? ` · ${r.rombel}` : ''}</strong>
                   <span className={`badge ${STATUS_RIWAYAT_BADGE[r.status] || 'badge-muted'}`}>{r.status}</span>
                 </div>
                 <div style={{ fontSize: 12.5, color: 'var(--muted)', display: 'flex', gap: 14, flexWrap: 'wrap' }}>

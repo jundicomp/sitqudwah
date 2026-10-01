@@ -1,3 +1,4 @@
+import { namaTingkat, bandingTingkat } from '../../config/jenjang';
 import { useMemo, useRef, useState } from 'react';
 import { useAppData } from '../../context/AppContext';
 import { formatRupiah, formatTanggalTampil, initials } from '../../db/helpers';
@@ -84,7 +85,7 @@ export default function PortofolioSiswaTab() {
                   <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--green-soft)', color: 'var(--green-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700 }}>{initials(s.nama)}</div>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 600 }}>{s.nama}</div>
-                    <div style={{ fontSize: 11, color: 'var(--muted)' }}>NISN: {s.nisn || '-'} · Kelas {s.kelasTingkat || '-'}</div>
+                    <div style={{ fontSize: 11, color: 'var(--muted)' }}>NISN: {s.nisn || '-'} · {s.kelasTingkat ? namaTingkat(s.kelasTingkat) : 'Kelas -'}</div>
                   </div>
                 </div>
               ))}
@@ -108,7 +109,7 @@ export default function PortofolioSiswaTab() {
                 <div style={{ fontSize: 12.5, opacity: .85, marginTop: 4 }}>NISN: {dipilih.nisn || '-'}</div>
                 <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
                   <span style={{ background: 'rgba(255,255,255,.2)', padding: '4px 12px', borderRadius: 999, fontSize: 11 }}>{dipilih.status || 'Aktif'}</span>
-                  <span style={{ background: 'rgba(255,255,255,.2)', padding: '4px 12px', borderRadius: 999, fontSize: 11 }}>Kelas {dipilih.kelasTingkat || '-'}</span>
+                  <span style={{ background: 'rgba(255,255,255,.2)', padding: '4px 12px', borderRadius: 999, fontSize: 11 }}>{dipilih.kelasTingkat ? namaTingkat(dipilih.kelasTingkat) : 'Kelas -'}</span>
                   <span style={{ background: 'rgba(255,255,255,.2)', padding: '4px 12px', borderRadius: 999, fontSize: 11 }}>{dipilih.jenisKelamin || '-'}</span>
                   {beasiswaDipilih && (
                     <span style={{ background: 'var(--gold)', color: 'var(--green-dark)', padding: '4px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700 }}>🎓 {beasiswaDipilih.kategoriBeasiswa}</span>

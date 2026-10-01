@@ -1,3 +1,4 @@
+import { namaTingkat, bandingTingkat } from '../../config/jenjang';
 import { useMemo, useState } from 'react';
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
@@ -64,7 +65,7 @@ export default function KenaikanKelasTab() {
 
   const daftarKelasSumber = useMemo(() => {
     const set = new Set(Object.values(kondisiAsalById).map(k => k.kelasTingkat).filter(Boolean));
-    return Array.from(set).sort();
+    return Array.from(set).sort(bandingTingkat);
   }, [kondisiAsalById]);
 
   function keputusanEfektif(s) {
@@ -241,7 +242,7 @@ export default function KenaikanKelasTab() {
                 <label>Filter Kelas Asal</label>
                 <select value={filterKelas} onChange={e => setFilterKelas(e.target.value)}>
                   <option value="Semua">Semua Kelas</option>
-                  {daftarKelasSumber.map(k => <option key={k} value={k}>Kelas {k}</option>)}
+                  {daftarKelasSumber.map(k => <option key={k} value={k}>{namaTingkat(k)}</option>)}
                 </select>
               </div>
               <div className="field">
@@ -304,13 +305,13 @@ export default function KenaikanKelasTab() {
                         </td>
                         <td>{s.nisn || '-'}</td>
                         <td>{s.nama} {sudahDiproses && <span className="badge badge-muted" style={{ marginLeft: 6 }}>sudah diproses</span>}</td>
-                        <td>{eff.kondisi.kelasTingkat ? `Kelas ${eff.kondisi.kelasTingkat}` : '-'} {eff.kondisi.rombel ? `· ${eff.kondisi.rombel}` : ''}</td>
+                        <td>{eff.kondisi.kelasTingkat ? `${namaTingkat(eff.kondisi.kelasTingkat)}` : '-'} {eff.kondisi.rombel ? `· ${eff.kondisi.rombel}` : ''}</td>
                         <td>
                           <select value={eff.decision} onChange={e => gantiKeputusan(s, e.target.value)} style={{ padding: '6px 8px', fontSize: 12.5 }}>
                             {SEMUA_KEPUTUSAN.map(k => <option key={k} value={k}>{k}</option>)}
                           </select>
                         </td>
-                        <td>{eff.targetKelas ? `Kelas ${eff.targetKelas}` : <span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>-</span>}</td>
+                        <td>{eff.targetKelas ? `${namaTingkat(eff.targetKelas)}` : <span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>-</span>}</td>
                         <td>
                           {KEPUTUSAN_LANJUT.includes(eff.decision) ? (
                             <select value={eff.targetRombel} onChange={e => setOverrideField(s.id, 'targetRombel', e.target.value)} style={{ padding: '6px 8px', fontSize: 12.5 }}>

@@ -1,3 +1,4 @@
+import { TINGKAT_OPTIONS, JENJANG_KODE_OPTIONS } from '../config/jenjang';
 // Urutan & nama key HARUS sama persis dengan header di Google Sheets / Code.gs.
 // "Status" & "Jenis Pendaftaran" SENGAJA ditaruh di AKHIR (bukan disisip di tengah)
 // supaya kompatibel mundur dgn data siswa yang sudah ada -- baris lama otomatis
@@ -17,8 +18,8 @@ export const SISWA_FIELDS = [
   { key: 'Kabupaten/Kota', label: 'Kabupaten / Kota', type: 'text' },
   { key: 'NPSN', label: 'NPSN', type: 'text' },
   { key: 'NSM', label: 'NSM', type: 'text' },
-  { key: 'Jenjang', label: 'Jenjang', type: 'select', options: ['TK', 'SD', 'SMP', 'SMA', 'RA', 'MI', 'MTs', 'MA'] },
-  { key: 'Kelas/Tingkat', label: 'Kelas / Tingkat', type: 'select', options: ['1', '2', '3', '4', '5', '6'] },
+  { key: 'Jenjang', label: 'Jenjang', type: 'select', options: JENJANG_KODE_OPTIONS },
+  { key: 'Kelas/Tingkat', label: 'Kelas / Tingkat', type: 'select', options: TINGKAT_OPTIONS },
   { key: 'Nama Lengkap', label: 'Nama Lengkap', type: 'text', required: true },
   { key: 'NISN', label: 'NISN', type: 'text' },
   { key: 'NIK', label: 'NIK', type: 'text' },

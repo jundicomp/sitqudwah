@@ -1,3 +1,4 @@
+import { tarifBerlakuUntuk } from '../../db/tarifFields';
 import { useMemo, useState, Fragment } from 'react';
 import { useAppData } from '../../context/AppContext';
 import { deleteTagihanLainFromSheet, bulkDeleteTagihanSppFromSheet, bulkDeleteTagihanLainFromSheet, bulkDeletePembayaranFromSheet, addLogEntry, perbaikiNomorGanda, fetchPembayaranFromSheet, updatePembayaranInSheet } from '../../services/googleSheets';
@@ -227,7 +228,7 @@ export default function CekDataDuplikatTab() {
       if (!adaYangSpesifik) return; // tarifnya emang "Semua Kelas" -- wajar semua kelas kena
       const s = siswaByNisn.get(t.nisn);
       if (!s) return;
-      const cocok = tarifSejenis.some(x => x.kelasTingkat === s.kelasTingkat);
+      const cocok = tarifSejenis.some(x => tarifBerlakuUntuk(x.kelasTingkat, s.kelasTingkat));
       if (!cocok) {
         const kelasSeharusnya = tarifSejenis.filter(x => x.kelasTingkat !== 'Semua Kelas').map(x => x.kelasTingkat).join(', ');
         hasil.push({ ...t, kelasSeharusnya, kelasSiswaSekarang: s.kelasTingkat, punyaPembayaran: pembayaranByRefNo.has(`LAIN-${t.no}`) });

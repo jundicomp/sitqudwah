@@ -1,3 +1,4 @@
+import { bandingTingkat, namaTingkat } from '../config/jenjang';
 // Konstanta & helper bersama modul Akademik (Jadwal, Presensi, Nilai) dan
 // Kesiswaan (Prestasi, Pelanggaran, Laporan Siswa). Daftar pilihan diambil dari
 // versi HTML (sumber_migrasi.html) supaya istilahnya sama persis.
@@ -71,11 +72,11 @@ export function daftarRombel(kelas) {
   return kelas
     .filter(k => k.tingkat && k.namaKelas)
     .map(k => ({ key: `${k.tingkat}|${k.namaKelas}`, tingkat: k.tingkat, rombel: k.namaKelas, wali: k.waliKelas, label: labelRombel(k.tingkat, k.namaKelas) }))
-    .sort((a, b) => a.tingkat.localeCompare(b.tingkat, 'id', { numeric: true }) || a.rombel.localeCompare(b.rombel, 'id'));
+    .sort((a, b) => bandingTingkat(a.tingkat, b.tingkat) || a.rombel.localeCompare(b.rombel, 'id'));
 }
 export function labelRombel(tingkat, rombel) {
   if (!tingkat && !rombel) return '';
-  return `Kelas ${tingkat} · ${rombel}`;
+  return `${namaTingkat(tingkat)} · ${rombel}`;
 }
 export function parseLabelRombel(label, rombelList) {
   return rombelList.find(r => r.label === label) || null;

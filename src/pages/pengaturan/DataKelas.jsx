@@ -1,3 +1,5 @@
+import { bandingTingkat, namaTingkat } from '../../config/jenjang';
+import JenjangTab from './JenjangTab';
 import { useMemo } from 'react';
 import Page from '../../components/layout/Page';
 import useTabAccess from '../../hooks/useTabAccess';
@@ -9,7 +11,7 @@ import { useAppData } from '../../context/AppContext';
 
 export default function DataKelas() {
   const { kelas, guru, siswa, refreshKelas } = useAppData();
-  const { tab, setTab, bolehTab } = useTabAccess('kelas', ['tabel', 'manual']);
+  const { tab, setTab, bolehTab } = useTabAccess('kelas', ['tabel', 'manual', 'jenjang']);
 
   const waliKelasOptions = useMemo(
     () => guru.filter(g => g.status === 'Aktif' && (g.kategori === 'Guru' || g.kategori === 'Guru & Staff')).map(g => g.nama).sort(),
@@ -43,6 +45,7 @@ export default function DataKelas() {
         <div className="seg-tabs">
           {bolehTab('tabel') && <button className={`seg-tab ${tab === 'tabel' ? 'active' : ''}`} onClick={() => setTab('tabel')}>📋 DATA KELAS (TABEL)</button>}
           {bolehTab('manual') && <button className={`seg-tab ${tab === 'manual' ? 'active' : ''}`} onClick={() => setTab('manual')}>📝 TAMBAH MANUAL</button>}
+          {bolehTab('jenjang') && <button className={`seg-tab ${tab === 'jenjang' ? 'active' : ''}`} onClick={() => setTab('jenjang')}>🏫 JENJANG &amp; TINGKAT</button>}
         </div>
         <div className="card-body" style={{ background: 'transparent', padding: 20 }}>
           {tab === 'tabel' && bolehTab('tabel') && (
@@ -70,6 +73,7 @@ export default function DataKelas() {
               subtitle="Data langsung tersimpan ke baris baru di Google Sheets."
             />
           )}
+          {tab === 'jenjang' && bolehTab('jenjang') && <JenjangTab />}
         </div>
       </div>
 
@@ -77,7 +81,7 @@ export default function DataKelas() {
         <div className="card">
           <div className="card-head"><div><h3>Jumlah Siswa per Tingkat</h3><p>Dihitung langsung dari data Siswa asli — bukan input manual.</p></div></div>
           <div className="card-body" style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            {Object.keys(jumlahSiswaPerTingkat).sort().map(t => (
+            {Object.keys(jumlahSiswaPerTingkat).sort(bandingTingkat).map(t => (
               <div key={t} style={{ padding: '8px 16px', background: '#F6F8F5', border: '1px solid var(--border)', borderRadius: 8 }}>
                 Tingkat {t}: <strong>{jumlahSiswaPerTingkat[t]}</strong> siswa
               </div>

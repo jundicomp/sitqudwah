@@ -4,6 +4,26 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.40.0',
+    tanggal: '2026-10-01',
+    poin: [
+      'Jenjang & tingkat kelas kini diatur sendiri dari aplikasi: Pengaturan › Data Kelas & Rombel › tab "Jenjang & Tingkat". Bisa tambah jenjang (tombol cepat PAUD, TK, RA, SD, MI, SMP, MTs, SMA, MA, SMK), tambah/hapus/urutkan tingkat, dan menonaktifkan jenjang yang tidak dipakai',
+      'Perubahan jenjang langsung berlaku di semua pilihan tingkat (Data Kelas, Data Siswa, Tarif, KKM, Bank Soal, Kalender, Pengumuman) tanpa perlu memuat ulang aplikasi',
+      'Pengaman: tingkat yang masih dipakai kelas atau siswa tidak bisa dihapus, dan nama tingkat yang sama di dua jenjang ditolak',
+    ],
+  },
+  {
+    versi: '1.39.0',
+    tanggal: '2026-09-30',
+    poin: [
+      'Mendukung jenjang TK, SD, SMP, dan SMA dalam satu aplikasi: tingkat kelas kini TK A, TK B, dan Kelas 1-12 di Data Kelas, Data Siswa, Tarif, KKM, Bank Soal, Kalender, dan Pengumuman',
+      'Kenaikan kelas mengikuti jenjang: siswa TK B, Kelas 6, 9, dan 12 otomatis disarankan Lulus (tidak otomatis naik ke jenjang berikutnya)',
+      'Tarif kini bisa diatur per jenjang (mis. "Semua SD", "Semua SMP"). Urutan prioritas: tarif khusus kelas > tarif jenjang > tarif Semua Kelas',
+      'Kalender Akademik & Pengumuman bisa ditujukan ke satu jenjang (mis. "Jenjang SMP"); filter per kelas ikut menampilkan agenda jenjangnya',
+      'Halaman KKM menampilkan satu jenjang per tampilan agar tabel tidak terlalu lebar; urutan kelas di semua daftar kini TK A, TK B, 1, 2, ... 12',
+    ],
+  },
+  {
     versi: '1.38.2',
     tanggal: '2026-09-30',
     poin: [
