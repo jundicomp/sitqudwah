@@ -47,17 +47,72 @@ export function semesterDariTanggal(iso = todayWIB()) {
   return bulan >= 7 ? 'Ganjil' : 'Genap';
 }
 
+// ---------------------------------------------------------------------------
+// Skala predikat (huruf mutu) -- v1.43.0: diatur sekolah sendiri di
+// Akademik › Kurikulum & KKM › Skala Predikat. Tiap baris = huruf + nilai minimal;
+// nilai >= minimal dapat huruf itu (dicek dari minimal tertinggi). Sebelum sekolah
+// menyimpan skala sendiri, dipakai skala bawaan di bawah.
+// ---------------------------------------------------------------------------
+export const SKALA_PREDIKAT_BAWAAN = [
+  { huruf: 'A', min: 85, keterangan: 'Sangat Baik' },
+  { huruf: 'A-', min: 80, keterangan: 'Sangat Baik' },
+  { huruf: 'B+', min: 75, keterangan: 'Baik' },
+  { huruf: 'B', min: 70, keterangan: 'Baik' },
+  { huruf: 'B-', min: 65, keterangan: 'Baik' },
+  { huruf: 'C+', min: 60, keterangan: 'Cukup' },
+  { huruf: 'C', min: 55, keterangan: 'Cukup' },
+  { huruf: 'D', min: 40, keterangan: 'Kurang' },
+  { huruf: 'E', min: 0, keterangan: 'Sangat Kurang' },
+];
+let skalaPredikat = SKALA_PREDIKAT_BAWAAN;
+// Objek "hidup": isinya diganti tiap skala berubah, jadi import lama tetap jalan.
+export const PREDIKAT_LABEL = {};
+function isiLabelPredikat() {
+  Object.keys(PREDIKAT_LABEL).forEach(k => delete PREDIKAT_LABEL[k]);
+  skalaPredikat.forEach(x => { PREDIKAT_LABEL[x.huruf] = x.keterangan || ''; });
+}
+isiLabelPredikat();
+const urutSkala = (list) => [...list].sort((a, b) => b.min - a.min);
+export function setSkalaPredikat(list) {
+  const valid = (list || []).filter(x => x && x.huruf && Number.isFinite(x.min));
+  skalaPredikat = valid.length ? urutSkala(valid) : SKALA_PREDIKAT_BAWAAN;
+  isiLabelPredikat();
+}
+export const getSkalaPredikat = () => skalaPredikat;
+export function normalizeSheetSkalaPredikat(row) {
+  const huruf = s(row['Huruf']);
+  const min = Number(String(row['Nilai Minimal'] ?? '').replace(',', '.'));
+  if (!huruf || row['Nilai Minimal'] === '' || !Number.isFinite(min)) return null;
+  return { huruf, min, keterangan: s(row['Keterangan']) };
+}
+// Teks rentang utk ditampilkan, mis. "80 – <85" / "85 – 100".
+export function rentangPredikat(list, i) {
+  const urut = urutSkala(list);
+  const x = urut[i];
+  return i === 0 ? `${x.min} – 100` : `${x.min} – <${urut[i - 1].min}`;
+}
+
 export function predikatNilai(n) {
   if (n === null || n === undefined || n === '' || Number.isNaN(Number(n))) return '';
   const v = Number(n);
-  if (v >= 90) return 'A';
-  if (v >= 80) return 'B';
-  if (v >= 70) return 'C';
-  return 'D';
+  const ketemu = skalaPredikat.find(x => v >= x.min);
+  return (ketemu || skalaPredikat[skalaPredikat.length - 1]).huruf;
 }
-export const PREDIKAT_LABEL = { A: 'Sangat Baik', B: 'Baik', C: 'Cukup', D: 'Perlu Bimbingan' };
+// Warna badge: huruf A/B = hijau, C = emas, D/E = merah. Huruf lain (mis. "SB", "Mumtaz")
+// diwarnai menurut posisinya di skala (sepertiga atas hijau, tengah emas, bawah merah).
+export function tingkatPredikat(p) {
+  if (!p) return null;
+  const awal = p[0].toUpperCase();
+  if (awal === 'A' || awal === 'B') return 'baik';
+  if (awal === 'C') return 'cukup';
+  if (awal === 'D' || awal === 'E') return 'kurang';
+  const i = skalaPredikat.findIndex(x => x.huruf === p);
+  if (i < 0) return null;
+  const f = i / Math.max(skalaPredikat.length - 1, 1);
+  return f < 0.34 ? 'baik' : f < 0.67 ? 'cukup' : 'kurang';
+}
 export function badgePredikat(p) {
-  return p === 'A' || p === 'B' ? 'badge-green' : p === 'C' ? 'badge-gold' : p === 'D' ? 'badge-red' : 'badge-muted';
+  return { baik: 'badge-green', cukup: 'badge-gold', kurang: 'badge-red' }[tingkatPredikat(p)] || 'badge-muted';
 }
 export function badgeHadir(persen) {
   if (persen === null) return 'badge-muted';

@@ -92,7 +92,7 @@ export default function ScanPresensi() {
     antrian.current = antrian.current.then(async () => {
       if (!isConfigured('akademik')) { setHasil({ kelas: 'gagal', judul: 'Belum tersambung', detail: 'File Sheets Akademik belum tersambung.' }); return; }
       const ketemu = cariDariKode(raw, siswa, guru);
-      if (!ketemu) { setHasil({ kelas: 'gagal', judul: 'Kode tidak dikenal', detail: `"${raw}" tidak cocok dengan NISN siswa atau NIP guru mana pun.` }); return; }
+      if (!ketemu) { setHasil({ kelas: 'gagal', judul: 'Kode tidak dikenal', detail: `"${raw}" tidak cocok dengan NISN siswa atau NIY guru mana pun.` }); return; }
       if (ketemu.tipe !== tab) { setHasil({ kelas: 'gagal', judul: 'Salah tab', detail: `Ini kartu ${ketemu.tipe === 'siswa' ? 'siswa' : 'guru/staff'} (${ketemu.data.nama}). Pindah ke tab ${ketemu.tipe === 'siswa' ? 'Scan Siswa' : 'Scan Guru & Staff'}.` }); return; }
       const o = ketemu.data;
       const jenis = ketemu.tipe;
@@ -189,7 +189,7 @@ export default function ScanPresensi() {
 
           <details style={{ marginTop: 16 }}>
             <summary style={{ cursor: 'pointer', fontSize: 13.5, fontWeight: 700 }}>Kartu tertinggal? Catat lewat pencarian nama</summary>
-            <input className="input-cell" style={{ marginTop: 8, maxWidth: 380 }} value={cari} onChange={e => setCari(e.target.value)} placeholder="Ketik minimal 2 huruf nama atau NISN/NIP" />
+            <input className="input-cell" style={{ marginTop: 8, maxWidth: 380 }} value={cari} onChange={e => setCari(e.target.value)} placeholder="Ketik minimal 2 huruf nama atau NISN/NIY" />
             {kandidat.map(o => (
               <div key={o.id} style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 6, fontSize: 13.5 }}>
                 <button className="btn btn-sm" onClick={() => { proses(tab === 'siswa' ? kodeSiswa(o) : kodeGuru(o)); setCari(''); }}>Catat</button>

@@ -5,42 +5,23 @@ import { addUserToSheet, isConfigured } from '../../services/googleSheets';
 import { useAppData } from '../../context/AppContext';
 import StoredUsersTable from './StoredUsersTable';
 import SaveProgressModal from '../../components/common/SaveProgressModal';
-import Modal from '../../components/common/Modal';
+import KelolaRoleModal from './KelolaRoleModal';
 import useTabAccess from '../../hooks/useTabAccess';
 
-function TambahRoleModal({ onClose }) {
-  const { addRole, toast } = useAppData();
-  const [nama, setNama] = useState('');
-  const [saving, setSaving] = useState(false);
+export const OPSI_TAMBAH = '__tambah_kategori__';
+export const OPSI_KELOLA = '__kelola_kategori__';
 
-  async function simpan(e) {
-    e.preventDefault();
-    if (!nama.trim()) { toast('Nama role tidak boleh kosong.', 'error'); return; }
-    setSaving(true);
-    try {
-      await addRole(nama);
-      toast(`Role "${nama.trim()}" berhasil ditambahkan.`);
-      onClose();
-    } catch (err) {
-      toast(err.message, 'error');
-    } finally {
-      setSaving(false);
-    }
-  }
-
+// Dropdown Role + 2 opsi aksi di bawah daftar: "+ Tambah kategori…" & "✎ Edit / hapus kategori…".
+export function RoleSelect({ value, options, onChange }) {
   return (
-    <Modal title="Tambah Role Baru" subtitle="Role baru langsung bisa dipilih di form Tambah User & diatur hak aksesnya di Manajemen Hak Akses." onClose={onClose}>
-      <form onSubmit={simpan}>
-        <div className="field">
-          <label>Nama Role</label>
-          <input type="text" value={nama} onChange={e => setNama(e.target.value)} placeholder="mis. Guru, Wali Kelas, Operator Sarpras" autoFocus />
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 16 }}>
-          <button type="button" className="btn" onClick={onClose}>Batal</button>
-          <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Menyimpan...' : 'Simpan Role'}</button>
-        </div>
-      </form>
-    </Modal>
+    <select value={value} onChange={e => onChange(e.target.value)}>
+      <option value="">— pilih —</option>
+      {options.map(o => <option key={o} value={o}>{o}</option>)}
+      {value && !options.includes(value) && <option value={value}>{value}</option>}
+      <option disabled>──────────</option>
+      <option value={OPSI_TAMBAH}>+ Tambah kategori…</option>
+      <option value={OPSI_KELOLA}>✎ Edit / hapus kategori…</option>
+    </select>
   );
 }
 
@@ -49,13 +30,17 @@ function TambahUserForm({ onSaved }) {
   const [form, setForm] = useState(emptyUserRow());
   const [saving, setSaving] = useState(false);
   const [phase, setPhase] = useState(null);
-  const [tambahRoleOpen, setTambahRoleOpen] = useState(false);
+  const [kelolaRole, setKelolaRole] = useState(null); // null | { tambahBaru }
 
-  // Opsi Role field dibangun DINAMIS dari permissionRoles (4 bawaan + role tambahan
-  // yg dibuat lewat "+ Tambah Role") -- bukan lagi daftar statis dari userFields.js.
+  // Opsi Role dibangun DINAMIS dari daftar kategori user (bisa ditambah/diubah/dihapus).
   const fieldsDenganRole = useMemo(() => USER_FIELDS.map(f => f.key === 'Role' ? { ...f, options: permissionRoles } : f), [permissionRoles]);
 
   function setField(key, value) { setForm(f => ({ ...f, [key]: value })); }
+  function pilihRole(v) {
+    if (v === OPSI_TAMBAH) setKelolaRole({ tambahBaru: true });
+    else if (v === OPSI_KELOLA) setKelolaRole({ tambahBaru: false });
+    else setField('Role', v);
+  }
 
   async function submit(e) {
     e.preventDefault();
@@ -89,10 +74,12 @@ function TambahUserForm({ onSaved }) {
                 <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>{f.label}{f.required && <span style={{ color: 'var(--red)' }}> *</span>}</span>
                   {f.key === 'Role' && (
-                    <button type="button" onClick={() => setTambahRoleOpen(true)} style={{ background: 'none', border: 'none', color: 'var(--green-dark)', fontSize: 11.5, fontWeight: 700, cursor: 'pointer', padding: 0 }}>+ Tambah Role</button>
+                    <button type="button" onClick={() => setKelolaRole({ tambahBaru: false })} style={{ background: 'none', border: 'none', color: 'var(--green-dark)', fontSize: 11.5, fontWeight: 700, cursor: 'pointer', padding: 0 }}>✎ Kelola kategori</button>
                   )}
                 </label>
-                {f.type === 'select' ? (
+                {f.key === 'Role' ? (
+                  <RoleSelect value={form[f.key]} options={f.options} onChange={pilihRole} />
+                ) : f.type === 'select' ? (
                   <select value={form[f.key]} onChange={e => setField(f.key, e.target.value)}>
                     <option value="">— pilih —</option>
                     {f.options.map(o => <option key={o} value={o}>{o}</option>)}
@@ -110,7 +97,10 @@ function TambahUserForm({ onSaved }) {
         </div>
       </form>
       {phase && <SaveProgressModal phase={phase} />}
-      {tambahRoleOpen && <TambahRoleModal onClose={() => setTambahRoleOpen(false)} />}
+      {kelolaRole && (
+        <KelolaRoleModal tambahBaru={kelolaRole.tambahBaru} onClose={() => setKelolaRole(null)}
+          onSelesai={(baru, ganti) => setForm(fm => ({ ...fm, Role: baru || ganti[fm.Role] || fm.Role }))} />
+      )}
     </div>
   );
 }

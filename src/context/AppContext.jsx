@@ -17,6 +17,7 @@ import { normalizeSheetRiwayatAkademik } from '../db/riwayatAkademikFields';
 import { normalizeSheetJadwal, normalizeSheetPresensi, normalizeSheetNilai, normalizeSheetPrestasi, normalizeSheetPelanggaran } from '../db/akademikFields';
 import { normalizeSheetPresensiGuru, normalizeSheetKinerja, normalizeSheetPelatihan } from '../db/kepegawaianFields';
 import { setJenjang, normalizeSheetJenjang, jenjangDariSheets } from '../config/jenjang';
+import { setSkalaPredikat, getSkalaPredikat, normalizeSheetSkalaPredikat } from '../db/akademikFields';
 import { normalizeSheetPerkembangan, normalizeSheetAspek, ASPEK_BAWAAN } from '../db/perkembanganFields';
 import { normalizeSheetAkreditasi, normalizeSheetSemester, normalizeSheetMutasi, normalizeSheetPengumuman, normalizeSheetSurat, setPeriodeSemester } from '../db/komunikasiFields';
 import { normalizeSheetBuku, normalizeSheetSirkulasi, normalizeSheetDendaPerpus, normalizeSheetReservasi } from '../db/perpusFields';
@@ -28,11 +29,11 @@ import {
   fetchBeasiswaKategoriFromSheet, fetchBeasiswaSiswaFromSheet, fetchRiwayatAkademikFromSheet,
   setActiveTahunAjaranOnSheet, isConfigured, fetchAllFromSheet,
   fetchRolesFromSheet, addRoleToSheet, deleteRoleFromSheet,
-  fetchHakAksesFromSheet, saveHakAksesRole,
+  fetchHakAksesFromSheet, saveHakAksesRole, fetchUsersFromSheet, updateUserInSheet, replaceAllInSheet,
   fetchJadwalFromSheet, fetchPresensiFromSheet, fetchNilaiFromSheet, fetchPrestasiFromSheet, fetchPelanggaranFromSheet,
   fetchPresensiGuruFromSheet, fetchKinerjaFromSheet, fetchPelatihanFromSheet, fetchPengaturanPresensiFromSheet,
   fetchJenjangFromSheet,
-  perkembanganApi, fetchAspekPerkembanganFromSheet,
+  perkembanganApi, fetchAspekPerkembanganFromSheet, fetchSkalaPredikatFromSheet,
   akreditasiApi, semesterApi, mutasiApi, pengumumanApi, suratApi,
   fetchBukuFromSheet, fetchSirkulasiFromSheet, fetchDendaPerpusFromSheet, fetchReservasiFromSheet, fetchPengaturanPerpusFromSheet,
   fetchKkmFromSheet, fetchAgendaFromSheet, fetchBankSoalFromSheet, fetchUjianFromSheet, fetchRaporFromSheet,
@@ -170,6 +171,7 @@ const HAK_AKSES_TABS = {
   kkm: [
     { id: 'matriks', label: 'Atur KKM' },
     { id: 'tabel', label: 'Data KKM' },
+    { id: 'predikat', label: 'Skala Predikat' },
   ],
   rapor: [
     { id: 'kelas', label: 'Rapor per Kelas' },
@@ -314,6 +316,9 @@ const HAK_AKSES_TABS = {
 // role TAMBAHAN yg dibuat lewat "+ Tambah Role" digabung di ATAS daftar ini, TIDAK
 // menggantikannya, supaya role bawaan tidak pernah hilang begitu saja.
 const ROLE_BAWAAN = ['Kepala Sekolah', 'Bendahara / TU', 'Staf TU', 'Admin'];
+// Dua role ini dipakai khusus oleh sistem (akses halaman sensitif, panel User Aktif),
+// jadi namanya tidak boleh diganti/dihapus dari "Kelola kategori user".
+export const ROLE_TERKUNCI = ['Kepala Sekolah', 'Admin'];
 
 function buildDefaultPermissionsUntukRole(role) {
   const perms = {};
@@ -329,11 +334,22 @@ function buildDefaultPermissionsUntukRole(role) {
 
 export function AppProvider({ children }) {
   const [permissions, setPermissions] = useState({});
-  const [rolesTambahan, setRolesTambahan] = useState([]); // dari Sheet, di LUAR 4 role bawaan
-  const permissionRoles = useMemo(() => [...ROLE_BAWAAN, ...rolesTambahan], [rolesTambahan]);
+  const [roleDariSheet, setRoleDariSheet] = useState([]); // isi tab "Roles"
+  // v1.43.0: kategori user bisa diubah nama/dihapus. Begitu admin menyimpan lewat
+  // "Kelola kategori user", tab Roles berisi DAFTAR LENGKAP (termasuk Admin) -- itu
+  // tandanya. Sebelum itu (data lama), tab Roles cuma berisi role tambahan, jadi
+  // digabung dgn 4 role bawaan spt dulu.
+  const permissionRoles = useMemo(() => {
+    const unik = [...new Set(roleDariSheet)];
+    if (unik.includes('Admin')) {
+      const daftar = unik.filter(r => !ROLE_TERKUNCI.includes(r));
+      return ['Kepala Sekolah', ...daftar, 'Admin'];
+    }
+    return [...ROLE_BAWAAN.filter(r => r !== 'Admin'), ...unik.filter(r => !ROLE_BAWAAN.includes(r)), 'Admin'];
+  }, [roleDariSheet]);
 
   const isiRolesHakAksesDariRows = useCallback((roleRows, hakRows) => {
-    setRolesTambahan(roleRows.map(r => String(r['Nama Role'] ?? '').trim()).filter(Boolean));
+    setRoleDariSheet(roleRows.map(r => String(r['Nama Role'] ?? '').trim()).filter(Boolean));
     const permMap = {};
     // PENTING -- ketemu penyebab SEBENARNYA dari "hak akses balik lagi/tidak berubah":
     // sheet "Hak Akses" ternyata bisa punya LEBIH DARI 1 BARIS utk role yg SAMA (mis.
@@ -392,6 +408,45 @@ export function AppProvider({ children }) {
     if (permissionRoles.includes(nama)) throw new Error('Role dengan nama itu sudah ada.');
     await addRoleToSheet(nama);
     await muatRolesDanHakAkses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [permissionRoles]);
+
+  // Simpan daftar kategori user LENGKAP (urutan, nama baru, yg dihapus).
+  // `daftar` = [{ nama, namaAwal }] -- namaAwal kosong utk kategori baru.
+  // Ganti nama ikut memperbarui kolom Role semua user + baris Hak Akses-nya, supaya
+  // user tidak kehilangan akses. Kategori yg masih dipakai user tidak bisa dihapus.
+  const simpanDaftarRole = useCallback(async (daftar) => {
+    const bersih = daftar.map(d => ({ nama: String(d.nama || '').trim(), namaAwal: String(d.namaAwal || '').trim() }));
+    const nama = new Set();
+    for (const d of bersih) {
+      if (!d.nama) throw new Error('Nama kategori tidak boleh kosong.');
+      if (nama.has(d.nama.toLowerCase())) throw new Error(`Kategori "${d.nama}" ada dua kali.`);
+      nama.add(d.nama.toLowerCase());
+    }
+    ROLE_TERKUNCI.forEach(r => { if (!bersih.some(d => d.nama === r)) bersih.push({ nama: r, namaAwal: r }); });
+    const ganti = {};
+    bersih.forEach(d => { if (d.namaAwal && d.namaAwal !== d.nama) ganti[d.namaAwal] = d.nama; });
+    const dihapus = permissionRoles.filter(r => !bersih.some(d => d.namaAwal === r));
+
+    const users = await fetchUsersFromSheet();
+    const pemakai = (r) => users.filter(u => String(u['Role'] ?? '').trim() === r);
+    const masihDipakai = dihapus.filter(r => pemakai(r).length);
+    if (masihDipakai.length) {
+      throw new Error(`Kategori ${masihDipakai.map(r => `"${r}" (${pemakai(r).length} user)`).join(', ')} masih dipakai. Pindahkan user-nya ke kategori lain dulu sebelum menghapus.`);
+    }
+    for (const [lama, baru] of Object.entries(ganti)) {
+      for (const u of pemakai(lama)) await updateUserInSheet({ ...u, Role: baru });
+    }
+    if (Object.keys(ganti).length || dihapus.length) {
+      const hak = await fetchHakAksesFromSheet();
+      const hakBaru = hak
+        .filter(h => !dihapus.includes(String(h['Role'] ?? '').trim()))
+        .map((h, i) => { const r = String(h['Role'] ?? '').trim(); return { ...h, No: i + 1, Role: ganti[r] || r }; });
+      await replaceAllInSheet('hakAkses', hakBaru, 'master');
+    }
+    await replaceAllInSheet('roles', bersih.map((d, i) => ({ No: i + 1, 'Nama Role': d.nama })), 'master');
+    await muatRolesDanHakAkses();
+    return { ganti, dihapus };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [permissionRoles]);
 
@@ -490,6 +545,7 @@ export function AppProvider({ children }) {
   const bankSoalRes = useSheetResource(fetchBankSoalFromSheet, normalizeSheetBankSoal, 'akademik', defer);
   const ujianRes = useSheetResource(fetchUjianFromSheet, normalizeSheetUjian, 'akademik', defer);
   const raporRes = useSheetResource(fetchRaporFromSheet, normalizeSheetRapor, 'akademik', defer);
+  const skalaPredikatRes = useSheetResource(fetchSkalaPredikatFromSheet, normalizeSheetSkalaPredikat, 'akademik', defer);
 
   // ---- Profil Sekolah: 1 rekaman tunggal, bukan daftar ----
   // TIDAK auto-fetch sendiri saat mount lagi (dulu +1 request terpisah) -- diisi
@@ -606,6 +662,7 @@ export function AppProvider({ children }) {
       bankSoalRes.setFromBatch(semua.bankSoal || []);
       ujianRes.setFromBatch(semua.ujian || []);
       raporRes.setFromBatch(semua.rapor || []);
+      skalaPredikatRes.setFromBatch(semua.skalaPredikat || []);
     } catch (err) {
       if (!withFallback) return;
       jadwalRes.refresh(); presensiRes.refresh(); nilaiRes.refresh(); prestasiRes.refresh(); pelanggaranRes.refresh();
@@ -614,6 +671,7 @@ export function AppProvider({ children }) {
       bukuRes.refresh(); sirkulasiRes.refresh(); dendaPerpusRes.refresh(); reservasiRes.refresh(); pengaturanPerpusRes.refresh();
       presensiGuruRes.refresh(); pengaturanPresensiRes.refresh(); kinerjaRes.refresh(); pelatihanRes.refresh();
       kkmRes.refresh(); agendaRes.refresh(); bankSoalRes.refresh(); ujianRes.refresh(); raporRes.refresh();
+      skalaPredikatRes.refresh();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -625,6 +683,11 @@ export function AppProvider({ children }) {
     setJenjang(list);
     return list;
   }, [jenjangRes.data]);
+
+  // Skala predikat: milik sekolah, atau bawaan kalau belum pernah disimpan. Dipasang
+  // saat render (spt jenjang) supaya predikatNilai() di semua halaman langsung ikut.
+  const skalaTersimpan = useMemo(() => (skalaPredikatRes.data || []).filter(Boolean), [skalaPredikatRes.data]);
+  const skalaPredikat = useMemo(() => { setSkalaPredikat(skalaTersimpan); return getSkalaPredikat(); }, [skalaTersimpan]);
 
   // Aspek perkembangan: daftar milik sekolah, atau bawaan kalau belum pernah disimpan.
   const aspekTersimpan = useMemo(() => (aspekRes.data || []).filter(Boolean), [aspekRes.data]);
@@ -758,6 +821,7 @@ export function AppProvider({ children }) {
     reservasi: reservasiRes.data, refreshReservasi: reservasiRes.refresh,
     pengaturanPerpusRows: pengaturanPerpusRes.data, refreshPengaturanPerpus: pengaturanPerpusRes.refresh,
     kkm: kkmRes.data, kkmLoaded: kkmRes.loaded, refreshKkm: kkmRes.refresh,
+    skalaPredikat, skalaPredikatDariSheets: skalaTersimpan.length > 0, refreshSkalaPredikat: skalaPredikatRes.refresh,
     agenda: agendaRes.data, agendaLoaded: agendaRes.loaded, refreshAgenda: agendaRes.refresh,
     bankSoal: bankSoalRes.data, bankSoalLoaded: bankSoalRes.loaded, refreshBankSoal: bankSoalRes.refresh,
     ujian: ujianRes.data, ujianLoaded: ujianRes.loaded, refreshUjian: ujianRes.refresh,
@@ -765,7 +829,7 @@ export function AppProvider({ children }) {
     muatAkademik,
     allTagihan, tagihanTerbayar,
     profilSekolah, profilLoading, profilExists, refreshProfil,
-    permissions: permissionsUntukTampil, terapkanPerubahanHakAkses, addRole, muatRolesDanHakAkses,
+    permissions: permissionsUntukTampil, terapkanPerubahanHakAkses, addRole, simpanDaftarRole, muatRolesDanHakAkses,
     toast, toasts,
     HAK_AKSES_PAGES, HAK_AKSES_TABS, permissionRoles, halamanSensitif, ADMIN_ONLY_PAGES,
   };

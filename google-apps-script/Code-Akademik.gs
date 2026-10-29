@@ -34,6 +34,7 @@
  *   buku, sirkulasi, dendaPerpus, reservasiBuku, pengaturanPerpus -> Perpustakaan (v1.37.0)
  *   akreditasi, semester, mutasi, pengumuman, surat -> (v1.38.0)
  *   perkembangan, aspekPerkembangan -> Catatan Perkembangan Siswa (v1.42.0)
+ *   skalaPredikat                   -> Skala predikat / huruf mutu nilai (v1.43.0)
  *
  * Beda dgn Code.gs / Code-Keuangan.gs:
  * - Nomor "No" baru = No TERBESAR + 1 (bukan getLastRow()). Versi lama bisa
@@ -176,6 +177,11 @@ const SHEETS = {
     name: 'Aspek Perkembangan',
     // Daftar kategori aspek yg dikelola admin dari aplikasi (urutan baris = urutan tampil).
     headers: ['No', 'Nama', 'Keterangan', 'Aktif'],
+  },
+  skalaPredikat: {
+    name: 'Skala Predikat',
+    // Huruf mutu + nilai minimal (dikelola dari Akademik › Kurikulum & KKM › Skala Predikat).
+    headers: ['No', 'Huruf', 'Nilai Minimal', 'Keterangan'],
   },
   kinerja: {
     name: 'Penilaian Kinerja',

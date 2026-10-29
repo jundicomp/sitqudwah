@@ -4,6 +4,16 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.43.0',
+    tanggal: '2026-10-29',
+    poin: [
+      'Manajemen User: kategori user (Role) kini bisa ditambah, diganti nama, diurutkan, dan dihapus. Di dropdown Role ada pilihan "+ Tambah kategori…" dan "✎ Edit / hapus kategori…" di bawah daftar, baik di form Tambah User maupun Edit User',
+      'Ganti nama kategori otomatis ikut memperbarui semua user & pengaturan hak aksesnya. Kategori yang masih dipakai user tidak bisa dihapus. Kepala Sekolah & Admin dikunci karena dipakai sistem untuk akses halaman sensitif',
+      'Data Guru & Staff: kolom Pangkat / Golongan dihapus dari form dan tabel, NIP / NUPTK diganti menjadi NIY (Nomor Induk Yayasan) di semua tampilan, ID card, presensi, dan export',
+      'Skala predikat nilai kini diatur sekolah sendiri (Akademik › Kurikulum & KKM › Skala Predikat): huruf mutu + nilai minimal, tanpa kolom bobot. Bawaannya A, A-, B+, B, B-, C+, C, D, E (85 / 80 / 75 / 70 / 65 / 60 / 55 / 40 / 0) dan langsung dipakai di Nilai, Rapor, Laporan Siswa, Grafik Nilai, dan Export',
+    ],
+  },
+  {
     versi: '1.42.0',
     tanggal: '2026-10-01',
     poin: [

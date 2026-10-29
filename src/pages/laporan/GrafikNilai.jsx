@@ -4,9 +4,9 @@ import Page from '../../components/layout/Page';
 import useAkademikOptions from '../../hooks/useAkademikOptions';
 import InfoCard from '../../components/common/InfoCard';
 import { AkademikBelumTersambung, Field, Select } from '../../components/akademik/shared';
-import { ChartCard, Baris, WARNA, WARNA_PREDIKAT } from '../../components/akademik/charts';
+import { ChartCard, Baris, WARNA, warnaPredikat } from '../../components/akademik/charts';
 import { useAppData } from '../../context/AppContext';
-import { MAPEL_OPTIONS, SEMESTER_OPTIONS, semesterDariTanggal, predikatNilai, labelRombel, PREDIKAT_LABEL } from '../../db/akademikFields';
+import { MAPEL_OPTIONS, SEMESTER_OPTIONS, semesterDariTanggal, predikatNilai, labelRombel, PREDIKAT_LABEL, getSkalaPredikat } from '../../db/akademikFields';
 import { buatLookupKkm } from '../../db/akademikLanjutanFields';
 
 const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -14,7 +14,7 @@ const rata = (a) => a.length ? Math.round((a.reduce((x, y) => x + y, 0) / a.leng
 const singkat = (m) => (m.length > 12 ? m.replace("Al-Qur'an Hadits", 'Qurdis').replace('Bahasa ', 'B. ').replace('Akidah Akhlak', 'Akidah') : m);
 
 export default function GrafikNilai() {
-  const { nilai, kkm } = useAppData();
+  const { nilai, kkm, skalaPredikat } = useAppData();
   const { tahunAjaranOptions, taAktif, rombelList } = useAkademikOptions();
   const [ta, setTa] = useState('');
   const [semester, setSemester] = useState(semesterDariTanggal());
@@ -41,12 +41,12 @@ export default function GrafikNilai() {
     const perSiswa = {};
     data.forEach(n => { (perSiswa[n.nisn] ||= { nama: n.nama, kelas: labelRombel(n.tingkat, n.rombel), v: [] }).v.push(n.nilai); });
     const siswaRata = Object.values(perSiswa).map(s => ({ ...s, rata: rata(s.v) }));
-    const distribusi = ['A', 'B', 'C', 'D'].map(p => ({ name: `${p} · ${PREDIKAT_LABEL[p]}`, key: p, value: siswaRata.filter(s => predikatNilai(s.rata) === p).length })).filter(x => x.value);
+    const distribusi = getSkalaPredikat().map(x => x.huruf).map(p => ({ name: PREDIKAT_LABEL[p] ? `${p} · ${PREDIKAT_LABEL[p]}` : p, key: p, value: siswaRata.filter(s => predikatNilai(s.rata) === p).length })).filter(x => x.value);
     const top = [...siswaRata].sort((a, b) => b.rata - a.rata).slice(0, 10);
     const bawah = siswaRata.filter(s => s.rata < 70).sort((a, b) => a.rata - b.rata);
     const kurangKkm = mapel.filter(m => m.KKM !== null && m.Rata < m.KKM);
     return { total: data.length, rataAll: rata(data.map(n => n.nilai)), mapel, perRombel, tren, distribusi, top, bawah, jmlSiswa: siswaRata.length, kurangKkm };
-  }, [nilai, kkm, ta, semester, tingkat, rombelList]);
+  }, [nilai, kkm, ta, semester, tingkat, rombelList, skalaPredikat]);
 
   return (
     <Page pageId="grafik-nilai" title="Grafik Nilai & Tren" path="Laporan & Grafik / Grafik Nilai & Tren">
@@ -96,7 +96,7 @@ export default function GrafikNilai() {
         <ChartCard judul="Sebaran predikat siswa" sub="Dari rata-rata semua nilai tiap siswa." kosong={!d.distribusi.length && 'Belum ada nilai.'}>
           <PieChart>
             <Pie data={d.distribusi} dataKey="value" nameKey="name" innerRadius={50} outerRadius={90} paddingAngle={2}>
-              {d.distribusi.map(x => <Cell key={x.key} fill={WARNA_PREDIKAT[x.key]} />)}
+              {d.distribusi.map(x => <Cell key={x.key} fill={warnaPredikat(x.key)} />)}
             </Pie>
             <Tooltip /><Legend />
           </PieChart>

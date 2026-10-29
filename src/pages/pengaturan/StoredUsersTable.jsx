@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import KelolaRoleModal from './KelolaRoleModal';
 import GenericStoredTable from '../../components/sheetCrud/GenericStoredTable';
 import { USER_FIELDS, USER_HEADERS } from '../../db/userFields';
 import { fetchUsersFromSheet, updateUserInSheet, deleteUserFromSheet, addLogEntry } from '../../services/googleSheets';
@@ -6,7 +7,16 @@ import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 
 export default function StoredUsersTable({ refreshKey }) {
-  const { toast } = useAppData();
+  const { toast, permissionRoles } = useAppData();
+  const [kelolaRole, setKelolaRole] = useState(null); // null | { tambahBaru, isi }
+  // Opsi Role ikut daftar kategori user + 2 opsi aksi di bawahnya.
+  const fields = useMemo(() => USER_FIELDS.map(f => f.key !== 'Role' ? f : {
+    ...f, options: permissionRoles,
+    extraOptions: [
+      { value: '__tambah_kategori__', label: '+ Tambah kategori…', onPick: isi => setKelolaRole({ tambahBaru: true, isi }) },
+      { value: '__kelola_kategori__', label: '✎ Edit / hapus kategori…', onPick: isi => setKelolaRole({ tambahBaru: false, isi }) },
+    ],
+  }), [permissionRoles]);
   const { currentUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [toggling, setToggling] = useState(null);
@@ -44,11 +54,12 @@ export default function StoredUsersTable({ refreshKey }) {
   }
 
   return (
+    <>
     <GenericStoredTable
       title="Daftar User (Google Sheets)"
       subtitle="Akun ini bisa langsung dipakai login — edit, nonaktifkan, atau hapus lewat kolom Aksi."
       headers={USER_HEADERS}
-      fields={USER_FIELDS}
+      fields={fields}
       fetchFn={fetchUsersFromSheet}
       updateFn={updateUserInSheet}
       deleteFn={deleteUserFromSheet}
@@ -79,5 +90,10 @@ export default function StoredUsersTable({ refreshKey }) {
         </button>
       )}
     />
+    {kelolaRole && (
+      <KelolaRoleModal tambahBaru={kelolaRole.tambahBaru} onClose={() => setKelolaRole(null)}
+        onSelesai={(baru, ganti) => { if (baru) kelolaRole.isi(baru); if (Object.keys(ganti || {}).length) setBump(b => b + 1); }} />
+    )}
+    </>
   );
 }

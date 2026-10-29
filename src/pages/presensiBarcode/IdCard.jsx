@@ -44,7 +44,7 @@ function Kartu({ o, tipe, profil, ta, idPrefix }) {
             </>
           ) : (
             <>
-              <div className="idcard-row">NIP: <b>{o.nip || '-'}</b></div>
+              <div className="idcard-row">NIY: <b>{o.nip || '-'}</b></div>
               <div className="idcard-row">{o.kategori || 'Pegawai'}{o.jabatan ? ` · ${o.jabatan}` : ''}</div>
               {o.mapel && <div className="idcard-row">Mapel: {o.mapel}</div>}
             </>
@@ -100,7 +100,7 @@ export default function IdCard() {
         <div className="card-body">
           <div className="filter-bar">
             {tab === 'siswa' && <Field label="Kelas / Rombel" grow><Select value={rombelKey} onChange={setRombelKey} options={rombelList.map(r => ({ value: r.key, label: r.label }))} /></Field>}
-            <Field label="Cari nama" grow><input value={cari} onChange={e => setCari(e.target.value)} placeholder={tab === 'siswa' ? 'nama atau NISN (semua kelas)' : 'nama atau NIP'} /></Field>
+            <Field label="Cari nama" grow><input value={cari} onChange={e => setCari(e.target.value)} placeholder={tab === 'siswa' ? 'nama atau NISN (semua kelas)' : 'nama atau NIY'} /></Field>
             <button className="btn btn-primary" onClick={() => printElementById('idcard-cetak')} disabled={!orang.length}>🖨️ Cetak {orang.length} kartu</button>
           </div>
           <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 14px' }}>

@@ -8,7 +8,7 @@ import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import {
   MAPEL_OPTIONS, SEMESTER_OPTIONS, JENIS_NILAI_OPTIONS, NILAI_HEADERS,
-  siswaDiRombel, semesterDariTanggal, predikatNilai, badgePredikat, PREDIKAT_LABEL,
+  siswaDiRombel, semesterDariTanggal, predikatNilai, badgePredikat, PREDIKAT_LABEL, getSkalaPredikat,
 } from '../../db/akademikFields';
 import { todayWIB } from '../../db/helpers';
 import {
@@ -226,7 +226,7 @@ function RekapNilai() {
   return (
     <div className="card">
       <div className="card-head">
-        <div><h3>Rekap nilai per kelas</h3><p>Rata-rata semua penilaian per mata pelajaran. Predikat: A ≥ 90, B ≥ 80, C ≥ 70, D di bawahnya.</p></div>
+        <div><h3>Rekap nilai per kelas</h3><p>Rata-rata semua penilaian per mata pelajaran. Predikat mengikuti skala di Kurikulum &amp; KKM › Skala Predikat ({getSkalaPredikat().map(x => `${x.huruf} ≥ ${x.min}`).join(', ')}).</p></div>
         <button className="btn btn-sm" onClick={exportRekap} disabled={!mapelAda.length}>📊 Excel</button>
       </div>
       <div className="card-body">

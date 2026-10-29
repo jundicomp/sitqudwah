@@ -69,7 +69,7 @@ export default function LaporanPresensi() {
   ];
 
   function exportData() {
-    const h = ['Nama', tab === 'siswa' ? 'NISN' : 'NIP', tab === 'siswa' ? 'Kelas' : 'Kategori', 'Hari Hadir', 'Tidak Hadir', 'Rata-rata Masuk', 'Terlambat (kali)', 'Total Menit Telat', 'Total Denda', 'Tanpa Scan Pulang', 'Via Scan'];
+    const h = ['Nama', tab === 'siswa' ? 'NISN' : 'NIY', tab === 'siswa' ? 'Kelas' : 'Kategori', 'Hari Hadir', 'Tidak Hadir', 'Rata-rata Masuk', 'Terlambat (kali)', 'Total Menit Telat', 'Total Denda', 'Tanpa Scan Pulang', 'Via Scan'];
     exportToExcel(h, rows.map(r => ({ Nama: r.nama, [h[1]]: r.sub, [h[2]]: r.grup, 'Hari Hadir': r.hadir, 'Tidak Hadir': r.tidakHadir, 'Rata-rata Masuk': r.rataMasuk, 'Terlambat (kali)': r.telat, 'Total Menit Telat': r.menit, 'Total Denda': r.denda, 'Tanpa Scan Pulang': r.tanpaPulang, 'Via Scan': r.scan })),
       `Laporan_Presensi_${tab}_${dari}_${sampai}`, `Laporan Presensi ${tab === 'siswa' ? 'Siswa' : 'Guru & Staff'} (${dari || 'awal'} s.d. ${sampai})`);
   }

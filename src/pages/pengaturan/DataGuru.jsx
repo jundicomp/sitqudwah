@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import Page from '../../components/layout/Page';
 import GenericManualForm from '../../components/sheetCrud/GenericManualForm';
 import GenericStoredTable from '../../components/sheetCrud/GenericStoredTable';
-import { GURU_HEADERS, GURU_FIELDS, emptyGuruRow } from '../../db/guruFields';
+import { GURU_HEADERS, GURU_HEADER_LABELS, GURU_FIELDS, emptyGuruRow } from '../../db/guruFields';
 import { fetchGuruFromSheet, addGuruToSheet, updateGuruInSheet, deleteGuruFromSheet } from '../../services/googleSheets';
 import { useAppData } from '../../context/AppContext';
 import InfoCard from '../../components/common/InfoCard';
@@ -59,6 +59,7 @@ export default function DataGuru() {
               title="Data Guru & Staff (Tabel)"
               subtitle="Diambil langsung dari Google Sheets — bisa diubah atau dihapus dari sini."
               headers={GURU_HEADERS}
+              headerLabels={GURU_HEADER_LABELS}
               fields={GURU_FIELDS}
               fetchFn={fetchFnTersaring}
               updateFn={updateGuruInSheet}

@@ -106,8 +106,8 @@ function BebanMengajar() {
   ];
 
   function exportData() {
-    exportToExcel(['Guru', 'NIP', 'JP/Minggu', 'Jam Tatap Muka', 'Kelas Diampu', 'Mata Pelajaran', 'Tugas Tambahan'], rows.map(r => ({
-      Guru: r.nama, NIP: r.nip, 'JP/Minggu': r.jp, 'Jam Tatap Muka': r.jam, 'Kelas Diampu': r.kelas, 'Mata Pelajaran': r.mapel, 'Tugas Tambahan': r.tugas,
+    exportToExcel(['Guru', 'NIY', 'JP/Minggu', 'Jam Tatap Muka', 'Kelas Diampu', 'Mata Pelajaran', 'Tugas Tambahan'], rows.map(r => ({
+      Guru: r.nama, NIY: r.nip, 'JP/Minggu': r.jp, 'Jam Tatap Muka': r.jam, 'Kelas Diampu': r.kelas, 'Mata Pelajaran': r.mapel, 'Tugas Tambahan': r.tugas,
     })), `Beban_Mengajar_${p.ta}_${p.semester}`.replace(/[^\w-]+/g, '_'), `Beban Mengajar Guru — ${p.ta} ${p.semester}`);
   }
 

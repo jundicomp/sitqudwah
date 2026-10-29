@@ -197,7 +197,7 @@ export default function PresensiGuru() {
           {tab === 'rekap' && bolehTab('rekap') && <Rekap />}
           {tab === 'tabel' && bolehTab('tabel') && (
             <GenericStoredTable title="Data presensi guru & staff" subtitle="Koreksi satu per satu di sini."
-              headers={PRESENSI_GURU_HEADERS} fields={EDIT_FIELDS}
+              headers={PRESENSI_GURU_HEADERS} headerLabels={{ NIP: 'NIY' }} fields={EDIT_FIELDS}
               fetchFn={fetchPresensiGuruFromSheet} updateFn={updatePresensiGuruInSheet} deleteFn={deletePresensiGuruFromSheet}
               moduleLabel="Presensi Guru & Staff" labelKey="Nama" target="akademik"
               columnRenderers={{ Status: r => <span className={`badge ${badgePresensiGuru(r.Status)}`}>{r.Status}</span> }}

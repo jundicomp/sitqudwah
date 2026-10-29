@@ -1,9 +1,16 @@
+import { tingkatPredikat } from '../../db/akademikFields';
 // Pembungkus kecil recharts utk halaman Laporan & Grafik -- warna diambil dari palet tema.
 import { ResponsiveContainer } from 'recharts';
 
 export const WARNA = { hijau: '#1C7A3C', hijauTua: '#123D22', emas: '#F0B429', merah: '#B23B2E', biru: '#1E4FA0', ungu: '#5B3E8E', abu: '#8A9A90' };
 export const WARNA_STATUS = { Hadir: WARNA.hijau, Sakit: WARNA.biru, Izin: WARNA.emas, Alpha: WARNA.merah, 'Dinas Luar': WARNA.ungu };
-export const WARNA_PREDIKAT = { A: WARNA.hijauTua, B: WARNA.hijau, C: WARNA.emas, D: WARNA.merah };
+export const WARNA_PREDIKAT = { A: WARNA.hijauTua, B: WARNA.hijau, C: WARNA.emas, D: WARNA.merah, E: WARNA.merah };
+// Warna utk huruf predikat apa pun (A-, B+, dst) -- ikut huruf depannya / posisinya di skala.
+export function warnaPredikat(p) {
+  if (WARNA_PREDIKAT[p]) return WARNA_PREDIKAT[p];
+  const t = tingkatPredikat(p);
+  return t === 'baik' ? (String(p)[0].toUpperCase() === 'A' ? WARNA.hijauTua : WARNA.hijau) : t === 'cukup' ? WARNA.emas : t === 'kurang' ? WARNA.merah : WARNA.abu;
+}
 export const juta = (v) => (Math.abs(v) >= 1e6 ? `${(v / 1e6).toFixed(1)}jt` : Math.abs(v) >= 1e3 ? `${Math.round(v / 1e3)}rb` : String(v));
 
 export function ChartCard({ judul, sub, tinggi = 260, kosong, children, aksi }) {

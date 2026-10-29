@@ -57,7 +57,7 @@ export default function PortofolioGuruTab() {
             <input
               ref={inputRef}
               type="text" value={cari} onChange={e => setCari(e.target.value)}
-              placeholder="Cari nama atau NIP/NUPTK..." style={{ width: '100%' }}
+              placeholder="Cari nama atau NIY..." style={{ width: '100%' }}
             />
             <SuggestionDropdown anchorRef={inputRef} visible={saran.length > 0}>
               {saran.map(g => (
@@ -72,7 +72,7 @@ export default function PortofolioGuruTab() {
             </SuggestionDropdown>
             <SuggestionDropdown anchorRef={inputRef} visible={!!cari.trim() && saran.length === 0}>
               <div style={{ padding: '12px 14px', fontSize: 12.5, color: 'var(--muted)' }}>
-                Tidak ditemukan guru/staff dengan nama atau NIP mengandung "{cari.trim()}". Coba kata kunci lain, atau cek ejaannya di menu Data Guru & Staff (Tabel).
+                Tidak ditemukan guru/staff dengan nama atau NIY mengandung "{cari.trim()}". Coba kata kunci lain, atau cek ejaannya di menu Data Guru & Staff (Tabel).
               </div>
             </SuggestionDropdown>
           </div>
@@ -88,8 +88,7 @@ export default function PortofolioGuruTab() {
                 <h2 style={{ fontSize: 15.5, margin: '0 0 4px', wordBreak: 'break-word', lineHeight: 1.35 }}>{dipilih.nama}</h2>
                 <div style={{ fontSize: 11.5, opacity: .85, marginBottom: 20 }}>{dipilih.kategori}</div>
                 <SideBlock label="Kontak" value={[dipilih.tempatLahir, dipilih.hp].filter(Boolean).join(' · ')} />
-                <SideBlock label="NIP / NUPTK" value={dipilih.nip} />
-                <SideBlock label="Pangkat / Golongan" value={dipilih.pangkatGolongan} />
+                <SideBlock label="NIY" value={dipilih.nip} />
                 <SideBlock label="TMT" value={formatTanggalTampil(dipilih.tmtMengajar)} />
                 <SideBlock label="Status Kepegawaian" value={dipilih.statusKepegawaian} />
                 <SideBlock label="Status Aktif" value={dipilih.status} />

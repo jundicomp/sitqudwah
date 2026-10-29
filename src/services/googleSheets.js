@@ -460,3 +460,7 @@ export const simpanJenjangKeSheet = (rows) => replaceAllInSheet('jenjang', rows,
 export const perkembanganApi = crudAkademik('perkembangan');
 export const fetchAspekPerkembanganFromSheet = () => fetchFromSheet('aspekPerkembangan', 'akademik');
 export const simpanAspekPerkembanganKeSheet = (rows) => replaceAllInSheet('aspekPerkembangan', rows, 'akademik');
+
+// ---- Skala Predikat / huruf mutu (v1.43.0) ----
+export const fetchSkalaPredikatFromSheet = () => fetchFromSheet('skalaPredikat', 'akademik');
+export const simpanSkalaPredikatKeSheet = (rows) => replaceAllInSheet('skalaPredikat', rows, 'akademik');

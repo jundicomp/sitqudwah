@@ -504,3 +504,7 @@ td{white-space:nowrap;}
 .seg-pilih button.on{background:var(--green);color:#fff;}
 .seg-pilih button.on.turun{background:var(--red);}
 .seg-pilih button.on.tetap{background:var(--blue);}
+/* v1.43.0 Kategori user & skala predikat */
+.role-list{display:flex;flex-direction:column;gap:6px;max-height:52vh;overflow:auto;}
+.role-row{display:flex;align-items:center;gap:8px;}
+.role-row .btn-icon:disabled{opacity:.3;cursor:not-allowed;}

@@ -1,12 +1,16 @@
 // "Kategori" (Guru/Staff) + kolom-kolom baru SENGAJA ditaruh di AKHIR (kompatibel
 // mundur) -- data lama yg belum punya nilai di kolom2 ini otomatis dianggap
 // Kategori="Guru" (lihat normalizeSheetGuru), supaya tidak perlu migrasi manual.
+// v1.43.0: "Pangkat/Golongan" tidak lagi ditampilkan/diisi (kolomnya di Sheet dibiarkan,
+// data lama tidak hilang). Kolom Sheet "NIP/NUPTK" TETAP dipakai sbg tempat simpan, tapi
+// di aplikasi tampil sbg "NIY" (Nomor Induk Yayasan) -- lihat GURU_HEADER_LABELS.
 export const GURU_HEADERS = [
   'No', 'Nama Lengkap', 'NIP/NUPTK', 'Mata Pelajaran', 'No HP', 'Email', 'Status',
-  'Kategori', 'Jenis Kelamin', 'Pangkat/Golongan', 'Tempat Lahir', 'Tanggal Lahir',
+  'Kategori', 'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir',
   'Pendidikan Terakhir', 'Sertifikasi', 'Jumlah Jam Mengajar', 'TMT Mengajar', 'Tugas Tambahan',
   'Status Kepegawaian',
 ];
+export const GURU_HEADER_LABELS = { 'NIP/NUPTK': 'NIY' };
 
 export const KATEGORI_OPTIONS = ['Guru', 'Staff', 'Guru & Staff'];
 export const JENIS_KELAMIN_OPTIONS = ['Laki-laki', 'Perempuan'];
@@ -24,8 +28,7 @@ export const GURU_FIELDS = [
   { key: 'Kategori', label: 'Kategori', type: 'select', options: KATEGORI_OPTIONS, required: true },
   { key: 'Nama Lengkap', label: 'Nama Lengkap', type: 'text', required: true },
   { key: 'Jenis Kelamin', label: 'Jenis Kelamin (L/P)', type: 'select', options: JENIS_KELAMIN_OPTIONS },
-  { key: 'NIP/NUPTK', label: 'NIP / NUPTK', type: 'text' },
-  { key: 'Pangkat/Golongan', label: 'Pangkat / Golongan', type: 'text', placeholder: 'mis. Penata Muda / III-a' },
+  { key: 'NIP/NUPTK', label: 'NIY', type: 'text', placeholder: 'Nomor Induk Yayasan' },
   { key: 'Tempat Lahir', label: 'Tempat Lahir', type: 'text' },
   { key: 'Tanggal Lahir', label: 'Tanggal Lahir', type: 'date' },
   { key: 'Pendidikan Terakhir', label: 'Pendidikan Terakhir', type: 'text', placeholder: 'mis. S.1 Univ Sriwijaya 2013' },
@@ -56,7 +59,8 @@ export function normalizeSheetGuru(row, idx) {
     id: 'GURU-' + (row['No'] ?? idx),
     no: row['No'],
     nama: String(row['Nama Lengkap'] ?? '').trim(),
-    nip: String(row['NIP/NUPTK'] ?? '').trim(),
+    // "nip" = NIY (nama properti dipertahankan supaya modul lain tidak perlu diubah).
+    nip: String(row['NIY'] ?? row['NIP/NUPTK'] ?? '').trim(),
     jabatan: String(row['Jabatan'] ?? '').trim(),
     mapel: String(row['Mata Pelajaran'] ?? '').trim(),
     hp: String(row['No HP'] ?? '').trim(),

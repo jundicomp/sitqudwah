@@ -21,7 +21,7 @@ const ICON_DELETE = (
 export default function GenericStoredTable({
   title, subtitle, headers, fields, fetchFn, updateFn, deleteFn,
   moduleLabel, labelKey, searchFn, onChanged, extraActions, refreshSignal, target = 'master',
-  columnRenderers, headExtra,
+  columnRenderers, headExtra, headerLabels = {},
 }) {
   const { toast } = useAppData();
   const { currentUser } = useAuth();
@@ -85,8 +85,8 @@ export default function GenericStoredTable({
   const columns = [
     ...headers.filter(h => h !== 'No').map(h => (
       columnRenderers && columnRenderers[h]
-        ? { key: h, label: h, render: columnRenderers[h] }
-        : { key: h, label: h, accessor: (r) => r[h] }
+        ? { key: h, label: headerLabels[h] || h, render: columnRenderers[h] }
+        : { key: h, label: headerLabels[h] || h, accessor: (r) => r[h] }
     )),
     {
       key: 'aksi',
@@ -110,7 +110,7 @@ export default function GenericStoredTable({
         <div><h3>{title}</h3><p>{subtitle}</p></div>
         <div style={{ display: 'flex', gap: 8 }}>
           {headExtra}
-          <button className="btn btn-sm" onClick={() => exportToExcel(exportHeaders, rows, moduleLabel, moduleLabel)} disabled={rows.length === 0}>📊 Excel</button>
+          <button className="btn btn-sm" onClick={() => exportToExcel(exportHeaders.map(h => headerLabels[h] || h), rows.map(r => Object.fromEntries(exportHeaders.map(h => [headerLabels[h] || h, r[h]]))), moduleLabel, moduleLabel)} disabled={rows.length === 0}>📊 Excel</button>
           <button className="btn btn-sm" onClick={handlePrint} disabled={rows.length === 0}>🖨️ PDF</button>
           <button className="btn btn-sm" onClick={load} disabled={loading}>{loading ? 'Memuat...' : '↻ Muat Ulang'}</button>
         </div>

@@ -11,10 +11,12 @@ import { KKM_HEADERS, TINGKAT_LIST, kkmStandar } from '../../db/akademikLanjutan
 import { JENJANG, namaTingkat } from '../../config/jenjang';
 import { fetchKkmFromSheet, updateKkmInSheet, deleteKkmFromSheet, upsertKkmToSheet, addLogEntry, isConfigured } from '../../services/googleSheets';
 import { exportToExcel } from '../../utils/exportTable';
+import SkalaPredikatTab from './SkalaPredikatTab';
 
 const TABS = [
   { id: 'matriks', label: 'ATUR KKM' },
   { id: 'tabel', label: 'DATA KKM' },
+  { id: 'predikat', label: 'SKALA PREDIKAT' },
 ];
 const EDIT_FIELDS = [
   { key: 'KKM', label: 'KKM / KKTP', type: 'number', required: true },
@@ -143,6 +145,7 @@ export default function KurikulumKkm() {
         <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />
         <div className="card-body" style={{ background: 'transparent', padding: 20 }}>
           {tab === 'matriks' && bolehTab('matriks') && <MatriksKkm />}
+          {tab === 'predikat' && bolehTab('predikat') && <SkalaPredikatTab />}
           {tab === 'tabel' && bolehTab('tabel') && (
             <GenericStoredTable
               title="Data KKM" subtitle="Baris KKM mentah semua tahun ajaran."
