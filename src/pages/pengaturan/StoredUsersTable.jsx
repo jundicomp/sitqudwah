@@ -7,16 +7,17 @@ import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 
 export default function StoredUsersTable({ refreshKey }) {
-  const { toast, permissionRoles } = useAppData();
+  const { toast, permissionRoles, guru } = useAppData();
   const [kelolaRole, setKelolaRole] = useState(null); // null | { tambahBaru, isi }
   // Opsi Role ikut daftar kategori user + 2 opsi aksi di bawahnya.
-  const fields = useMemo(() => USER_FIELDS.map(f => f.key !== 'Role' ? f : {
+  const namaGuru = useMemo(() => guru.map(g => g.nama).filter(Boolean).sort((a, b) => a.localeCompare(b, 'id')), [guru]);
+  const fields = useMemo(() => USER_FIELDS.map(f => f.key === 'Guru' ? { ...f, options: namaGuru } : f.key !== 'Role' ? f : {
     ...f, options: permissionRoles,
     extraOptions: [
       { value: '__tambah_kategori__', label: '+ Tambah kategori…', onPick: isi => setKelolaRole({ tambahBaru: true, isi }) },
       { value: '__kelola_kategori__', label: '✎ Edit / hapus kategori…', onPick: isi => setKelolaRole({ tambahBaru: false, isi }) },
     ],
-  }), [permissionRoles]);
+  }), [permissionRoles, namaGuru]);
   const { currentUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [toggling, setToggling] = useState(null);

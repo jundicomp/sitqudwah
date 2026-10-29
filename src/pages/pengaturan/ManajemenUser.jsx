@@ -26,14 +26,15 @@ export function RoleSelect({ value, options, onChange }) {
 }
 
 function TambahUserForm({ onSaved }) {
-  const { toast, permissionRoles } = useAppData();
+  const { toast, permissionRoles, guru } = useAppData();
   const [form, setForm] = useState(emptyUserRow());
   const [saving, setSaving] = useState(false);
   const [phase, setPhase] = useState(null);
   const [kelolaRole, setKelolaRole] = useState(null); // null | { tambahBaru }
 
   // Opsi Role dibangun DINAMIS dari daftar kategori user (bisa ditambah/diubah/dihapus).
-  const fieldsDenganRole = useMemo(() => USER_FIELDS.map(f => f.key === 'Role' ? { ...f, options: permissionRoles } : f), [permissionRoles]);
+  const namaGuru = useMemo(() => guru.map(g => g.nama).filter(Boolean).sort((a, b) => a.localeCompare(b, 'id')), [guru]);
+  const fieldsDenganRole = useMemo(() => USER_FIELDS.map(f => f.key === 'Role' ? { ...f, options: permissionRoles } : f.key === 'Guru' ? { ...f, options: namaGuru } : f), [permissionRoles, namaGuru]);
 
   function setField(key, value) { setForm(f => ({ ...f, [key]: value })); }
   function pilihRole(v) {

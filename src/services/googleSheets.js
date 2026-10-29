@@ -464,3 +464,28 @@ export const simpanAspekPerkembanganKeSheet = (rows) => replaceAllInSheet('aspek
 // ---- Skala Predikat / huruf mutu (v1.43.0) ----
 export const fetchSkalaPredikatFromSheet = () => fetchFromSheet('skalaPredikat', 'akademik');
 export const simpanSkalaPredikatKeSheet = (rows) => replaceAllInSheet('skalaPredikat', rows, 'akademik');
+
+// ---- Rapor & Penilaian PAUD (v1.44.0) -- file Sheets Akademik ----
+export const fetchAsesmenPaudFromSheet = () => fetchFromSheet('asesmenPaud', 'akademik');
+export const bulkAddAsesmenPaudToSheet = (rows) => bulkAddToSheet('asesmenPaud', rows, 'akademik');
+export const addAsesmenPaudToSheet = (row) => addToSheet('asesmenPaud', row, 'akademik');
+export const updateAsesmenPaudInSheet = (row) => updateInSheet('asesmenPaud', row, 'akademik');
+export const deleteAsesmenPaudFromSheet = (no) => deleteFromSheet('asesmenPaud', no, 'akademik');
+export const fetchRaporPaudFromSheet = () => fetchFromSheet('raporPaud', 'akademik');
+export const upsertRaporPaudToSheet = (rows) => bulkUpsertInSheet('raporPaud', ['Tahun Ajaran', 'Semester', 'ID Siswa'], rows);
+export const fetchPengaturanRaporPaudFromSheet = () => fetchFromSheet('pengaturanRaporPaud', 'akademik');
+export const simpanPengaturanRaporPaudKeSheet = (rows) => replaceAllInSheet('pengaturanRaporPaud', rows, 'akademik');
+
+// Unggah 1 foto ke Google Drive sekolah lewat Apps Script Akademik (aksi "uploadFoto").
+// `dataUrl` = hasil kompresi di browser (data:image/jpeg;base64,...). Hasil: { id, url }
+// -- url siap dipakai di <img> (file dibagikan "siapa saja yg punya link: lihat").
+export async function uploadFotoKeDrive(dataUrl, { nama, subfolder } = {}) {
+  const [kepala, base64] = String(dataUrl).split(',');
+  const mimeType = (kepala.match(/data:([^;]+)/) || [])[1] || 'image/jpeg';
+  const json = await postToSheet({ action: 'uploadFoto', sheet: '_foto', base64, mimeType, nama, subfolder }, 'akademik');
+  if (!json.ok) {
+    if (/tidak dikenal/i.test(json.error || '')) throw new Error('Apps Script Akademik belum diperbarui untuk unggah foto. Tempel ulang Code-Akademik.gs terbaru lalu Deploy → New version (izinkan akses Google Drive).');
+    throw new Error(json.error || 'Gagal mengunggah foto.');
+  }
+  return { id: json.id, url: json.url };
+}

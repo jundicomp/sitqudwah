@@ -4,6 +4,22 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.44.0',
+    tanggal: '2026-10-30',
+    poin: [
+      'RAPOR PAUD: Rapor Digital otomatis memakai format PAUD untuk kelas KB/TK — keterangan diri anak, petunjuk, satu halaman per elemen (deskripsi + foto kegiatan), muatan lokal, karakter, kesehatan, presensi, dan tanda tangan, mengikuti format rapor KB Islam Terpadu Qudwah',
+      'Narasi tiap elemen: pilih capaian BB/MB/BSH/BSB, kalimat pembuka terisi otomatis ("Dalam aspek perkembangan …, Ananda … berkembang sesuai harapan. Karena Ananda …"), guru tinggal melanjutkan. Capaian disarankan otomatis dari catatan penilaian semester itu',
+      'MENU BARU Akademik › Penilaian PAUD: ceklis satu kegiatan untuk satu kelas sekaligus, catatan anekdot / hasil karya per anak, dan unggah foto. Semua catatan & foto otomatis muncul sebagai bahan di rapor',
+      'Alur rapor PAUD: Draft → Diajukan (wali kelas) → Terbit (kepala sekolah/admin). Rapor yang terbit dikunci dan disimpan sebagai ARSIP, tidak ikut berubah walau data atau pengaturan diubah kemudian. Tab baru "Arsip Rapor PAUD" untuk cetak ulang kapan saja',
+      'Akses wali kelas: akun yang terhubung ke data guru (Manajemen User › Terhubung ke Guru) hanya melihat rapor kelas yang dia pegang di Data Kelas. Kepala Sekolah & Admin melihat semua kelas',
+      'Tab "Pengaturan PAUD" (khusus Kepala Sekolah & Admin): elemen narasi, skala & kalimat, template kalimat pembuka, kalimat penyemangat, muatan lokal, bidang karakter, aspek kesehatan, petunjuk penggunaan',
+      'Data Siswa: kolom baru ID Siswa (pengenal tetap dari KB/TK sampai SD), nama panggilan, anak ke/dari, pekerjaan & No. HP ayah dan ibu, pas foto. Tombol "Buat ID sekarang" untuk siswa lama',
+      'Jenjang & Tingkat: kolom "Format rapor" (PAUD / Sekolah) per jenjang, terisi otomatis (KB/TK/PAUD/RA = PAUD)',
+      'Foto disimpan di Google Drive sekolah (folder "Siskom Qudwah - Foto"), dikecilkan otomatis sebelum diunggah',
+      'Perbaikan: No. HP / NISN berawalan 0 tidak lagi kehilangan angka 0 saat disimpan ke Data Induk',
+    ],
+  },
+  {
     versi: '1.43.0',
     tanggal: '2026-10-29',
     poin: [

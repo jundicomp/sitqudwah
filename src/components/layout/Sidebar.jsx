@@ -91,6 +91,7 @@ export default function Sidebar() {
           <Item to="/kkm" canAccess={canAccess('kkm')}>Kurikulum &amp; KKM</Item>
           <Item to="/presensi" canAccess={canAccess('presensi')}>Presensi Siswa</Item>
           <Item to="/nilai" canAccess={canAccess('nilai')}>Nilai Akademik</Item>
+          <Item to="/penilaian-paud" canAccess={canAccess('penilaian-paud')}>Penilaian PAUD</Item>
           <Item to="/rapor" canAccess={canAccess('rapor')}>Rapor Digital</Item>
           <Item to="/bank-soal" canAccess={canAccess('bank-soal')}>Bank Soal &amp; Ujian</Item>
         </NavGroup>

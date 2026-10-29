@@ -18,6 +18,7 @@ import { normalizeSheetJadwal, normalizeSheetPresensi, normalizeSheetNilai, norm
 import { normalizeSheetPresensiGuru, normalizeSheetKinerja, normalizeSheetPelatihan } from '../db/kepegawaianFields';
 import { setJenjang, normalizeSheetJenjang, jenjangDariSheets } from '../config/jenjang';
 import { setSkalaPredikat, getSkalaPredikat, normalizeSheetSkalaPredikat } from '../db/akademikFields';
+import { normalizeSheetAsesmenPaud, normalizeSheetRaporPaud, pengaturanPaudDariRows, lengkapiPengaturanPaud } from '../db/raporPaudFields';
 import { normalizeSheetPerkembangan, normalizeSheetAspek, ASPEK_BAWAAN } from '../db/perkembanganFields';
 import { normalizeSheetAkreditasi, normalizeSheetSemester, normalizeSheetMutasi, normalizeSheetPengumuman, normalizeSheetSurat, setPeriodeSemester } from '../db/komunikasiFields';
 import { normalizeSheetBuku, normalizeSheetSirkulasi, normalizeSheetDendaPerpus, normalizeSheetReservasi } from '../db/perpusFields';
@@ -34,6 +35,7 @@ import {
   fetchPresensiGuruFromSheet, fetchKinerjaFromSheet, fetchPelatihanFromSheet, fetchPengaturanPresensiFromSheet,
   fetchJenjangFromSheet,
   perkembanganApi, fetchAspekPerkembanganFromSheet, fetchSkalaPredikatFromSheet,
+  fetchAsesmenPaudFromSheet, fetchRaporPaudFromSheet, fetchPengaturanRaporPaudFromSheet,
   akreditasiApi, semesterApi, mutasiApi, pengumumanApi, suratApi,
   fetchBukuFromSheet, fetchSirkulasiFromSheet, fetchDendaPerpusFromSheet, fetchReservasiFromSheet, fetchPengaturanPerpusFromSheet,
   fetchKkmFromSheet, fetchAgendaFromSheet, fetchBankSoalFromSheet, fetchUjianFromSheet, fetchRaporFromSheet,
@@ -57,6 +59,7 @@ const HAK_AKSES_PAGES = [
   { id: 'jadwal', label: 'Jadwal Pelajaran', grup: 'Akademik' },
   { id: 'presensi', label: 'Presensi Siswa', grup: 'Akademik' },
   { id: 'nilai', label: 'Nilai Akademik', grup: 'Akademik' },
+  { id: 'penilaian-paud', label: 'Penilaian PAUD', grup: 'Akademik' },
   { id: 'kalender', label: 'Kalender Akademik', grup: 'Akademik' },
   { id: 'kkm', label: 'Kurikulum & KKM/KKTP', grup: 'Akademik' },
   { id: 'rapor', label: 'Rapor Digital', grup: 'Akademik' },
@@ -175,6 +178,13 @@ const HAK_AKSES_TABS = {
   ],
   rapor: [
     { id: 'kelas', label: 'Rapor per Kelas' },
+    { id: 'arsip', label: 'Arsip Rapor PAUD' },
+    { id: 'pengaturan-paud', label: 'Pengaturan Rapor PAUD' },
+  ],
+  'penilaian-paud': [
+    { id: 'kegiatan', label: 'Ceklis per Kegiatan' },
+    { id: 'anak', label: 'Catatan per Anak' },
+    { id: 'data', label: 'Data Penilaian' },
   ],
   'bank-soal': [
     { id: 'soal', label: 'Bank Soal' },
@@ -545,6 +555,15 @@ export function AppProvider({ children }) {
   const bankSoalRes = useSheetResource(fetchBankSoalFromSheet, normalizeSheetBankSoal, 'akademik', defer);
   const ujianRes = useSheetResource(fetchUjianFromSheet, normalizeSheetUjian, 'akademik', defer);
   const raporRes = useSheetResource(fetchRaporFromSheet, normalizeSheetRapor, 'akademik', defer);
+  const asesmenPaudRes = useSheetResource(fetchAsesmenPaudFromSheet, normalizeSheetAsesmenPaud, 'akademik', defer);
+  const raporPaudRes = useSheetResource(fetchRaporPaudFromSheet, normalizeSheetRaporPaud, 'akademik', defer);
+  const [pengaturanPaudRaw, setPengaturanPaudRaw] = useState(null);
+  const isiPengaturanPaud = useCallback((rows) => setPengaturanPaudRaw(pengaturanPaudDariRows(rows)), []);
+  const refreshPengaturanPaud = useCallback(async () => {
+    if (!isConfigured('akademik')) return;
+    try { isiPengaturanPaud(await fetchPengaturanRaporPaudFromSheet()); } catch { /* tetap pakai bawaan */ }
+  }, [isiPengaturanPaud]);
+  const pengaturanPaud = useMemo(() => lengkapiPengaturanPaud(pengaturanPaudRaw), [pengaturanPaudRaw]);
   const skalaPredikatRes = useSheetResource(fetchSkalaPredikatFromSheet, normalizeSheetSkalaPredikat, 'akademik', defer);
 
   // ---- Profil Sekolah: 1 rekaman tunggal, bukan daftar ----
@@ -663,6 +682,9 @@ export function AppProvider({ children }) {
       ujianRes.setFromBatch(semua.ujian || []);
       raporRes.setFromBatch(semua.rapor || []);
       skalaPredikatRes.setFromBatch(semua.skalaPredikat || []);
+      asesmenPaudRes.setFromBatch(semua.asesmenPaud || []);
+      raporPaudRes.setFromBatch(semua.raporPaud || []);
+      isiPengaturanPaud(semua.pengaturanRaporPaud || []);
     } catch (err) {
       if (!withFallback) return;
       jadwalRes.refresh(); presensiRes.refresh(); nilaiRes.refresh(); prestasiRes.refresh(); pelanggaranRes.refresh();
@@ -672,6 +694,7 @@ export function AppProvider({ children }) {
       presensiGuruRes.refresh(); pengaturanPresensiRes.refresh(); kinerjaRes.refresh(); pelatihanRes.refresh();
       kkmRes.refresh(); agendaRes.refresh(); bankSoalRes.refresh(); ujianRes.refresh(); raporRes.refresh();
       skalaPredikatRes.refresh();
+      asesmenPaudRes.refresh(); raporPaudRes.refresh(); refreshPengaturanPaud();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -821,6 +844,9 @@ export function AppProvider({ children }) {
     reservasi: reservasiRes.data, refreshReservasi: reservasiRes.refresh,
     pengaturanPerpusRows: pengaturanPerpusRes.data, refreshPengaturanPerpus: pengaturanPerpusRes.refresh,
     kkm: kkmRes.data, kkmLoaded: kkmRes.loaded, refreshKkm: kkmRes.refresh,
+    asesmenPaud: asesmenPaudRes.data, refreshAsesmenPaud: asesmenPaudRes.refresh,
+    raporPaud: raporPaudRes.data, raporPaudLoaded: raporPaudRes.loaded, refreshRaporPaud: raporPaudRes.refresh,
+    pengaturanPaud, pengaturanPaudTersimpan: !!pengaturanPaudRaw, refreshPengaturanPaud,
     skalaPredikat, skalaPredikatDariSheets: skalaTersimpan.length > 0, refreshSkalaPredikat: skalaPredikatRes.refresh,
     agenda: agendaRes.data, agendaLoaded: agendaRes.loaded, refreshAgenda: agendaRes.refresh,
     bankSoal: bankSoalRes.data, bankSoalLoaded: bankSoalRes.loaded, refreshBankSoal: bankSoalRes.refresh,

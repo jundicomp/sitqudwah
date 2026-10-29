@@ -87,7 +87,7 @@ export default function StoredDataTable({ refreshKey }) {
   }
 
   const columns = [
-    ...SISWA_HEADERS.filter(h => h !== 'No').map(h => ({
+    ...SISWA_HEADERS.filter(h => h !== 'No' && h !== 'Foto').map(h => ({
       key: h, label: h,
       accessor: (r) => h === 'Tanggal Lahir' ? formatTanggalAngka(r[h]) : r[h],
     })),

@@ -45,13 +45,17 @@ const SHEETS = {
       'Nama Lengkap', 'NISN', 'NIK', 'Tempat Lahir', 'Tanggal Lahir',
       'Jenis Kelamin', 'Alamat', 'Nama Ayah Kandung', 'Nama Ibu Kandung', 'Pekerjaan',
       'Status', 'Jenis Pendaftaran', 'Rombel',
+      // v1.44.0: ID Siswa tetap (KB/TK -> SD) + data utk rapor PAUD.
+      'ID Siswa', 'Nama Panggilan', 'Anak Ke', 'Jumlah Saudara',
+      'Pekerjaan Ayah', 'Pekerjaan Ibu', 'No HP Ayah', 'No HP Ibu', 'Foto',
     ],
   },
   // v1.40.0: daftar jenjang & tingkat yg dipakai sekolah (dikelola dari aplikasi:
   // Pengaturan › Data Kelas & Rombel › Jenjang & Tingkat). "Tingkat" = dipisah koma.
   jenjang: {
     name: 'Jenjang & Tingkat',
-    headers: ['No', 'Kode', 'Nama', 'Tingkat', 'Aktif'],
+    // v1.44.0: "Format Rapor" = PAUD / Sekolah (rapor otomatis mengikuti jenjang kelas).
+    headers: ['No', 'Kode', 'Nama', 'Tingkat', 'Aktif', 'Format Rapor'],
   },
   kelas: {
     name: 'Data Kelas',
@@ -107,7 +111,8 @@ const SHEETS = {
     // "Status" ditaruh di AKHIR (kompatibel mundur) -- baris lama yg belum punya nilai
     // di kolom ini otomatis dianggap "Aktif" oleh React (lihat normalizeSheetUser),
     // jadi user yg sudah ada TIDAK tiba-tiba ke-nonaktifkan begitu kolom ini muncul.
-    headers: ['No', 'Nama', 'Role', 'Username', 'Password', 'Email', 'Status'],
+    // v1.44.0: "Guru" = nama di Data Guru yg dipegang akun ini (utk akses wali kelas).
+    headers: ['No', 'Nama', 'Role', 'Username', 'Password', 'Email', 'Status', 'Guru'],
   },
   roles: {
     name: 'Roles',
@@ -261,6 +266,13 @@ function getSheet_(cfg) {
   return sheet;
 }
 
+// v1.44.0: nilai berawalan 0 (No HP, NISN, NIK) atau angka panjang ditulis sbg TEKS
+// (diawali tanda petik) supaya nol di depan tidak hilang saat Sheets mengubahnya jadi angka.
+function teksAman_(v) {
+  if (typeof v === 'string' && (/^0\d+$/.test(v) || /^\+?\d{12,}$/.test(v))) return "'" + v;
+  return v;
+}
+
 function appendRow_(sheet, headers, rowObj) {
   // Sama persis dgn perbaikan di Code-Keuangan.gs: LockService WAJIB supaya penentuan
   // "No" berikutnya tidak tabrakan kalau 2 permintaan berjalan bersamaan (akar masalah
@@ -269,7 +281,7 @@ function appendRow_(sheet, headers, rowObj) {
   lock.waitLock(30000);
   try {
     const nextNo = sheet.getLastRow(); // baris 1 = header, jadi ini otomatis nomor urut berikutnya
-    const row = headers.map(h => (h === 'No' ? nextNo : (rowObj[h] !== undefined ? rowObj[h] : '')));
+    const row = headers.map(h => (h === 'No' ? nextNo : (rowObj[h] !== undefined ? teksAman_(rowObj[h]) : '')));
     sheet.appendRow(row);
   } finally {
     lock.releaseLock();
@@ -300,7 +312,7 @@ function bulkUpdateRows_(sheet, headers, updates) {
       if (r === undefined) { noTidakDitemukan.push(String(u.no)); return; }
       Object.keys(u.patch || {}).forEach(field => {
         const col = headers.indexOf(field) + 1;
-        if (col > 0) sheet.getRange(r, col).setValue(u.patch[field]);
+        if (col > 0) sheet.getRange(r, col).setValue(teksAman_(u.patch[field]));
       });
       jumlahDiupdate++;
     });
@@ -337,7 +349,7 @@ function cariBarisByNo_(sheet, headers, targetNoRaw) {
 function updateRow_(sheet, headers, rowObj) {
   const r = cariBarisByNo_(sheet, headers, rowObj['No']);
   if (r === -1) return false;
-  const newRow = headers.map(h => (h === 'No' ? rowObj['No'] : (rowObj[h] !== undefined ? rowObj[h] : '')));
+  const newRow = headers.map(h => (h === 'No' ? rowObj['No'] : (rowObj[h] !== undefined ? teksAman_(rowObj[h]) : '')));
   sheet.getRange(r, 1, 1, headers.length).setValues([newRow]);
   return true;
 }

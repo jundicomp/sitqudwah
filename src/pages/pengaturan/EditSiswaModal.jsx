@@ -1,14 +1,15 @@
+import FotoDriveField from '../../components/common/FotoDrive';
 import { useState } from 'react';
 import Modal from '../../components/common/Modal';
 import PasswordConfirmModal from '../../components/common/PasswordConfirmModal';
-import { SISWA_FIELDS } from '../../db/siswaFields';
+import { SISWA_FIELDS, denganIdSiswa } from '../../db/siswaFields';
 import { updateSiswaInSheet, addLogEntry } from '../../services/googleSheets';
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { normalisasiTanggalUntukInput } from '../../db/helpers';
 
 export default function EditSiswaModal({ row, onClose, onSaved }) {
-  const { toast, refreshSiswa } = useAppData();
+  const { toast, refreshSiswa, siswa } = useAppData();
   const { currentUser } = useAuth();
   const [form, setForm] = useState(() => {
     const initial = {};
@@ -48,7 +49,7 @@ export default function EditSiswaModal({ row, onClose, onSaved }) {
       // otomatis jadi KOSONG kalau tidak ikut disertakan -- artinya SETIAP kali Edit lewat
       // modal ini disimpan, Rombel siswa itu diam-diam ke-reset/hilang. Sama seperti
       // perbaikan pola "spread row dulu" yg sudah dipakai di PindahRombelMassal (RombelTab.jsx).
-      await updateSiswaInSheet({ ...row, ...form, No: row['No'] });
+      await updateSiswaInSheet(denganIdSiswa({ ...row, ...form, No: row['No'] }, siswa.map(x => x.idSiswa)));
       await addLogEntry({
         username: currentUser.username,
         namaUser: currentUser.nama,
@@ -96,6 +97,8 @@ export default function EditSiswaModal({ row, onClose, onSaved }) {
                   <option value="">— pilih —</option>
                   {f.options.map(o => <option key={o} value={o}>{o}</option>)}
                 </select>
+              ) : f.type === 'foto' ? (
+                <FotoDriveField value={form[f.key]} onChange={v => setField(f.key, v)} nama={form['Nama Lengkap'] || 'siswa'} onError={m => toast(m, 'error')} />
               ) : f.type === 'textarea' ? (
                 <textarea rows={2} value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
               ) : (

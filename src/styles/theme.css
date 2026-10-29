@@ -508,3 +508,70 @@ td{white-space:nowrap;}
 .role-list{display:flex;flex-direction:column;gap:6px;max-height:52vh;overflow:auto;}
 .role-row{display:flex;align-items:center;gap:8px;}
 .role-row .btn-icon:disabled{opacity:.3;cursor:not-allowed;}
+/* v1.44.0 Foto (Google Drive) */
+.foto-tambah{min-height:38px;padding:0 12px;border-radius:8px;border:1.5px dashed #9FB3A6;background:#fff;color:var(--green-dark);font-weight:700;font-size:12.5px;cursor:pointer;}
+.foto-tambah:disabled{opacity:.6;cursor:wait;}
+.foto-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.foto-thumb{position:relative;width:110px;height:84px;border-radius:8px;overflow:hidden;border:2px solid transparent;background:#E9EFEB;padding:0;cursor:pointer;}
+.foto-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.foto-thumb.dipilih{border-color:var(--green);box-shadow:0 0 0 2px var(--green-soft);}
+.foto-thumb .foto-cek{position:absolute;top:4px;right:4px;background:var(--green);color:#fff;border-radius:999px;width:20px;height:20px;font-size:12px;display:grid;place-items:center;}
+.foto-thumb .foto-x{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:0;border-radius:999px;width:22px;height:22px;font-size:12px;cursor:pointer;}
+/* v1.44.0 PAUD */
+.capaian-pills{display:inline-flex;gap:4px;flex-wrap:wrap;}
+.capaian-pills button{min-width:44px;min-height:34px;padding:0 8px;border-radius:8px;border:1px solid var(--border);background:#fff;font-weight:800;font-size:12px;color:#3D4E43;cursor:pointer;}
+.capaian-pills.capaian-sm button{min-width:38px;min-height:30px;font-size:11.5px;}
+.capaian-pills button.on{background:var(--green);border-color:var(--green);color:#fff;}
+.capaian-pills button:disabled{opacity:.55;cursor:not-allowed;}
+.banner-info{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--blue-soft);color:#1E3F7A;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:14px;}
+.paud-kosong{color:var(--muted);font-size:12.5px;margin:4px 0;}
+.paud-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;}
+.paud-chip.auto{background:var(--green-soft);color:var(--green-dark);}
+.paud-chip.guru{background:var(--gold-soft);color:#7a5300;}
+.paud-chip.sekali{background:var(--blue-soft);color:var(--blue);}
+.paud-elemen{border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px;background:#fff;}
+.paud-elemen-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.paud-elemen-head h4{margin:0;font-size:14.5px;}
+.paud-pembuka{margin:0;padding:10px 12px;background:#EEF6F0;color:var(--green-dark);font-size:13.5px;line-height:1.55;border:1px solid var(--border);border-bottom:1px dashed #B9CFC0;border-radius:10px 10px 0 0;}
+.paud-lanjutan{width:100%;box-sizing:border-box;border:1px solid var(--border);border-top:0;border-radius:0 0 10px 10px;padding:10px 12px;font-size:13.5px;line-height:1.55;resize:vertical;font-family:inherit;}
+.paud-saran{font-size:12px;color:var(--muted);}
+.paud-saran b{color:var(--green-dark);}
+.paud-riwayat{max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.paud-riwayat div{background:#F5F8F6;border:1px solid #E3EAE5;border-radius:8px;padding:7px 10px;font-size:12.5px;line-height:1.45;}
+.paud-tabel td,.paud-tabel th{vertical-align:middle;}
+/* Dokumen cetak rapor PAUD: 1 .rp-hal = 1 halaman A4 */
+.rp-dok{font-family:'Times New Roman',Tinos,'Liberation Serif',serif;color:#111;background:#fff;}
+.rp-hal{width:186mm;min-height:262mm;box-sizing:border-box;padding:6mm 8mm 4mm;margin:0 auto 16px;background:#fff;position:relative;font-size:12pt;line-height:1.5;display:flex;flex-direction:column;box-shadow:0 1px 6px rgba(0,0,0,.12);}
+.rp-hal h1{font-size:12.5pt;text-align:center;margin:0 0 7mm;letter-spacing:.3px;}
+.rp-hal h2{font-size:12pt;margin:0 0 3mm;}
+.rp-kop{text-align:center;font-weight:700;font-size:12.5pt;line-height:1.35;margin-bottom:7mm;}
+.rp-idt{display:grid;grid-template-columns:8mm 52mm 1fr;row-gap:1.5mm;margin:0 0 6mm 5mm;}
+.rp-kotak{border:1px solid #333;margin-left:6mm;}
+.rp-kotak .rp-kh{text-align:center;font-weight:700;padding:1.5mm;border-bottom:1px solid #333;}
+.rp-kotak .rp-kh.atas{border-top:1px solid #333;}
+.rp-kotak .rp-isi{padding:3mm 4mm 4mm;text-align:justify;white-space:pre-line;}
+.rp-foto{display:flex;justify-content:center;gap:10mm;padding:5mm;flex-wrap:wrap;}
+.rp-foto img{max-width:70mm;max-height:80mm;object-fit:contain;}
+.rp-tbl{width:100%;border-collapse:collapse;font-size:11.5pt;}
+.rp-tbl th,.rp-tbl td{border:1px solid #333;padding:1.5mm 2mm;}
+.rp-tbl th{font-weight:700;text-align:center;}
+.rp-tbl td.c{text-align:center;}
+.rp-hlm{margin-top:auto;text-align:center;font-size:10pt;padding-top:4mm;}
+.rp-ttd{border:1px solid #333;margin-top:8mm;}
+.rp-ttd .baris{display:grid;grid-template-columns:1fr 1fr;}
+.rp-ttd .sel{padding:3mm;text-align:center;min-height:42mm;display:flex;flex-direction:column;justify-content:space-between;}
+.rp-ttd .sel + .sel{border-left:1px solid #333;}
+.rp-ttd .bawah{border-top:1px solid #333;padding:3mm;text-align:center;min-height:38mm;display:flex;flex-direction:column;justify-content:space-between;}
+.rp-pasfoto{width:30mm;height:40mm;border:1px solid #888;object-fit:cover;}
+.rp-pasfoto.kosong{display:flex;align-items:center;justify-content:center;font-size:9pt;color:#666;background:#f2f2f2;}
+#rp-print-root{position:absolute;left:-10000px;top:0;}
+@media print {
+  body.rp-printing > *:not(#rp-print-root){display:none !important;}
+  body.rp-printing #rp-print-root{position:static;left:auto;}
+  body.rp-printing .rp-hal{box-shadow:none;margin:0;break-after:page;page-break-after:always;min-height:0;height:266mm;overflow:hidden;padding:0 2mm;width:auto;}
+  body.rp-printing .rp-hal:last-child{break-after:auto;page-break-after:auto;}
+  body.rp-printing *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+}
+.rp-dok table, .rp-dok th, .rp-dok td, .rp-dok tr{background:#fff !important;color:#111 !important;}
+.rp-dok th{font-size:11pt;text-transform:none;letter-spacing:0;}
+.rp-dok td,.rp-dok th{white-space:normal;}

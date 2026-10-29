@@ -1,6 +1,6 @@
 // "Status" ditaruh di AKHIR (kompatibel mundur) -- lihat normalizeSheetUser di
 // AuthContext.jsx: baris lama tanpa nilai di kolom ini otomatis dianggap "Aktif".
-export const USER_HEADERS = ['No', 'Nama', 'Role', 'Username', 'Password', 'Email', 'Status'];
+export const USER_HEADERS = ['No', 'Nama', 'Role', 'Username', 'Password', 'Email', 'Status', 'Guru'];
 
 export const USER_ROLE_OPTIONS = ['Kepala Sekolah', 'Bendahara / TU', 'Staf TU', 'Admin'];
 
@@ -15,6 +15,9 @@ export const USER_FIELDS = [
   // User "Nonaktif" tidak bisa login sama sekali (lihat AuthContext.jsx login()) --
   // dipakai kalau akunnya perlu dinonaktifkan sementara tanpa harus dihapus datanya.
   { key: 'Status', label: 'Status Akun', type: 'select', options: STATUS_USER_OPTIONS, required: true },
+  // v1.44.0: akun ini milik guru siapa (Data Guru). Dipakai utk akses wali kelas:
+  // wali kelas hanya melihat & mengisi rapor kelas yg dia pegang di Data Kelas.
+  { key: 'Guru', label: 'Terhubung ke Guru', type: 'select', options: [] },
 ];
 
 export function emptyUserRow() {

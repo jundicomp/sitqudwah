@@ -35,6 +35,8 @@
  *   akreditasi, semester, mutasi, pengumuman, surat -> (v1.38.0)
  *   perkembangan, aspekPerkembangan -> Catatan Perkembangan Siswa (v1.42.0)
  *   skalaPredikat                   -> Skala predikat / huruf mutu nilai (v1.43.0)
+ *   asesmenPaud, raporPaud, pengaturanRaporPaud -> Penilaian & Rapor PAUD (v1.44.0)
+ *   aksi "uploadFoto" -> simpan foto ke Google Drive (folder "Siskom Qudwah - Foto")
  *
  * Beda dgn Code.gs / Code-Keuangan.gs:
  * - Nomor "No" baru = No TERBESAR + 1 (bukan getLastRow()). Versi lama bisa
@@ -178,6 +180,26 @@ const SHEETS = {
     // Daftar kategori aspek yg dikelola admin dari aplikasi (urutan baris = urutan tampil).
     headers: ['No', 'Nama', 'Keterangan', 'Aktif'],
   },
+  asesmenPaud: {
+    name: 'Penilaian PAUD',
+    // 1 baris = 1 pengamatan 1 anak (ceklis kegiatan, anekdot, hasil karya, foto berseri).
+    // "Bidang" = nama elemen / "Muatan Lokal: <kegiatan>" / "Karakter: <bidang>".
+    // "Foto" = URL Google Drive, dipisah baris baru kalau lebih dari satu.
+    headers: ['No', 'Tanggal', 'ID Siswa', 'NISN', 'Nama Siswa', 'Tingkat', 'Rombel', 'Tahun Ajaran', 'Semester', 'Bidang', 'Kegiatan', 'Teknik', 'Capaian', 'Catatan', 'Foto', 'Dicatat Oleh'],
+    textColumns: ['ID Siswa', 'NISN', 'Tingkat', 'Tahun Ajaran'],
+  },
+  raporPaud: {
+    name: 'Rapor PAUD',
+    // "Isian" = JSON isian wali kelas. "Arsip" = JSON salinan LENGKAP rapor saat diterbitkan
+    // (identitas, pengaturan, nama wali & kepsek saat itu) -- arsip tidak ikut berubah
+    // walau data/pengaturan diubah di kemudian hari.
+    headers: ['No', 'Tahun Ajaran', 'Semester', 'ID Siswa', 'NISN', 'Nama Siswa', 'Tingkat', 'Rombel', 'Isian', 'Status', 'Tanggal Terbit', 'Arsip', 'Diubah Oleh', 'Diubah Pada'],
+    textColumns: ['ID Siswa', 'NISN', 'Tingkat', 'Tahun Ajaran'],
+  },
+  pengaturanRaporPaud: {
+    name: 'Pengaturan Rapor PAUD',
+    headers: ['No', 'Kunci', 'Nilai'],
+  },
   skalaPredikat: {
     name: 'Skala Predikat',
     // Huruf mutu + nilai minimal (dikelola dari Akademik › Kurikulum & KKM › Skala Predikat).
@@ -214,6 +236,7 @@ function doPost(e) {
     if (body.secret !== SECRET) {
       return jsonResponse_({ ok: false, error: 'Kata sandi tidak cocok. Cek pengaturan koneksi.' });
     }
+    if (body.action === 'uploadFoto') return jsonResponse_(uploadFoto_(body));
     const cfg = SHEETS[body.sheet];
     if (!cfg) return jsonResponse_({ ok: false, error: 'Sheet "' + body.sheet + '" tidak dikenal.' });
     const sheet = getSheet_(cfg);
@@ -424,6 +447,36 @@ function bulkUpsert_(sheet, cfg, keyFields, rows) {
   } finally {
     lock.releaseLock();
   }
+}
+
+// ---------------------------------------------------------------------------
+// FOTO (v1.44.0): simpan ke Google Drive pemilik script, folder "Siskom Qudwah - Foto"
+// (+ subfolder opsional), dibagikan "siapa saja yg punya link: lihat" supaya bisa
+// tampil di aplikasi & hasil cetak. Saat pertama deploy, Google akan meminta izin Drive.
+function folderFoto_(sub) {
+  const NAMA = 'Siskom Qudwah - Foto';
+  const it = DriveApp.getFoldersByName(NAMA);
+  let induk = it.hasNext() ? it.next() : DriveApp.createFolder(NAMA);
+  if (!sub) return induk;
+  const nama = String(sub).replace(/[\\/:*?"<>|]/g, '-').slice(0, 80);
+  const it2 = induk.getFoldersByName(nama);
+  return it2.hasNext() ? it2.next() : induk.createFolder(nama);
+}
+
+function uploadFoto_(body) {
+  if (!body.base64) return { ok: false, error: 'Data foto kosong.' };
+  const mime = /^image\/(jpeg|png|webp)$/.test(body.mimeType || '') ? body.mimeType : 'image/jpeg';
+  const bytes = Utilities.base64Decode(body.base64);
+  if (bytes.length > 5 * 1024 * 1024) return { ok: false, error: 'Foto terlalu besar (maks 5 MB).' };
+  const nama = String(body.nama || ('foto-' + Date.now() + '.jpg')).slice(0, 120);
+  const file = folderFoto_(body.subfolder).createFile(Utilities.newBlob(bytes, mime, nama));
+  try {
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  } catch (err) {
+    // Akun Google Workspace tertentu melarang berbagi publik -- foto tetap tersimpan.
+  }
+  const id = file.getId();
+  return { ok: true, id: id, url: 'https://drive.google.com/thumbnail?id=' + id + '&sz=w1600' };
 }
 
 function jsonResponse_(obj) {

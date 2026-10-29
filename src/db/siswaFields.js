@@ -8,7 +8,27 @@ export const SISWA_HEADERS = [
   'Nama Lengkap', 'NISN', 'NIK', 'Tempat Lahir', 'Tanggal Lahir',
   'Jenis Kelamin', 'Alamat', 'Nama Ayah Kandung', 'Nama Ibu Kandung', 'Pekerjaan',
   'Status', 'Jenis Pendaftaran',
+  // v1.44.0 (rapor PAUD & portofolio): ditaruh di AKHIR, kompatibel mundur.
+  'ID Siswa', 'Nama Panggilan', 'Anak Ke', 'Jumlah Saudara',
+  'Pekerjaan Ayah', 'Pekerjaan Ibu', 'No HP Ayah', 'No HP Ibu', 'Foto',
 ];
+
+// ID Siswa = pengenal TETAP seumur sekolah (KB/TK -> SD -> dst), tidak pernah berubah,
+// beda dgn NISN yg sering belum ada di PAUD. Format: QDW-<2 digit tahun>-<5 acak>.
+const HURUF_ID = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+export function buatIdSiswa(sudahAda = []) {
+  const ada = new Set(sudahAda);
+  const yy = String(new Date().getFullYear()).slice(-2);
+  for (;;) {
+    let acak = '';
+    for (let i = 0; i < 5; i++) acak += HURUF_ID[Math.floor(Math.random() * HURUF_ID.length)];
+    const id = `QDW-${yy}-${acak}`;
+    if (!ada.has(id)) return id;
+  }
+}
+export function denganIdSiswa(row, sudahAda = []) {
+  return String(row['ID Siswa'] ?? '').trim() ? row : { ...row, 'ID Siswa': buatIdSiswa(sudahAda) };
+}
 
 export const STATUS_SISWA_OPTIONS = ['Aktif', 'Lulus', 'Pindah', 'Berhenti'];
 export const JENIS_PENDAFTARAN_OPTIONS = ['Siswa Baru', 'Pindahan'];
@@ -29,7 +49,14 @@ export const SISWA_FIELDS = [
   { key: 'Alamat', label: 'Alamat', type: 'textarea' },
   { key: 'Nama Ayah Kandung', label: 'Nama Ayah Kandung', type: 'text' },
   { key: 'Nama Ibu Kandung', label: 'Nama Ibu Kandung', type: 'text' },
-  { key: 'Pekerjaan', label: 'Pekerjaan (Orang Tua)', type: 'text' },
+  { key: 'Nama Panggilan', label: 'Nama Panggilan', type: 'text' },
+  { key: 'Anak Ke', label: 'Anak Ke-', type: 'number' },
+  { key: 'Jumlah Saudara', label: 'Dari … Bersaudara', type: 'number' },
+  { key: 'Pekerjaan Ayah', label: 'Pekerjaan Ayah', type: 'text' },
+  { key: 'Pekerjaan Ibu', label: 'Pekerjaan Ibu', type: 'text' },
+  { key: 'No HP Ayah', label: 'No. HP Ayah', type: 'text' },
+  { key: 'No HP Ibu', label: 'No. HP Ibu', type: 'text' },
+  { key: 'Foto', label: 'Pas Foto', type: 'foto' },
   { key: 'Status', label: 'Status Siswa', type: 'select', options: STATUS_SISWA_OPTIONS, required: true },
   { key: 'Jenis Pendaftaran', label: 'Jenis Pendaftaran', type: 'select', options: JENIS_PENDAFTARAN_OPTIONS, required: true },
 ];
@@ -60,6 +87,16 @@ export function normalizeSheetSiswa(row, idx) {
     namaAyah: String(row['Nama Ayah Kandung'] ?? '').trim(),
     namaIbu: String(row['Nama Ibu Kandung'] ?? '').trim(),
     pekerjaan: String(row['Pekerjaan'] ?? '').trim(),
+    idSiswa: String(row['ID Siswa'] ?? '').trim(),
+    panggilan: String(row['Nama Panggilan'] ?? '').trim(),
+    anakKe: String(row['Anak Ke'] ?? '').trim(),
+    jumlahSaudara: String(row['Jumlah Saudara'] ?? '').trim(),
+    // Kolom lama "Pekerjaan" (1 kolom utk orang tua) dianggap pekerjaan ayah.
+    pekerjaanAyah: String(row['Pekerjaan Ayah'] ?? '').trim() || String(row['Pekerjaan'] ?? '').trim(),
+    pekerjaanIbu: String(row['Pekerjaan Ibu'] ?? '').trim(),
+    hpAyah: String(row['No HP Ayah'] ?? '').trim(),
+    hpIbu: String(row['No HP Ibu'] ?? '').trim(),
+    foto: String(row['Foto'] ?? '').trim(),
     npsn: String(row['NPSN'] ?? '').trim(),
     nsm: String(row['NSM'] ?? '').trim(),
     jenjang: String(row['Jenjang'] ?? '').trim(),

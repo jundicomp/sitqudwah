@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
-import { SEMUA_JENJANG, TEMPLATE_JENJANG, jenjangDariSheets, namaTingkat } from '../../config/jenjang';
+import { SEMUA_JENJANG, TEMPLATE_JENJANG, jenjangDariSheets, namaTingkat, FORMAT_RAPOR_OPTIONS, formatRaporBawaan } from '../../config/jenjang';
 import { simpanJenjangKeSheet, addLogEntry, isConfigured } from '../../services/googleSheets';
 
-const salin = (list) => list.map(j => ({ ...j, tingkat: [...j.tingkat], aktif: j.aktif !== false }));
-const KOSONG = { kode: '', nama: '', tingkat: [], aktif: true };
+const salin = (list) => list.map(j => ({ ...j, tingkat: [...j.tingkat], aktif: j.aktif !== false, formatRapor: j.formatRapor || formatRaporBawaan(j.kode) }));
+const KOSONG = { kode: '', nama: '', tingkat: [], aktif: true, formatRapor: '' };
 
 function ChipInput({ onTambah }) {
   const [v, setV] = useState('');
@@ -45,7 +45,7 @@ export default function JenjangTab() {
   const ubah = (i, patch) => { setDraft(d => d.map((j, k) => (k === i ? { ...j, ...patch } : j))); setBerubah(true); };
   const geser = (i, n) => { setDraft(d => { const a = [...d]; const j = i + n; if (j < 0 || j >= a.length) return a; [a[i], a[j]] = [a[j], a[i]]; return a; }); setBerubah(true); };
   const hapus = (i) => { setDraft(d => d.filter((_, k) => k !== i)); setBerubah(true); };
-  const tambah = (tpl) => { setDraft(d => [...d, { ...KOSONG, ...(tpl ? { kode: tpl.kode, nama: tpl.nama, tingkat: [...tpl.tingkat] } : {}) }]); setBerubah(true); };
+  const tambah = (tpl) => { setDraft(d => [...d, { ...KOSONG, ...(tpl ? { kode: tpl.kode, nama: tpl.nama, tingkat: [...tpl.tingkat], formatRapor: formatRaporBawaan(tpl.kode) } : {}) }]); setBerubah(true); };
   const tambahTingkat = (i, list) => ubah(i, { tingkat: [...draft[i].tingkat, ...list.filter(t => !draft[i].tingkat.includes(t))] });
   const hapusTingkat = (i, t) => ubah(i, { tingkat: draft[i].tingkat.filter(x => x !== t) });
   const geserTingkat = (i, idx, n) => { const a = [...draft[i].tingkat]; const j = idx + n; if (j < 0 || j >= a.length) return; [a[idx], a[j]] = [a[j], a[idx]]; ubah(i, { tingkat: a }); };
@@ -78,7 +78,7 @@ export default function JenjangTab() {
     if (!isConfigured('master')) { toast('Data Induk belum tersambung.', 'error'); return; }
     setMenyimpan(true);
     try {
-      await simpanJenjangKeSheet(draft.map((j, i) => ({ No: i + 1, Kode: j.kode.trim(), Nama: j.nama.trim() || j.kode.trim(), Tingkat: j.tingkat.join(', '), Aktif: j.aktif ? 'Ya' : 'Tidak' })));
+      await simpanJenjangKeSheet(draft.map((j, i) => ({ No: i + 1, Kode: j.kode.trim(), Nama: j.nama.trim() || j.kode.trim(), Tingkat: j.tingkat.join(', '), Aktif: j.aktif ? 'Ya' : 'Tidak', 'Format Rapor': j.formatRapor || formatRaporBawaan(j.kode) })));
       await addLogEntry({ username: currentUser.username, namaUser: currentUser.nama, aksi: 'Ubah Jenjang', modul: 'Data Kelas & Rombel', detail: draft.map(j => `${j.kode}${j.aktif ? '' : ' (nonaktif)'}: ${j.tingkat.join('/')}`).join('; ') });
       setBerubah(false);
       await refreshJenjang();
@@ -104,6 +104,10 @@ export default function JenjangTab() {
             <div className="jenjang-head">
               <div className="field"><label>Kode</label><input value={j.kode} placeholder="mis. SD" onChange={e => ubah(i, { kode: e.target.value })} style={{ width: 110 }} /></div>
               <div className="field" style={{ flex: '1 1 200px' }}><label>Nama jenjang</label><input value={j.nama} placeholder="mis. Sekolah Dasar" onChange={e => ubah(i, { nama: e.target.value })} /></div>
+              <div className="field"><label>Format rapor</label>
+                <select value={j.formatRapor || formatRaporBawaan(j.kode)} onChange={e => ubah(i, { formatRapor: e.target.value })} style={{ width: 120 }} title="PAUD = rapor naratif BB/MB/BSH/BSB + foto. Sekolah = rapor nilai per mapel.">
+                  {FORMAT_RAPOR_OPTIONS.map(o => <option key={o}>{o}</option>)}
+                </select></div>
               <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 13, paddingBottom: 8 }}>
                 <input type="checkbox" checked={j.aktif} onChange={e => ubah(i, { aktif: e.target.checked })} /> Aktif
               </label>

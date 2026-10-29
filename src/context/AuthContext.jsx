@@ -30,6 +30,7 @@ function normalizeSheetUser(u, idx) {
     // Baris lama (sebelum kolom ini ada) otomatis dianggap "Aktif" -- perilaku lama
     // (semua user yg sudah ada tetap bisa login) tetap jalan persis sama.
     status: String(u['Status'] ?? '').trim() || 'Aktif',
+    guru: String(u['Guru'] ?? '').trim(),
   };
 }
 

@@ -75,5 +75,17 @@ export function normalizeSheetJenjang(r) {
   const kode = String(r['Kode'] ?? '').trim();
   const tingkat = String(r['Tingkat'] ?? '').split(',').map(x => x.trim()).filter(Boolean);
   if (!kode || !tingkat.length) return null;
-  return { kode, nama: String(r['Nama'] ?? '').trim() || kode, tingkat, aktif: !/^(tidak|false|0|nonaktif)$/i.test(String(r['Aktif'] ?? '').trim()) };
+  const fr = String(r['Format Rapor'] ?? '').trim();
+  return { kode, nama: String(r['Nama'] ?? '').trim() || kode, tingkat, aktif: !/^(tidak|false|0|nonaktif)$/i.test(String(r['Aktif'] ?? '').trim()), formatRapor: FORMAT_RAPOR_OPTIONS.includes(fr) ? fr : formatRaporBawaan(kode) };
+}
+
+// ---- Format rapor per jenjang (v1.44.0) ----
+// PAUD = rapor naratif BB/MB/BSH/BSB + foto; Sekolah = rapor nilai per mapel.
+export const FORMAT_RAPOR_OPTIONS = ['PAUD', 'Sekolah'];
+export const formatRaporBawaan = (kode) => (/^(TK|KB|PAUD|RA|TPA|BA|POS)/i.test(String(kode)) ? 'PAUD' : 'Sekolah');
+export function formatRaporTingkat(tingkat) {
+  const t = String(tingkat ?? '').trim();
+  const j = SEMUA_JENJANG.find(x => x.tingkat.includes(t));
+  if (!j) return 'Sekolah';
+  return j.formatRapor || formatRaporBawaan(j.kode);
 }

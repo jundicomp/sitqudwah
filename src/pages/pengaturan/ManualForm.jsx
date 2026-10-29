@@ -1,6 +1,7 @@
+import FotoDriveField from '../../components/common/FotoDrive';
 import { useState } from 'react';
 import Modal from '../../components/common/Modal';
-import { SISWA_FIELDS, emptySiswaRow } from '../../db/siswaFields';
+import { SISWA_FIELDS, emptySiswaRow, denganIdSiswa } from '../../db/siswaFields';
 import { addSiswaToSheet, isConfigured } from '../../services/googleSheets';
 import { useAppData } from '../../context/AppContext';
 import SaveProgressModal from '../../components/common/SaveProgressModal';
@@ -10,7 +11,7 @@ import SaveProgressModal from '../../components/common/SaveProgressModal';
 // supaya semua aksi terkait tabel siswa (tambah/edit/hapus/upload) terkumpul di 1
 // tempat, bukan tersebar sbg tab terpisah-pisah.
 export default function ManualForm({ onClose, onSaved }) {
-  const { toast } = useAppData();
+  const { toast, siswa } = useAppData();
   const [form, setForm] = useState(emptySiswaRow());
   const [saving, setSaving] = useState(false);
   const [phase, setPhase] = useState(null); // null | 'saving' | 'done'
@@ -27,7 +28,7 @@ export default function ManualForm({ onClose, onSaved }) {
     setSaving(true);
     setPhase('saving');
     try {
-      await addSiswaToSheet(form);
+      await addSiswaToSheet(denganIdSiswa(form, siswa.map(x => x.idSiswa)));
       setPhase('done');
       await new Promise(r => setTimeout(r, 1100));
       onSaved && onSaved();
@@ -65,6 +66,8 @@ export default function ManualForm({ onClose, onSaved }) {
                     <option value="">— pilih —</option>
                     {f.options.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
+                ) : f.type === 'foto' ? (
+                  <FotoDriveField value={form[f.key]} onChange={v => setField(f.key, v)} nama={form['Nama Lengkap'] || 'siswa'} onError={m => toast(m, 'error')} />
                 ) : f.type === 'textarea' ? (
                   <textarea rows={2} value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
                 ) : (

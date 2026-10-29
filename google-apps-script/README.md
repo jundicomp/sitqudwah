@@ -43,6 +43,11 @@ Dipakai modul Jadwal Pelajaran, Presensi Siswa, Nilai Akademik, Prestasi, Pelang
 
 Beda dari dua script lama: nomor `No` baru dihitung dari No terbesar + 1 (bukan jumlah baris), jadi tidak bisa kembar setelah ada baris yang dihapus, dan ada aksi `bulkUpsert` untuk presensi/nilai supaya simpan ulang tidak menggandakan data.
 
+### Update ke v1.44.0 — Code.gs DAN Code-Akademik.gs
+1. Tempel ulang `Code.gs` ke Apps Script file Data Induk → Deploy → Manage deployments → New version. Menambah kolom baru di Data Siswa (ID Siswa, Nama Panggilan, dll), "Format Rapor" di Jenjang & Tingkat, dan "Guru" di Users.
+2. Tempel ulang `Code-Akademik.gs` ke Apps Script file Akademik → Deploy → Manage deployments → New version. Menambah tab Penilaian PAUD, Rapor PAUD, Pengaturan Rapor PAUD, dan aksi unggah foto ke Google Drive.
+   **Penting:** karena sekarang menyimpan foto ke Drive, Google akan meminta izin baru. Setelah menempel kode, jalankan sekali fungsi `doGet` dari editor (tombol Run) → Review permissions → pilih akun → Advanced → Go to … (unsafe) → Allow. Baru kemudian Deploy → New version. Foto tersimpan di Drive akun pemilik script, folder "Siskom Qudwah - Foto".
+
 ### Update ke v1.43.0 — Code-Akademik.gs
 Tempel ulang `Code-Akademik.gs` terbaru ke Apps Script file Akademik → Deploy → Manage deployments → New version. Menambah tab "Skala Predikat". Sebelum diperbarui, predikat tetap jalan dgn skala bawaan (A sampai E), tapi skala belum bisa disimpan. Kategori user tidak butuh perubahan script.
 

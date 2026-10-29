@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
 import Modal from '../../components/common/Modal';
-import { SISWA_HEADERS, normalizeHeaderKey } from '../../db/siswaFields';
+import { SISWA_HEADERS, normalizeHeaderKey, denganIdSiswa } from '../../db/siswaFields';
 import { bulkAddSiswaToSheet, isConfigured } from '../../services/googleSheets';
 import { useAppData } from '../../context/AppContext';
 
@@ -10,7 +10,7 @@ import { useAppData } from '../../context/AppContext';
 // supaya semua aksi terkait tabel siswa (tambah/edit/hapus/upload) terkumpul di 1
 // tempat, bukan tersebar sbg tab terpisah-pisah.
 export default function ExcelUpload({ onClose, onSaved }) {
-  const { toast } = useAppData();
+  const { toast, siswa } = useAppData();
   const [fileName, setFileName] = useState('');
   const [rows, setRows] = useState([]);
   const [unmappedCols, setUnmappedCols] = useState([]);
@@ -63,7 +63,10 @@ export default function ExcelUpload({ onClose, onSaved }) {
     if (rows.length === 0) return;
     setUploading(true);
     try {
-      const result = await bulkAddSiswaToSheet(rows);
+      // ID Siswa otomatis utk tiap baris yg belum punya.
+      const idAda = siswa.map(x => x.idSiswa);
+      const rowsBerId = rows.map(r => { const x = denganIdSiswa(r, idAda); idAda.push(x['ID Siswa']); return x; });
+      const result = await bulkAddSiswaToSheet(rowsBerId);
       toast(`${result.count} baris berhasil diunggah ke Google Sheets.`);
       setRows([]);
       setFileName('');

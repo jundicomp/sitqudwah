@@ -13,8 +13,17 @@ import { todayWIB, formatTanggal } from '../../db/helpers';
 import { upsertRaporToSheet, addLogEntry, isConfigured } from '../../services/googleSheets';
 import { printElementById } from '../../utils/exportTable';
 import { APP_NAME } from '../../config/appInfo';
+import { formatRaporTingkat } from '../../config/jenjang';
+import { rombelUntukUser, bolehMenerbitkan, bolehLihatSemuaKelas } from '../../db/akses';
+import RaporPaudKelas from './raporPaud/RaporPaudKelas';
+import ArsipRaporPaud from './raporPaud/ArsipRaporPaud';
+import PengaturanRaporPaud from './raporPaud/PengaturanRaporPaud';
 
-const TABS = [{ id: 'kelas', label: 'RAPOR PER KELAS' }];
+const TABS = [
+  { id: 'kelas', label: 'RAPOR PER KELAS' },
+  { id: 'arsip', label: 'ARSIP RAPOR PAUD' },
+  { id: 'pengaturan-paud', label: 'PENGATURAN PAUD' },
+];
 const BADGE_STATUS = { Terbit: 'badge-green', Draft: 'badge-gold', 'Belum Diisi': 'badge-muted' };
 const rata1 = (arr) => arr.length ? Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 10) / 10 : null;
 
@@ -171,7 +180,10 @@ function RaporModal({ baris, ta, semester, rombel, onClose }) {
 
 function RaporPerKelas() {
   const { siswa, nilai, presensi, kkm, rapor, tahunAjaran } = useAppData();
-  const { tahunAjaranOptions, taAktif, rombelList } = useAkademikOptions();
+  const { tahunAjaranOptions, taAktif, rombelList: semuaRombel } = useAkademikOptions();
+  const { currentUser } = useAuth();
+  // Wali kelas hanya melihat kelas yg dia pegang; Admin & Kepala Sekolah semua kelas.
+  const rombelList = useMemo(() => rombelUntukUser(semuaRombel, currentUser), [semuaRombel, currentUser]);
   const [ta, setTa] = useState('');
   const [semester, setSemester] = useState(semesterDariTanggal());
   const [rombelKey, setRombelKey] = useState('');
@@ -179,6 +191,7 @@ function RaporPerKelas() {
   useEffect(() => { if (!ta && taAktif) setTa(taAktif); }, [taAktif, ta]);
   useEffect(() => { if (!rombelKey && rombelList.length) setRombelKey(rombelList[0].key); }, [rombelList, rombelKey]);
   const rombel = rombelList.find(r => r.key === rombelKey);
+  const formatPaud = rombel ? formatRaporTingkat(rombel.tingkat) === 'PAUD' : false;
 
   const rows = useMemo(() => {
     if (!rombel) return [];
@@ -214,7 +227,9 @@ function RaporPerKelas() {
   return (
     <div className="card">
       <div className="card-head">
-        <div><h3>Rapor per kelas</h3><p>Nilai diambil otomatis dari Nilai Akademik dan dibandingkan dengan KKM. Wali kelas melengkapi sikap, ekstrakurikuler, dan catatan, lalu menerbitkan.</p></div>
+        <div><h3>Rapor per kelas</h3><p>{formatPaud
+          ? 'Format PAUD: capaian & foto diambil dari Penilaian PAUD, wali kelas melengkapi narasi tiap elemen lalu mengajukan/menerbitkan.'
+          : 'Nilai diambil otomatis dari Nilai Akademik dan dibandingkan dengan KKM. Wali kelas melengkapi sikap, ekstrakurikuler, dan catatan, lalu menerbitkan.'}</p></div>
       </div>
       <div className="card-body">
         <div className="filter-bar">
@@ -222,6 +237,13 @@ function RaporPerKelas() {
           <Field label="Semester"><Select value={semester} onChange={setSemester} options={SEMESTER_OPTIONS} /></Field>
           <Field label="Kelas / Rombel" grow><Select value={rombelKey} onChange={setRombelKey} options={rombelList.map(r => ({ value: r.key, label: `${r.label}${r.wali ? ' — ' + r.wali : ''}` }))} /></Field>
         </div>
+        {!rombelList.length && (
+          <div className="banner-info"><span>{bolehLihatSemuaKelas(currentUser) ? 'Belum ada data kelas.' : currentUser?.guru
+            ? `Akun Anda terhubung ke ${currentUser.guru}, tapi belum tercatat sebagai wali kelas mana pun di Data Kelas.`
+            : 'Akun Anda belum terhubung ke data guru. Minta Admin mengisi "Terhubung ke Guru" di Manajemen User, lalu login ulang.'}</span></div>
+        )}
+        {rombel && formatPaud && <RaporPaudKelas key={rombel.key + ta + semester} ta={ta} semester={semester} rombel={rombel} />}
+        {rombel && !formatPaud && <>
         <div className="ringkas-bar" style={{ marginBottom: 12 }}>
           <span className="badge badge-green">Terbit {jml('Terbit')}</span>
           <span className="badge badge-gold">Draft {jml('Draft')}</span>
@@ -229,14 +251,19 @@ function RaporPerKelas() {
         </div>
         <DataTable columns={columns} data={rows} rowKey={r => r.id} defaultSortKey="nama" pageSize={50}
           searchFn={(r, t) => `${r.nama} ${r.siswa.nisn}`.toLowerCase().includes(t)} emptyMessage="Tidak ada siswa aktif di rombel ini." />
+        </>}
       </div>
-      {buka && <RaporModal key={buka.id + ta + semester} baris={buka} ta={ta} semester={semester} rombel={rombel} onClose={() => setBukaNisn(null)} />}
+      {buka && !formatPaud && <RaporModal key={buka.id + ta + semester} baris={buka} ta={ta} semester={semester} rombel={rombel} onClose={() => setBukaNisn(null)} />}
     </div>
   );
 }
 
 export default function RaporDigital() {
-  const { tab, setTab, bolehTab } = useTabAccess('rapor', TABS.map(t => t.id));
+  const { currentUser } = useAuth();
+  const akses = useTabAccess('rapor', TABS.map(t => t.id));
+  const { tab, setTab } = akses;
+  // Pengaturan PAUD hanya utk Kepala Sekolah & Admin (selain izin tab di Hak Akses).
+  const bolehTab = (id) => akses.bolehTab(id) && (id !== 'pengaturan-paud' || bolehMenerbitkan(currentUser));
   return (
     <Page pageId="rapor" title="Rapor Digital" path="Akademik / Rapor Digital">
       <AkademikBelumTersambung />
@@ -244,6 +271,8 @@ export default function RaporDigital() {
         <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />
         <div className="card-body" style={{ background: 'transparent', padding: 20 }}>
           {tab === 'kelas' && bolehTab('kelas') && <RaporPerKelas />}
+          {tab === 'arsip' && bolehTab('arsip') && <ArsipRaporPaud />}
+          {tab === 'pengaturan-paud' && bolehTab('pengaturan-paud') && <PengaturanRaporPaud />}
         </div>
       </div>
     </Page>
