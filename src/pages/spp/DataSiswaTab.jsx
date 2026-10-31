@@ -395,7 +395,7 @@ export default function DataSiswaTab() {
             // Diambil dari Riwayat Akademik kalau tahun itu sudah tercatat; kalau belum
             // (data lama sblm fitur Riwayat Akademik ada), jatuhkan ke kondisi siswa
             // saat ini apa adanya (perilaku lama, drpd kosong sama sekali).
-            const kondisiTahunItu = kelasRombelPadaTahun(selected.nisn, ta, riwayatAkademik, { kelasTingkat: selected.kelasTingkat, rombel: selected.rombel });
+            const kondisiTahunItu = kelasRombelPadaTahun(selected, ta, riwayatAkademik, { kelasTingkat: selected.kelasTingkat, rombel: selected.rombel });
             return (
               <TahunSection
                 key={ta} namaSekolah={profilSekolah?.nama || APP_NAME} namaSiswa={selected.nama}

@@ -4,6 +4,16 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.46.0',
+    tanggal: '2026-10-31',
+    poin: [
+      'Kenaikan Kelas: keputusan baru "Lanjut ke jenjang berikutnya" — anak di tingkat terakhir jenjangnya (mis. KB B / TK B) pindah ke tingkat pertama jenjang berikutnya (mis. Kelas 1 SD) sebagai SISWA YANG SAMA. Penilaian, rapor PAUD, dan riwayatnya sejak KB/TK tetap tersambung',
+      'Untuk kelas PAUD, keputusan ini otomatis jadi pilihan bawaan (bisa diganti Lulus kalau anak tidak melanjutkan). Kolom Jenjang di Data Siswa ikut diperbarui otomatis',
+      'Riwayat Akademik kini mengenali siswa lewat ID Siswa, jadi anak yang belum punya NISN tetap punya riwayat yang benar. Riwayat mencatat "Lulus KB, lanjut ke Kelas 1"',
+      'Proses kenaikan kelas mewajibkan ID Siswa; ada tombol "Buat ID sekarang" langsung di halaman Kenaikan Kelas',
+    ],
+  },
+  {
     versi: '1.45.2',
     tanggal: '2026-10-31',
     poin: [

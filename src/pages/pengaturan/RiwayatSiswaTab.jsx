@@ -94,7 +94,7 @@ export default function RiwayatSiswaTab() {
   }, [term, siswa]);
 
   const selected = siswa.find(s => s.id === selectedId);
-  const riwayatTerurut = useMemo(() => (selected ? riwayatSiswaUrut(selected.nisn, riwayatAkademik) : []), [selected, riwayatAkademik]);
+  const riwayatTerurut = useMemo(() => (selected ? riwayatSiswaUrut(selected, riwayatAkademik) : []), [selected, riwayatAkademik]);
   const dataSiap = riwayatAkademikLoaded;
 
   const columns = [

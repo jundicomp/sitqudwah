@@ -1,8 +1,21 @@
-import { TINGKAT_OPTIONS, tingkatTerakhirJenjang, jenjangDariTingkat } from '../config/jenjang';
+import { TINGKAT_OPTIONS, JENJANG, tingkatTerakhirJenjang, jenjangDariTingkat, formatRaporTingkat, namaTingkat } from '../config/jenjang';
 import { cariRiwayatAkademik } from './riwayatAkademikFields';
 
-// Siswa di tingkat TERAKHIR jenjangnya (TK B, 6, 9, 12) defaultnya Lulus -- tidak
-// otomatis naik ke jenjang berikutnya. Daftar jenjang: src/config/jenjang.js.
+// Siswa di tingkat TERAKHIR jenjangnya (KB B, TK B, 6, 9, 12): kalau sekolah punya
+// jenjang berikutnya, bisa "Lanjut Jenjang" -- siswa TETAP satu data (baris Data Siswa
+// & ID Siswa sama), cuma pindah ke tingkat pertama jenjang berikutnya, jadi penilaian,
+// rapor & riwayatnya tidak terputus. Default: PAUD -> lanjut, jenjang sekolah -> Lulus.
+export const LABEL_KEPUTUSAN = { 'Lanjut Jenjang': 'Lanjut ke jenjang berikutnya' };
+export const labelKeputusan = (k) => LABEL_KEPUTUSAN[k] || k;
+
+// Jenjang aktif sesudah jenjang `tingkat` (urutan di Jenjang & Tingkat) -> { kode, nama, tingkat }.
+export function jenjangBerikutnya(tingkat) {
+  const kode = jenjangDariTingkat(tingkat);
+  const i = JENJANG.findIndex(j => j.kode === kode);
+  if (i === -1) return null;
+  const next = JENJANG.slice(i + 1).find(j => j.tingkat.length);
+  return next ? { kode: next.kode, nama: next.nama, tingkat: next.tingkat[0] } : null;
+}
 
 // Tingkat berikutnya sesudah `tingkat` -- null kalau sudah tingkat tertinggi ATAU
 // tingkatnya tidak dikenali (mis. data lama yg kosong/aneh).
@@ -16,7 +29,8 @@ export function tingkatBerikutnya(tingkat) {
 // Keputusan DEFAULT utk 1 siswa, sebelum admin override manual -- siswa di tingkat
 // tertinggi otomatis disarankan "Lulus", selainnya disarankan "Naik Kelas".
 export function keputusanDefault(kelasTingkatSaatIni) {
-  return tingkatTerakhirJenjang(kelasTingkatSaatIni) ? 'Lulus' : 'Naik Kelas';
+  if (!tingkatTerakhirJenjang(kelasTingkatSaatIni)) return 'Naik Kelas';
+  return formatRaporTingkat(kelasTingkatSaatIni) === 'PAUD' && jenjangBerikutnya(kelasTingkatSaatIni) ? 'Lanjut Jenjang' : 'Lulus';
 }
 
 // Kelas/Tingkat TUJUAN utk 1 keputusan -- "Naik Kelas" pindah ke tingkat berikutnya,
@@ -24,6 +38,7 @@ export function keputusanDefault(kelasTingkatSaatIni) {
 // Sekolah/Berhenti) tidak perlu Kelas/Tingkat tujuan sama sekali (siswa tidak lanjut).
 export function targetKelasUntukKeputusan(decision, kelasTingkatSaatIni) {
   if (decision === 'Naik Kelas') return tingkatBerikutnya(kelasTingkatSaatIni);
+  if (decision === 'Lanjut Jenjang') return tingkatTerakhirJenjang(kelasTingkatSaatIni) ? (jenjangBerikutnya(kelasTingkatSaatIni)?.tingkat || null) : null;
   if (decision === 'Tinggal Kelas') return kelasTingkatSaatIni;
   return null;
 }
@@ -71,17 +86,18 @@ export function buildRencanaKenaikanKelas({
     const { decision, targetKelas, targetRombel, targetWaliKelas, keterangan } = keputusan;
 
     // ---- 1. Tutup baris riwayat Tahun Ajaran ASAL (isi Status akhir tahunnya) ----
-    const riwayatAsal = cariRiwayatAkademik(s.nisn, taAsalLabel, riwayatAkademik);
+    const riwayatAsal = cariRiwayatAkademik(s, taAsalLabel, riwayatAkademik);
+    const ketOtomatis = decision === 'Lanjut Jenjang' ? `Lulus ${jenjangDariTingkat(s.kelasTingkat)}, lanjut ke ${namaTingkat(targetKelas)}` : '';
     if (riwayatAsal) {
-      riwayatAsalUpdate.push({ no: riwayatAsal.no, patch: { Status: decision, Keterangan: keterangan || riwayatAsal.keterangan || '', Tanggal: tanggalHariIni } });
+      riwayatAsalUpdate.push({ no: riwayatAsal.no, patch: { Status: decision, Keterangan: keterangan || ketOtomatis || riwayatAsal.keterangan || '', Tanggal: tanggalHariIni, ...(s.idSiswa ? { 'ID Siswa': s.idSiswa } : {}) } });
     } else {
       // Belum pernah tercatat sama sekali utk tahun ajaran ini (baru pertama kali
       // pakai fitur ini) -- buat baris baseline-nya SEKARANG, pakai kondisi Data
       // Siswa saat ini apa adanya, supaya riwayatnya tetap ada titik awalnya.
       riwayatAsalInsert.push({
-        NISN: s.nisn, 'Nama Siswa': s.nama, 'Tahun Ajaran': taAsalLabel,
+        NISN: s.nisn, 'ID Siswa': s.idSiswa || '', 'Nama Siswa': s.nama, 'Tahun Ajaran': taAsalLabel,
         'Kelas/Tingkat': s.kelasTingkat, Rombel: s.rombel, 'Wali Kelas': '',
-        Status: decision, Tanggal: tanggalHariIni, Keterangan: keterangan || '',
+        Status: decision, Tanggal: tanggalHariIni, Keterangan: keterangan || ketOtomatis || '',
       });
     }
 
@@ -93,11 +109,11 @@ export function buildRencanaKenaikanKelas({
       // ---- 2b. Siswa LANJUT (Naik/Tinggal Kelas) -- baris riwayat baru di Tahun
       // Ajaran TUJUAN, dan cache Data Siswa disalin dari keputusan ini. ----
       riwayatTujuanInsert.push({
-        NISN: s.nisn, 'Nama Siswa': s.nama, 'Tahun Ajaran': taTujuanLabel,
+        NISN: s.nisn, 'ID Siswa': s.idSiswa || '', 'Nama Siswa': s.nama, 'Tahun Ajaran': taTujuanLabel,
         'Kelas/Tingkat': targetKelas, Rombel: targetRombel || '', 'Wali Kelas': targetWaliKelas || '',
         Status: 'Aktif', Tanggal: tanggalHariIni, Keterangan: '',
       });
-      siswaCacheUpdate.push({ no: s.no, patch: { 'Kelas/Tingkat': targetKelas, Rombel: targetRombel || '', Status: 'Aktif' } });
+      siswaCacheUpdate.push({ no: s.no, patch: { 'Kelas/Tingkat': targetKelas, Rombel: targetRombel || '', Status: 'Aktif', Jenjang: jenjangDariTingkat(targetKelas) || s.jenjang || '' } });
     }
   });
 

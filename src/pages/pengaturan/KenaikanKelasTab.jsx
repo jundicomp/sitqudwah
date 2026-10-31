@@ -1,12 +1,13 @@
-import { namaTingkat, bandingTingkat } from '../../config/jenjang';
+import { namaTingkat, bandingTingkat, jenjangDariTingkat } from '../../config/jenjang';
 import { useMemo, useState } from 'react';
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { STATUS_RIWAYAT_AKADEMIK_OPTIONS, kelasRombelPadaTahun } from '../../db/riwayatAkademikFields';
 import {
   keputusanDefault, targetKelasUntukKeputusan, saranRombelTujuan, waliKelasUntuk,
-  buildRencanaKenaikanKelas, STATUS_TIDAK_LANJUT,
+  buildRencanaKenaikanKelas, STATUS_TIDAK_LANJUT, labelKeputusan,
 } from '../../db/kenaikanKelasHelpers';
+import { BannerIdSiswa } from '../../components/paud/shared';
 import { bulkAddRiwayatAkademikToSheet, bulkUpdateRiwayatAkademikInSheet, bulkUpdateSiswaInSheet, addLogEntry } from '../../services/googleSheets';
 import SaveProgressModal from '../../components/common/SaveProgressModal';
 
@@ -50,7 +51,7 @@ export default function KenaikanKelasTab() {
     const map = {};
     siswaAktif.forEach(s => {
       map[s.id] = taAsal
-        ? kelasRombelPadaTahun(s.nisn, taAsal, riwayatAkademik, { kelasTingkat: s.kelasTingkat, rombel: s.rombel })
+        ? kelasRombelPadaTahun(s, taAsal, riwayatAkademik, { kelasTingkat: s.kelasTingkat, rombel: s.rombel })
         : { kelasTingkat: s.kelasTingkat, rombel: s.rombel, dariRiwayat: false };
     });
     return map;
@@ -58,10 +59,13 @@ export default function KenaikanKelasTab() {
 
   const sudahDiprosesSet = useMemo(() => {
     if (!taTujuan) return new Set();
-    return new Set(
-      riwayatAkademik.filter(r => r.tahunAjaran === taTujuan).map(r => r.nisn)
-    );
+    // Kunci = ID Siswa (utama) dan NISN (data lama) -- NISN kosong tidak dihitung.
+    const set = new Set();
+    riwayatAkademik.filter(r => r.tahunAjaran === taTujuan).forEach(r => { if (r.idSiswa) set.add('id:' + r.idSiswa); if (r.nisn) set.add('n:' + r.nisn); });
+    return set;
   }, [riwayatAkademik, taTujuan]);
+
+  const sudahDiproses = (s) => (s.idSiswa && sudahDiprosesSet.has('id:' + s.idSiswa)) || (s.nisn && sudahDiprosesSet.has('n:' + s.nisn));
 
   const daftarKelasSumber = useMemo(() => {
     const set = new Set(Object.values(kondisiAsalById).map(k => k.kelasTingkat).filter(Boolean));
@@ -93,14 +97,14 @@ export default function KenaikanKelasTab() {
 
   const daftarTerfilter = useMemo(() => {
     return siswaAktif
-      .filter(s => tampilkanSudahDiproses || !sudahDiprosesSet.has(s.nisn))
+      .filter(s => tampilkanSudahDiproses || !sudahDiproses(s))
       .filter(s => filterKelas === 'Semua' || (kondisiAsalById[s.id]?.kelasTingkat || '') === filterKelas)
       .filter(s => {
         if (!cari.trim()) return true;
         const t = cari.trim().toLowerCase();
-        return s.nama.toLowerCase().includes(t) || s.nisn.includes(t);
+        return s.nama.toLowerCase().includes(t) || s.nisn.includes(t) || (s.idSiswa || '').toLowerCase().includes(t);
       });
-  }, [siswaAktif, tampilkanSudahDiproses, sudahDiprosesSet, filterKelas, kondisiAsalById, cari]);
+  }, [siswaAktif, tampilkanSudahDiproses, sudahDiprosesSet, filterKelas, kondisiAsalById, cari]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const jumlahTerpilih = Object.values(terpilih).filter(Boolean).length;
 
@@ -127,7 +131,7 @@ export default function KenaikanKelasTab() {
       next[s.id] = { ...next[s.id], decision: keputusanMassal, targetKelas, targetRombel };
     });
     setOverride(next);
-    toast(`Keputusan "${keputusanMassal}" diterapkan ke ${jumlahTerpilih} siswa terpilih.`);
+    toast(`Keputusan "${labelKeputusan(keputusanMassal)}" diterapkan ke ${jumlahTerpilih} siswa terpilih.`);
   }
 
   const daftarRombelUntukTingkat = (tingkat) => Array.from(new Set(kelas.filter(k => k.tingkat === tingkat).map(k => k.namaKelas))).filter(Boolean).sort();
@@ -139,10 +143,14 @@ export default function KenaikanKelasTab() {
     if (siswaTerpilih.length === 0) { toast('Pilih minimal 1 siswa dulu.', 'error'); return; }
 
     const keputusanPerSiswa = {};
+    const tanpaId = siswaTerpilih.filter(s => !s.idSiswa);
+    if (tanpaId.length) { toast(`${tanpaId.length} siswa belum punya ID Siswa (mis. ${tanpaId[0].nama}). Klik "Buat ID sekarang" di atas dulu supaya riwayatnya tetap tersambung.`, 'error'); return; }
     for (const s of siswaTerpilih) {
       const eff = keputusanEfektif(s);
       if (!STATUS_TIDAK_LANJUT.includes(eff.decision) && !eff.targetKelas) {
-        toast(`${s.nama}: Kelas/Tingkat tujuan tidak bisa ditentukan otomatis. Cek keputusannya.`, 'error');
+        toast(eff.decision === 'Lanjut Jenjang'
+          ? `${s.nama}: "Lanjut ke jenjang berikutnya" hanya untuk siswa di tingkat terakhir jenjangnya, dan jenjang berikutnya harus ada & aktif di Jenjang & Tingkat.`
+          : `${s.nama}: Kelas/Tingkat tujuan tidak bisa ditentukan otomatis. Cek keputusannya.`, 'error');
         return;
       }
       keputusanPerSiswa[s.id] = {
@@ -170,19 +178,20 @@ export default function KenaikanKelasTab() {
       const jumlahNaik = siswaTerpilih.filter(s => keputusanPerSiswa[s.id].decision === 'Naik Kelas').length;
       const jumlahTinggal = siswaTerpilih.filter(s => keputusanPerSiswa[s.id].decision === 'Tinggal Kelas').length;
       const jumlahLulus = siswaTerpilih.filter(s => keputusanPerSiswa[s.id].decision === 'Lulus').length;
-      const jumlahLain = siswaTerpilih.length - jumlahNaik - jumlahTinggal - jumlahLulus;
+      const jumlahLanjut = siswaTerpilih.filter(s => keputusanPerSiswa[s.id].decision === 'Lanjut Jenjang').length;
+      const jumlahLain = siswaTerpilih.length - jumlahNaik - jumlahTinggal - jumlahLulus - jumlahLanjut;
 
       await addLogEntry({
         username: currentUser.username,
         namaUser: currentUser.nama,
         aksi: 'Proses Kenaikan Kelas Tahunan',
         modul: 'Data Siswa',
-        detail: `${taAsal} -> ${taTujuan}: ${jumlahNaik} naik kelas, ${jumlahTinggal} tinggal kelas, ${jumlahLulus} lulus, ${jumlahLain} pindah/berhenti.`,
+        detail: `${taAsal} -> ${taTujuan}: ${jumlahNaik} naik kelas, ${jumlahLanjut} lanjut jenjang, ${jumlahTinggal} tinggal kelas, ${jumlahLulus} lulus, ${jumlahLain} pindah/berhenti.`,
       });
 
       setPhase('done');
       await new Promise(r => setTimeout(r, 1000));
-      toast(`Berhasil diproses: ${jumlahNaik} naik kelas, ${jumlahTinggal} tinggal kelas, ${jumlahLulus} lulus, ${jumlahLain} pindah/berhenti.`);
+      toast(`Berhasil diproses: ${jumlahNaik} naik kelas, ${jumlahLanjut} lanjut jenjang, ${jumlahTinggal} tinggal kelas, ${jumlahLulus} lulus, ${jumlahLain} pindah/berhenti.`);
       setTerpilih({});
       setOverride({});
       await Promise.all([refreshRiwayatAkademik(), refreshSiswa()]);
@@ -201,12 +210,14 @@ export default function KenaikanKelasTab() {
           <div>
             <h3>🎓 Proses Kenaikan Kelas Tahunan</h3>
             <p>
-              Memproses naik/tinggal kelas/lulus/pindah/berhenti utk banyak siswa sekaligus di awal tahun ajaran baru.
+              Memproses naik kelas, lanjut ke jenjang berikutnya (mis. TK B → Kelas 1), tinggal kelas, lulus, pindah, atau berhenti untuk banyak siswa sekaligus di awal tahun ajaran baru.
+              Siswa yang <strong>lanjut jenjang</strong> tetap satu data, jadi penilaian, rapor, dan portofolionya sejak KB/TK tetap tersambung.
               Setiap siswa yg diproses otomatis tercatat di <strong>Riwayat Akademik</strong> — data lama tidak pernah ditimpa, hanya ditambah.
             </p>
           </div>
         </div>
         <div className="card-body">
+          <BannerIdSiswa />
           <div className="form-grid" style={{ marginBottom: 16 }}>
             <div className="field">
               <label>Tahun Ajaran Asal (yang berakhir)</label>
@@ -261,7 +272,7 @@ export default function KenaikanKelasTab() {
               <div className="field" style={{ marginBottom: 0 }}>
                 <label>Tetapkan keputusan massal ke terpilih</label>
                 <select value={keputusanMassal} onChange={e => { setKeputusanMassal(e.target.value); setRombelMassal(''); }}>
-                  {SEMUA_KEPUTUSAN.map(k => <option key={k} value={k}>{k}</option>)}
+                  {SEMUA_KEPUTUSAN.map(k => <option key={k} value={k}>{labelKeputusan(k)}</option>)}
                 </select>
               </div>
               {KEPUTUSAN_LANJUT.includes(keputusanMassal) && (
@@ -297,21 +308,21 @@ export default function KenaikanKelasTab() {
                   )}
                   {daftarTerfilter.map(s => {
                     const eff = keputusanEfektif(s);
-                    const sudahDiproses = sudahDiprosesSet.has(s.nisn);
+                    const sudahDiprosesIni = sudahDiproses(s);
                     return (
-                      <tr key={s.id} style={sudahDiproses ? { opacity: 0.55 } : undefined}>
+                      <tr key={s.id} style={sudahDiprosesIni ? { opacity: 0.55 } : undefined}>
                         <td style={{ textAlign: 'center' }}>
                           <input type="checkbox" checked={!!terpilih[s.id]} onChange={e => toggleSatu(s.id, e.target.checked)} style={{ width: 15, height: 15 }} />
                         </td>
                         <td>{s.nisn || '-'}</td>
-                        <td>{s.nama} {sudahDiproses && <span className="badge badge-muted" style={{ marginLeft: 6 }}>sudah diproses</span>}</td>
+                        <td>{s.nama} {sudahDiprosesIni && <span className="badge badge-muted" style={{ marginLeft: 6 }}>sudah diproses</span>}</td>
                         <td>{eff.kondisi.kelasTingkat ? `${namaTingkat(eff.kondisi.kelasTingkat)}` : '-'} {eff.kondisi.rombel ? `· ${eff.kondisi.rombel}` : ''}</td>
                         <td>
                           <select value={eff.decision} onChange={e => gantiKeputusan(s, e.target.value)} style={{ padding: '6px 8px', fontSize: 12.5 }}>
-                            {SEMUA_KEPUTUSAN.map(k => <option key={k} value={k}>{k}</option>)}
+                            {SEMUA_KEPUTUSAN.map(k => <option key={k} value={k}>{labelKeputusan(k)}</option>)}
                           </select>
                         </td>
-                        <td>{eff.targetKelas ? `${namaTingkat(eff.targetKelas)}` : <span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>-</span>}</td>
+                        <td>{eff.targetKelas ? <>{namaTingkat(eff.targetKelas)}{eff.decision === 'Lanjut Jenjang' && <span className="badge badge-green" style={{ marginLeft: 6 }}>{jenjangDariTingkat(eff.targetKelas)}</span>}</> : <span style={{ color: eff.decision === 'Lanjut Jenjang' ? 'var(--red)' : 'var(--muted)', fontStyle: 'italic' }}>{eff.decision === 'Lanjut Jenjang' ? 'tidak ada jenjang berikutnya' : '-'}</span>}</td>
                         <td>
                           {KEPUTUSAN_LANJUT.includes(eff.decision) ? (
                             <select value={eff.targetRombel} onChange={e => setOverrideField(s.id, 'targetRombel', e.target.value)} style={{ padding: '6px 8px', fontSize: 12.5 }}>
