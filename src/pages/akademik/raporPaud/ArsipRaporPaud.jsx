@@ -10,13 +10,14 @@ import CetakRaporPaud from './CetakRaporPaud';
 
 // Arsip rapor (PAUD & SD) yg sudah terbit. Yg dicetak di sini = SALINAN saat terbit, jadi
 // hasilnya selalu sama walau data siswa / pengaturan rapor berubah di kemudian hari.
-export default function ArsipRaporPaud() {
+export default function ArsipRaporPaud({ jenis = '' }) {
   const { raporPaud, raporSekolah, siswa } = useAppData();
   const { currentUser } = useAuth();
   const { tahunAjaranOptions, rombelList } = useAkademikOptions();
   const [ta, setTa] = useState('');
   const [semester, setSemester] = useState('');
-  const [format, setFormat] = useState('');
+  const [formatPilih, setFormat] = useState('');
+  const format = jenis || formatPilih;
   const [cetak, setCetak] = useState(null);
   const semua = bolehLihatSemuaKelas(currentUser);
   // Wali kelas: hanya anak yg SEKARANG ada di kelasnya, plus rapor yg dulu dia terbitkan dari kelasnya.
@@ -44,14 +45,14 @@ export default function ArsipRaporPaud() {
   return (
     <div className="card">
       <div className="card-head">
-        <div><h3>Arsip rapor</h3><p>Rapor PAUD &amp; SD yang sudah terbit, disimpan persis seperti saat dibagikan. Bisa dicetak ulang kapan saja, juga setelah anak naik jenjang atau lulus.</p></div>
+        <div><h3>Arsip rapor{jenis ? ` ${jenis}` : ''}</h3><p>Rapor yang sudah terbit, disimpan persis seperti saat dibagikan. Bisa dicetak ulang kapan saja, juga setelah anak naik jenjang atau lulus.</p></div>
         <button className="btn btn-sm" disabled={!rows.length} onClick={() => setCetak(rows.map(r => r.arsip))}>🖨️ Cetak semua yang tampil ({rows.length})</button>
       </div>
       <div className="card-body">
         <div className="filter-bar">
           <Field label="Tahun Ajaran"><Select value={ta} onChange={setTa} options={tahunAjaranOptions} placeholder="Semua" /></Field>
           <Field label="Semester"><Select value={semester} onChange={setSemester} options={SEMESTER_OPTIONS} placeholder="Semua" /></Field>
-          <Field label="Format"><Select value={format} onChange={setFormat} options={['PAUD', 'SD']} placeholder="Semua" /></Field>
+          {!jenis && <Field label="Format"><Select value={format} onChange={setFormat} options={['PAUD', 'SD']} placeholder="Semua" /></Field>}
         </div>
         <DataTable columns={columns} data={rows} rowKey={r => r.format + r.id} defaultSortKey="tanggalTerbit" defaultSortDir="desc" pageSize={25}
           searchFn={(r, t) => `${r.nama} ${r.idSiswa} ${r.kelas}`.toLowerCase().includes(t)} emptyMessage="Belum ada rapor yang terbit." />

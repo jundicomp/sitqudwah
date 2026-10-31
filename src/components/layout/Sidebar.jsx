@@ -92,7 +92,8 @@ export default function Sidebar() {
           <Item to="/presensi" canAccess={canAccess('presensi')}>Presensi Siswa</Item>
           <Item to="/nilai" canAccess={canAccess('nilai')}>Nilai Akademik</Item>
           <Item to="/penilaian-paud" canAccess={canAccess('penilaian-paud')}>Penilaian PAUD</Item>
-          <Item to="/rapor" canAccess={canAccess('rapor')}>Rapor Digital</Item>
+          <Item to="/rapor-paud" canAccess={canAccess('rapor-paud')}>Rapor Digital PAUD</Item>
+          <Item to="/rapor-sd" canAccess={canAccess('rapor-sd')}>Rapor Digital SD</Item>
           <Item to="/bank-soal" canAccess={canAccess('bank-soal')}>Bank Soal &amp; Ujian</Item>
         </NavGroup>
 

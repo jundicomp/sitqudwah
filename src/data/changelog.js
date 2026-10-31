@@ -4,6 +4,16 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.49.0',
+    tanggal: '2026-11-01',
+    poin: [
+      'Menu Rapor Digital dipecah jadi dua: "Rapor Digital PAUD" (KB/TK) dan "Rapor Digital SD", masing-masing dengan Rapor per Kelas, Arsip, dan Pengaturan sendiri',
+      'Hak akses kedua menu bisa diatur terpisah di Manajemen Hak Akses, misalnya guru KB/TK cukup diberi Rapor PAUD dan guru SD cukup Rapor SD',
+      'Pengaturan hak akses Rapor Digital yang sudah pernah disimpan otomatis berlaku untuk kedua menu baru sampai diatur ulang',
+      'Pilihan kelas di tiap menu hanya menampilkan kelas jenjang yang sesuai; tautan lama ke Rapor Digital otomatis diarahkan ke menu yang boleh dibuka',
+    ],
+  },
+  {
     versi: '1.48.0',
     tanggal: '2026-11-01',
     poin: [

@@ -59,7 +59,7 @@ import PenilaianKinerja from './pages/kepegawaian/PenilaianKinerja';
 import PelatihanSertifikasi from './pages/kepegawaian/PelatihanSertifikasi';
 import KalenderAkademik from './pages/akademik/KalenderAkademik';
 import KurikulumKkm from './pages/akademik/KurikulumKkm';
-import RaporDigital from './pages/akademik/RaporDigital';
+import RaporDigital, { RaporLamaRedirect } from './pages/akademik/RaporDigital';
 import PenilaianPaud from './pages/akademik/PenilaianPaud';
 import BankSoalUjian from './pages/akademik/BankSoalUjian';
 import ComingSoon from './pages/ComingSoon';
@@ -99,7 +99,9 @@ function Gate() {
         <Route path="/nilai" element={<NilaiAkademik />} />
         <Route path="/kalender" element={<KalenderAkademik />} />
         <Route path="/kkm" element={<KurikulumKkm />} />
-        <Route path="/rapor" element={<RaporDigital />} />
+        <Route path="/rapor" element={<RaporLamaRedirect />} />
+        <Route path="/rapor-paud" element={<RaporDigital key="paud" jenis="PAUD" />} />
+        <Route path="/rapor-sd" element={<RaporDigital key="sd" jenis="SD" />} />
         <Route path="/penilaian-paud" element={<PenilaianPaud />} />
         <Route path="/bank-soal" element={<BankSoalUjian />} />
         <Route path="/perkembangan" element={<CatatanPerkembangan />} />

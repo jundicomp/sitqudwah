@@ -64,7 +64,8 @@ const HAK_AKSES_PAGES = [
   { id: 'penilaian-paud', label: 'Penilaian PAUD', grup: 'Akademik' },
   { id: 'kalender', label: 'Kalender Akademik', grup: 'Akademik' },
   { id: 'kkm', label: 'Kurikulum & KKM/KKTP', grup: 'Akademik' },
-  { id: 'rapor', label: 'Rapor Digital', grup: 'Akademik' },
+  { id: 'rapor-paud', label: 'Rapor Digital PAUD (KB/TK)', grup: 'Akademik' },
+  { id: 'rapor-sd', label: 'Rapor Digital SD', grup: 'Akademik' },
   { id: 'bank-soal', label: 'Bank Soal & Ujian', grup: 'Akademik' },
   { id: 'jadwal-mengajar', label: 'Jadwal Mengajar', grup: 'Kepegawaian' },
   { id: 'presensi-guru', label: 'Presensi Guru & Staff', grup: 'Kepegawaian' },
@@ -108,6 +109,13 @@ const HAK_AKSES_PAGES = [
 ];
 
 const ADMIN_ONLY_PAGES = ['koneksi-sheets', 'pengaturan-sistem'];
+// [key baru, key lama] -- izin lama dipakai sampai key baru disimpan eksplisit.
+const WARISAN_IZIN = [
+  ['rapor-paud', 'rapor'], ['rapor-sd', 'rapor'],
+  ['rapor-paud.kelas', 'rapor.kelas'], ['rapor-sd.kelas', 'rapor.kelas'],
+  ['rapor-paud.arsip', 'rapor.arsip'], ['rapor-sd.arsip', 'rapor.arsip'],
+  ['rapor-paud.pengaturan', 'rapor.pengaturan-paud'], ['rapor-sd.pengaturan', 'rapor.pengaturan-sd'],
+];
 
 // Daftar TAB di dalam tiap halaman yg punya sub-tab -- dipakai Manajemen Hak Akses
 // utk atur izin sampai level tab (bukan cuma per-halaman). Halaman yg TIDAK disebut
@@ -179,11 +187,15 @@ const HAK_AKSES_TABS = {
     { id: 'tabel', label: 'Data KKM' },
     { id: 'predikat', label: 'Skala Predikat' },
   ],
-  rapor: [
+  'rapor-paud': [
     { id: 'kelas', label: 'Rapor per Kelas' },
-    { id: 'arsip', label: 'Arsip Rapor' },
-    { id: 'pengaturan-sd', label: 'Pengaturan Rapor SD' },
-    { id: 'pengaturan-paud', label: 'Pengaturan Rapor PAUD' },
+    { id: 'arsip', label: 'Arsip Rapor PAUD' },
+    { id: 'pengaturan', label: 'Pengaturan Rapor PAUD' },
+  ],
+  'rapor-sd': [
+    { id: 'kelas', label: 'Rapor per Kelas' },
+    { id: 'arsip', label: 'Arsip Rapor SD' },
+    { id: 'pengaturan', label: 'Pengaturan Rapor SD' },
   ],
   'penilaian-paud': [
     { id: 'kegiatan', label: 'Ceklis per Kegiatan' },
@@ -505,6 +517,10 @@ export function AppProvider({ children }) {
       // tidak ada), padahal harusnya tetap tertutup utk role selain Admin. Baseline
       // default dipasang DULU, baru ditimpa oleh apa yg benar2 pernah disimpan eksplisit.
       hasil[role] = { ...buildDefaultPermissionsUntukRole(role), ...(permissions[role] || {}) };
+      // v1.49.0: menu "Rapor Digital" dipecah jadi Rapor PAUD & Rapor SD. Izin lama yg
+      // pernah disimpan utk "rapor" diwariskan ke keduanya selama belum diatur ulang.
+      const tersimpan = permissions[role] || {};
+      WARISAN_IZIN.forEach(([baru, lama]) => { if (tersimpan[baru] === undefined && tersimpan[lama] !== undefined) hasil[role][baru] = tersimpan[lama]; });
     });
     return hasil;
   }, [permissionRoles, permissions]);
