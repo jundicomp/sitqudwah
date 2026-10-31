@@ -4,6 +4,15 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.44.1',
+    tanggal: '2026-10-31',
+    poin: [
+      'Perbaikan: tabel (mis. Data Guru & Staff) bisa menampilkan baris dobel / nama yang hilang. Penyebabnya ada baris di Google Sheets dengan nomor (No) yang sama — biasanya muncul setelah menambah data sesudah ada baris yang dihapus',
+      'Nomor baris baru kini selalu "No terbesar + 1", jadi tidak bisa kembar lagi (Data Induk & Keuangan)',
+      'Kalau masih ada nomor kembar dari data lama, tabel menampilkan peringatan dan tombol "Perbaiki nomor" (memberi nomor baru tanpa mengubah isi data). Selama belum diperbaiki, tombol edit & hapus untuk baris itu dimatikan supaya tidak mengenai baris yang salah',
+    ],
+  },
+  {
     versi: '1.44.0',
     tanggal: '2026-10-30',
     poin: [

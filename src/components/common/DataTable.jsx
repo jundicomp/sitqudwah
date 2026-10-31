@@ -53,6 +53,17 @@ export default function DataTable({ columns, data, searchFn, pageSize = 10, page
   // supaya PDF/print/tampilan "Semua" memuat SEMUA baris, bukan cuma 1 halaman.
   const pageRows = tampilkanSemua ? filtered : filtered.slice((pageSafe - 1) * pageSizeAktif, pageSafe * pageSizeAktif);
 
+  // Kunci baris React HARUS unik -- kalau rowKey menghasilkan kunci kembar (mis. No ganda
+  // di Sheets), React bisa menampilkan baris "hantu" (dobel/basi). Kunci kembar diberi akhiran.
+  const kunciBaris = useMemo(() => {
+    const pakai = {};
+    return pageRows.map((row, idx) => {
+      const k = rowKey ? String(rowKey(row)) : String(idx);
+      pakai[k] = (pakai[k] || 0) + 1;
+      return pakai[k] > 1 ? `${k}__${pakai[k]}` : k;
+    });
+  }, [pageRows, rowKey]);
+
   function handleSort(key) {
     if (sortKey === key) setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
     else { setSortKey(key); setSortDir('asc'); }
@@ -105,7 +116,7 @@ export default function DataTable({ columns, data, searchFn, pageSize = 10, page
               <tr><td className="empty-cell" colSpan={columns.length + 1}>{emptyMessage}</td></tr>
             )}
             {pageRows.map((row, idx) => (
-              <tr key={rowKey ? rowKey(row) : idx}>
+              <tr key={kunciBaris[idx]}>
                 <td>{(pageSafe - 1) * pageSizeAktif + idx + 1}</td>
                 {columns.map(col => (
                   <td key={col.key}>{col.render ? col.render(row, (pageSafe - 1) * pageSizeAktif + idx) : <ClipCell value={col.accessor ? col.accessor(row) : row[col.key]} />}</td>

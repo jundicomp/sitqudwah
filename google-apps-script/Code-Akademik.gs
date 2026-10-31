@@ -237,6 +237,7 @@ function doPost(e) {
       return jsonResponse_({ ok: false, error: 'Kata sandi tidak cocok. Cek pengaturan koneksi.' });
     }
     if (body.action === 'uploadFoto') return jsonResponse_(uploadFoto_(body));
+    if (body.action === 'perbaikiNomor') return jsonResponse_({ ok: true, hasil: perbaikiNomorSemuaTab_() });
     const cfg = SHEETS[body.sheet];
     if (!cfg) return jsonResponse_({ ok: false, error: 'Sheet "' + body.sheet + '" tidak dikenal.' });
     const sheet = getSheet_(cfg);
@@ -478,6 +479,46 @@ function uploadFoto_(body) {
   const id = file.getId();
   return { ok: true, id: id, url: 'https://drive.google.com/thumbnail?id=' + id + '&sz=w1600' };
 }
+
+
+// ---------------------------------------------------------------------------
+// v1.44.1: PERBAIKI NOMOR GANDA. Kolom "No" dipakai sbg kunci edit & hapus; kalau ada
+// 2 baris ber-No sama (mis. dari tambah data setelah ada baris yg dihapus di versi lama,
+// atau baris yg disalin manual di Sheets), edit/hapus bisa mengenai baris yg SALAH.
+// Fungsi ini memberi No baru (No terbesar + 1, dst) HANYA ke baris kedua dst yg kembar
+// atau yg No-nya kosong. Kolom lain tidak disentuh.
+function perbaikiNomorSemuaTab_() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const hasil = {};
+    Object.keys(SHEETS).forEach(key => {
+      const sheet = ss.getSheetByName(SHEETS[key].name);
+      if (!sheet || sheet.getLastRow() < 2) return;
+      const lastCol = Math.max(sheet.getLastColumn(), 1);
+      const header = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+      const col = header.indexOf('No');
+      if (col < 0) return;
+      const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, lastCol).getValues();
+      let max = 0;
+      data.forEach(r => { const n = Number(r[col]); if (isFinite(n) && n > max) max = n; });
+      const sudah = {};
+      let jumlah = 0;
+      data.forEach((r, i) => {
+        if (!r.some(c => c !== '' && c !== null)) return;
+        const v = String(r[col]).trim();
+        if (v === '' || sudah[v]) { max += 1; sheet.getRange(i + 2, col + 1).setValue(max); jumlah++; }
+        else sudah[v] = true;
+      });
+      if (jumlah) hasil[key] = jumlah;
+    });
+    return hasil;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 
 function jsonResponse_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);

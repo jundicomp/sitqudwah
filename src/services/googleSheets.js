@@ -489,3 +489,11 @@ export async function uploadFotoKeDrive(dataUrl, { nama, subfolder } = {}) {
   }
   return { id: json.id, url: json.url };
 }
+
+// v1.44.1: beri No baru ke baris ber-No kembar/kosong di SEMUA tab satu file Sheets.
+export async function perbaikiNomorSemua(target = 'master') {
+  const json = await postToSheet({ action: 'perbaikiNomor', sheet: '_' }, target);
+  if (!json.ok) throw new Error(json.error || 'Gagal memperbaiki nomor.');
+  if (!json.hasil) throw new Error(`Apps Script ${TARGET_LABEL[target]} belum diperbarui. Tempel ulang script terbaru lalu Deploy → New version, kemudian coba lagi.`);
+  return json.hasil; // { namaTab: jumlahDiperbaiki }
+}

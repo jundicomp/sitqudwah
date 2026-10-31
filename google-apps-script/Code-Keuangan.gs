@@ -144,6 +144,7 @@ function doPost(e) {
     if (body.secret !== SECRET) {
       return jsonResponse_({ ok: false, error: 'Kata sandi tidak cocok. Cek pengaturan koneksi.' });
     }
+    if (body.action === 'perbaikiNomor') return jsonResponse_({ ok: true, hasil: perbaikiNomorSemuaTab_() });
     const which = SHEETS[body.sheet] ? body.sheet : 'tarif';
     const cfg = SHEETS[which];
     const sheet = getSheet_(cfg);
@@ -228,6 +229,57 @@ function getSheet_(cfg) {
   return sheet;
 }
 
+
+// ---------------------------------------------------------------------------
+// v1.44.1: PERBAIKI NOMOR GANDA. Kolom "No" dipakai sbg kunci edit & hapus; kalau ada
+// 2 baris ber-No sama (mis. dari tambah data setelah ada baris yg dihapus di versi lama,
+// atau baris yg disalin manual di Sheets), edit/hapus bisa mengenai baris yg SALAH.
+// Fungsi ini memberi No baru (No terbesar + 1, dst) HANYA ke baris kedua dst yg kembar
+// atau yg No-nya kosong. Kolom lain tidak disentuh.
+function perbaikiNomorSemuaTab_() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const hasil = {};
+    Object.keys(SHEETS).forEach(key => {
+      const sheet = ss.getSheetByName(SHEETS[key].name);
+      if (!sheet || sheet.getLastRow() < 2) return;
+      const lastCol = Math.max(sheet.getLastColumn(), 1);
+      const header = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+      const col = header.indexOf('No');
+      if (col < 0) return;
+      const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, lastCol).getValues();
+      let max = 0;
+      data.forEach(r => { const n = Number(r[col]); if (isFinite(n) && n > max) max = n; });
+      const sudah = {};
+      let jumlah = 0;
+      data.forEach((r, i) => {
+        if (!r.some(c => c !== '' && c !== null)) return;
+        const v = String(r[col]).trim();
+        if (v === '' || sudah[v]) { max += 1; sheet.getRange(i + 2, col + 1).setValue(max); jumlah++; }
+        else sudah[v] = true;
+      });
+      if (jumlah) hasil[key] = jumlah;
+    });
+    return hasil;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// No berikutnya = No terbesar + 1 (BUKAN jumlah baris -- itu bisa kembar setelah ada
+// baris yg dihapus). Dipanggil di dalam lock.
+function nomorBerikutnya_(sheet, headers) {
+  const col = headers.indexOf('No') + 1;
+  const lastRow = sheet.getLastRow();
+  if (col < 1 || lastRow < 2) return 1;
+  const vals = sheet.getRange(2, col, lastRow - 1, 1).getValues();
+  let max = 0;
+  vals.forEach(v => { const n = Number(v[0]); if (isFinite(n) && n > max) max = n; });
+  return max + 1;
+}
+
 function appendRow_(sheet, headers, rowObj, textColumns) {
   // PENTING -- LockService WAJIB di sini: sebelumnya "nextNo = sheet.getLastRow()"
   // dibaca TANPA kunci, jadi kalau 2 permintaan (mis. dari klik ganda/rapid-click)
@@ -240,7 +292,7 @@ function appendRow_(sheet, headers, rowObj, textColumns) {
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
-    const nextNo = sheet.getLastRow();
+    const nextNo = nomorBerikutnya_(sheet, headers); // v1.44.1: No terbesar + 1, tidak bisa kembar
     const row = headers.map(h => (h === 'No' ? nextNo : (rowObj[h] !== undefined ? rowObj[h] : '')));
     forceTextColumns_(sheet, headers, sheet.getLastRow() + 1, textColumns);
     sheet.appendRow(row);

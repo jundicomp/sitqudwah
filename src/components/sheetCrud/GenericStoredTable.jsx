@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useId } from 'react';
 import DataTable from '../common/DataTable';
 import PasswordConfirmModal from '../common/PasswordConfirmModal';
 import GenericEditModal from './GenericEditModal';
+import BannerNomorGanda, { nomorBermasalah } from './BannerNomorGanda';
 import { addLogEntry, isConfigured } from '../../services/googleSheets';
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
@@ -82,6 +83,7 @@ export default function GenericStoredTable({
     }
   }
 
+  const noBermasalah = nomorBermasalah(rows);
   const columns = [
     ...headers.filter(h => h !== 'No').map(h => (
       columnRenderers && columnRenderers[h]
@@ -92,13 +94,16 @@ export default function GenericStoredTable({
       key: 'aksi',
       label: 'Aksi',
       headerClassName: 'no-print',
-      render: (r) => (
-        <div className="no-print" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          {extraActions && extraActions(r)}
-          <button className="btn-icon" title="Edit" onClick={() => setEditRow(r)}>{ICON_EDIT}</button>
-          <button className="btn-icon danger" title="Hapus" onClick={() => setDeleteRow(r)}>{ICON_DELETE}</button>
-        </div>
-      ),
+      render: (r) => {
+        const ganda = noBermasalah.has(String(r['No'] ?? '').trim());
+        return (
+          <div className="no-print" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+            {extraActions && !ganda && extraActions(r)}
+            <button className="btn-icon" title={ganda ? 'Nomor ganda — perbaiki dulu' : 'Edit'} disabled={ganda} onClick={() => setEditRow(r)}>{ICON_EDIT}</button>
+            <button className="btn-icon danger" title={ganda ? 'Nomor ganda — perbaiki dulu' : 'Hapus'} disabled={ganda} onClick={() => setDeleteRow(r)}>{ICON_DELETE}</button>
+          </div>
+        );
+      },
     },
   ];
 
@@ -117,6 +122,7 @@ export default function GenericStoredTable({
       </div>
       <div className="card-body" id={printId}>
         {!isConfigured(target) && <p style={{ color: 'var(--muted)', fontSize: 13 }}>Atur koneksi Google Sheets dulu untuk melihat data.</p>}
+        {isConfigured(target) && loaded && <BannerNomorGanda rows={rows} target={target} onFixed={() => { load(); onChanged && onChanged(); }} />}
         {isConfigured(target) && loaded && (
           <DataTable
             columns={columns}

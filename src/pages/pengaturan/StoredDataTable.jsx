@@ -11,6 +11,7 @@ import EditSiswaModal from './EditSiswaModal';
 import ManualForm from './ManualForm';
 import ExcelUpload from './ExcelUpload';
 import { APP_NAME } from '../../config/appInfo';
+import BannerNomorGanda, { nomorBermasalah } from '../../components/sheetCrud/BannerNomorGanda';
 
 const ICON_EDIT = (
   <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -86,6 +87,7 @@ export default function StoredDataTable({ refreshKey }) {
     }
   }
 
+  const noBermasalah = nomorBermasalah(rows);
   const columns = [
     ...SISWA_HEADERS.filter(h => h !== 'No' && h !== 'Foto').map(h => ({
       key: h, label: h,
@@ -95,12 +97,15 @@ export default function StoredDataTable({ refreshKey }) {
       key: 'aksi',
       label: 'Aksi',
       headerClassName: 'no-print',
-      render: (r) => (
-        <div className="no-print" style={{ display: 'flex', gap: 4 }}>
-          <button className="btn-icon" title="Edit" onClick={() => setEditRow(r)}>{ICON_EDIT}</button>
-          <button className="btn-icon danger" title="Hapus" onClick={() => setDeleteRow(r)}>{ICON_DELETE}</button>
-        </div>
-      ),
+      render: (r) => {
+        const ganda = noBermasalah.has(String(r['No'] ?? '').trim());
+        return (
+          <div className="no-print" style={{ display: 'flex', gap: 4 }}>
+            <button className="btn-icon" title={ganda ? 'Nomor ganda — perbaiki dulu' : 'Edit'} disabled={ganda} onClick={() => setEditRow(r)}>{ICON_EDIT}</button>
+            <button className="btn-icon danger" title={ganda ? 'Nomor ganda — perbaiki dulu' : 'Hapus'} disabled={ganda} onClick={() => setDeleteRow(r)}>{ICON_DELETE}</button>
+          </div>
+        );
+      },
     },
   ];
 
@@ -120,6 +125,7 @@ export default function StoredDataTable({ refreshKey }) {
       </div>
       <div className="card-body" id={printId}>
         {!isConfigured() && <p style={{ color: 'var(--muted)', fontSize: 13 }}>Atur koneksi Google Sheets dulu untuk melihat data.</p>}
+        {isConfigured() && loaded && <BannerNomorGanda rows={rows} target="master" onFixed={() => { load(); refreshSiswa && refreshSiswa(); }} />}
         {isConfigured() && loaded && (
           <DataTable
             columns={columns}

@@ -43,6 +43,9 @@ Dipakai modul Jadwal Pelajaran, Presensi Siswa, Nilai Akademik, Prestasi, Pelang
 
 Beda dari dua script lama: nomor `No` baru dihitung dari No terbesar + 1 (bukan jumlah baris), jadi tidak bisa kembar setelah ada baris yang dihapus, dan ada aksi `bulkUpsert` untuk presensi/nilai supaya simpan ulang tidak menggandakan data.
 
+### Update ke v1.44.1 — KETIGA script
+Tempel ulang `Code.gs`, `Code-Keuangan.gs`, dan `Code-Akademik.gs` terbaru → Deploy → Manage deployments → New version di masing-masing. Memperbaiki nomor (No) baris yang bisa kembar dan menambah aksi "Perbaiki nomor". (Sudah termasuk semua perubahan v1.44.0 di bawah.)
+
 ### Update ke v1.44.0 — Code.gs DAN Code-Akademik.gs
 1. Tempel ulang `Code.gs` ke Apps Script file Data Induk → Deploy → Manage deployments → New version. Menambah kolom baru di Data Siswa (ID Siswa, Nama Panggilan, dll), "Format Rapor" di Jenjang & Tingkat, dan "Guru" di Users.
 2. Tempel ulang `Code-Akademik.gs` ke Apps Script file Akademik → Deploy → Manage deployments → New version. Menambah tab Penilaian PAUD, Rapor PAUD, Pengaturan Rapor PAUD, dan aksi unggah foto ke Google Drive.
