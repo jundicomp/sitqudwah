@@ -4,6 +4,21 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.48.0',
+    tanggal: '2026-11-01',
+    poin: [
+      'Rapor SD baru mengikuti format rapor SD Islam Terpadu Qudwah: halaman sampul identitas sekolah, identitas peserta didik dengan pas foto, lalu A. Sikap, B. Pengetahuan, C. Catatan Wali Kelas, D. Presensi, keputusan kenaikan kelas, dan tanda tangan orang tua, guru kelas, kepala sekolah (lengkap dengan NIY)',
+      'Nilai rapor terisi otomatis dari Nilai Akademik, digabung per jenis penilaian (Harian, Tugas, UTS, UAS) sesuai bobot yang bisa diatur; guru kelas tetap bisa mengganti nilai per siswa',
+      'Deskripsi tiap mata pelajaran: tombol "Isi kalimat awal" menulis pembuka sesuai predikat (mis. "Ananda Syahrul sudah sangat baik dalam memahami…"), guru tinggal melanjutkan materinya',
+      'Mata pelajaran bisa dikelompokkan di rapor (mis. Keagamaan: a. Tahfidz, b. Tahsin) lewat kolom "Kelompok di rapor" di Kurikulum & KKM › Mata Pelajaran',
+      'Alur sama dengan rapor PAUD: guru kelas mengisi dan mengajukan, kepala sekolah menerbitkan; rapor terbit tersimpan sebagai arsip dan bisa dicetak ulang kapan saja',
+      'Tab Pengaturan SD: identitas sekolah, nama & NIY kepala SD, KKM satuan pendidikan, bobot nilai, dan kalimat awal deskripsi',
+      'Arsip Rapor kini memuat rapor PAUD dan SD, dengan filter format; linimasa portofolio juga menampilkan rapor SD',
+      'Data Siswa: tambahan kolom Agama, Kelurahan/Desa, Kecamatan, Provinsi, serta Nama, Pekerjaan & Alamat Wali — bisa diisi langsung dari editor rapor',
+      'Rapor PAUD: nama & NIY kepala satuan PAUD bisa diisi sendiri di Pengaturan PAUD (terpisah dari kepala SD)',
+    ],
+  },
+  {
     versi: '1.47.0',
     tanggal: '2026-10-31',
     poin: [

@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { SatuRaporPaud } from './DokumenRaporPaud';
+import { SatuRaporSd } from '../raporSd/DokumenRaporSd';
 
-// Cetak rapor PAUD (1 anak atau banyak) lewat jendela cetak browser.
+// Cetak rapor (PAUD atau SD -- dilihat dari d.jenis; 1 anak atau banyak) lewat jendela cetak browser.
 // Dokumen dipasang langsung di <body> (bukan di dalam modal) supaya terpotong rapi
 // per halaman A4, lalu dibersihkan lagi setelah dialog cetak ditutup.
 export default function CetakRaporPaud({ dokumen, onSelesai }) {
@@ -28,7 +29,7 @@ export default function CetakRaporPaud({ dokumen, onSelesai }) {
   }, []);
   const list = Array.isArray(dokumen) ? dokumen : [dokumen];
   return createPortal(
-    <div id="rp-print-root" className="rp-dok">{list.map((d, i) => <SatuRaporPaud key={i} d={d} />)}</div>,
+    <div id="rp-print-root" className="rp-dok">{list.map((d, i) => (d?.jenis === 'SD' ? <SatuRaporSd key={i} d={d} /> : <SatuRaporPaud key={i} d={d} />))}</div>,
     document.body,
   );
 }

@@ -567,6 +567,7 @@ td{white-space:nowrap;}
 #rp-print-root{position:absolute;left:-10000px;top:0;}
 @media print {
   body.rp-printing > *:not(#rp-print-root){display:none !important;}
+  body.rp-printing{background:#fff !important;}
   body.rp-printing #rp-print-root{position:static;left:auto;}
   body.rp-printing .rp-hal{box-shadow:none;margin:0;break-after:page;page-break-after:always;min-height:0;height:266mm;overflow:hidden;padding:0 2mm;width:auto;}
   body.rp-printing .rp-hal:last-child{break-after:auto;page-break-after:auto;}
@@ -601,3 +602,25 @@ td{white-space:nowrap;}
 .lini-capaian b{padding:3px 7px;background:var(--green);color:#fff;}
 .lini-prestasi{margin:6px 0 0;padding-left:4px;list-style:none;font-size:12.5px;}
 .lini-prestasi li{margin:2px 0;}
+/* v1.48.0 Rapor SD */
+.rp-hal.rs h1{font-size:13pt;}
+.rs-idt{width:100%;border-collapse:collapse;font-size:11.5pt;}
+.rs-idt td{padding:1.4mm 0;border:0 !important;vertical-align:top;}
+.rs-kepala{width:100%;border-collapse:collapse;font-size:11pt;margin-bottom:3mm;}
+.rs-kepala td{border:0 !important;padding:1mm 1.5mm;vertical-align:top;}
+.rs-kepala td:nth-child(2),.rs-kepala td:nth-child(5){width:3mm;padding:1mm 0;}
+.rs-kepala td:nth-child(1){width:36mm;}.rs-kepala td:nth-child(4){width:30mm;}
+.rs-h{font-size:11.5pt;margin:5mm 0 2mm !important;break-after:avoid;page-break-after:avoid;}
+.rs-tbl tr,.rs-kotak,.rs-ttd,.rs-kepala{break-inside:avoid;page-break-inside:avoid;}
+.rs-blok{break-inside:avoid;page-break-inside:avoid;}
+.rs-tbl{font-size:10.5pt;}
+.rs-tbl td{vertical-align:top;}
+.rs-tbl td.j{text-align:justify;}
+.rs-tbl tr{break-inside:avoid;page-break-inside:avoid;}
+.rs-kotak{border:1px solid #333;padding:3mm 4mm;min-height:18mm;text-align:justify;white-space:pre-line;font-size:11pt;}
+.rs-ttd{display:flex;justify-content:space-between;gap:10mm;margin-top:9mm;text-align:center;font-size:11pt;break-inside:avoid;page-break-inside:avoid;}
+.rs-ttd > div{min-width:60mm;}
+.rs-garis{margin-top:20mm;}
+@media print {
+  body.rp-printing .rp-hal.rp-flow{height:auto !important;min-height:0 !important;overflow:visible !important;}
+}

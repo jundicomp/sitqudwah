@@ -96,6 +96,8 @@ export default function PengaturanRaporPaud() {
         <div className="form-grid">
           <div className="field"><label>Nama satuan</label><input value={d.namaSatuan} onChange={e => set({ namaSatuan: e.target.value })} /></div>
           <div className="field"><label>Jabatan kepala (di tanda tangan)</label><input value={d.jabatanKepala} onChange={e => set({ jabatanKepala: e.target.value })} /></div>
+          <div className="field"><label>Nama kepala satuan PAUD</label><input value={d.namaKepala || ''} placeholder="Kosong = pakai nama di Profil Sekolah" onChange={e => set({ namaKepala: e.target.value })} /></div>
+          <div className="field"><label>NIY kepala</label><input value={d.niyKepala || ''} onChange={e => set({ niyKepala: e.target.value })} /></div>
           <div className="field"><label>Tempat tanda tangan</label><input value={d.tempat} onChange={e => set({ tempat: e.target.value })} /></div>
           <div className="field"><label>Persetujuan kepala sekolah</label>
             <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 13, fontWeight: 500 }}>

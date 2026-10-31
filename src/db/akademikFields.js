@@ -14,7 +14,7 @@ import { todayWIB } from './helpers';
 export const MAPEL_BAWAAN = [
   'Pendidikan Agama Islam dan Budi Pekerti', "Al-Qur'an (Tahsin & Tahfidz)", 'Bahasa Arab', 'Pendidikan Pancasila',
   'Bahasa Indonesia', 'Matematika', 'IPAS', 'Seni dan Budaya', 'PJOK', 'Bahasa Inggris', 'Muatan Lokal',
-].map(nama => ({ nama, jenjang: [], aktif: true }));
+].map(nama => ({ nama, jenjang: [], aktif: true, kelompok: '' }));
 export const SEMUA_MAPEL = [];   // termasuk nonaktif
 export const MAPEL_OPTIONS = []; // nama mapel aktif, urut sesuai daftar sekolah
 let mapelDariSheets = false;
@@ -40,6 +40,7 @@ export function normalizeSheetMapel(r) {
     nama,
     jenjang: String(r['Jenjang'] ?? '').split(',').map(x => x.trim()).filter(Boolean),
     aktif: !/^(tidak|false|0|nonaktif)$/i.test(String(r['Aktif'] ?? '').trim()),
+    kelompok: String(r['Kelompok'] ?? '').trim(), // mis. "Keagamaan" -> tampil a. b. di rapor
   };
 }
 export const HARI_OPTIONS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];

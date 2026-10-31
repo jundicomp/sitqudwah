@@ -94,7 +94,7 @@ export function SatuRaporPaud({ d }) {
           <div style={{ textAlign: 'center', minWidth: '75mm' }}>
             {tanggalTtd}<br />{d.jabatanKepala.replace(/^Kepala Satuan /, 'Kepala ')}
             <div style={{ height: '20mm' }} />
-            <b><u>{d.kepala || '................................'}</u></b>
+            <b><u>{d.kepala || '................................'}</u></b>{d.kepalaNiy ? <><br />NIY {d.kepalaNiy}</> : null}
           </div>
         </div>
       </Hal>
@@ -162,7 +162,7 @@ export function SatuRaporPaud({ d }) {
               <div className="sel"><span style={{ marginTop: '9mm' }}>Wali Kelas</span><span>{d.wali || '................................'}</span></div>
               <div className="sel"><span>{tanggalTtd}<br /><br />Orang Tua / Wali Murid</span><span>................................</span></div>
             </div>
-            <div className="bawah"><span>Mengetahui,<br />{d.jabatanKepala}</span><b>{d.kepala || '................................'}</b></div>
+            <div className="bawah"><span>Mengetahui,<br />{d.jabatanKepala}</span><b>{d.kepala || '................................'}{d.kepalaNiy ? <><br /><span style={{ fontWeight: 400 }}>NIY {d.kepalaNiy}</span></> : null}</b></div>
           </div>
         </Hal>
       ); })()}

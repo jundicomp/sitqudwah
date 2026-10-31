@@ -501,3 +501,9 @@ export async function perbaikiNomorSemua(target = 'master') {
 // ---- Mata Pelajaran (v1.45.0) -- file Sheets Akademik ----
 export const fetchMapelFromSheet = () => fetchFromSheet('mapel', 'akademik');
 export const simpanMapelKeSheet = (rows) => replaceAllInSheet('mapel', rows, 'akademik');
+
+// ---- Rapor SD / format Sekolah (v1.48.0) -- file Sheets Akademik ----
+export const fetchRaporSekolahFromSheet = () => fetchFromSheet('raporSekolah', 'akademik');
+export const upsertRaporSekolahToSheet = (rows) => bulkUpsertInSheet('raporSekolah', ['Tahun Ajaran', 'Semester', 'ID Siswa'], rows);
+export const fetchPengaturanRaporSdFromSheet = () => fetchFromSheet('pengaturanRaporSd', 'akademik');
+export const simpanPengaturanRaporSdKeSheet = (rows) => replaceAllInSheet('pengaturanRaporSd', rows, 'akademik');

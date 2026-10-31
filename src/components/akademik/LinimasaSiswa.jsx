@@ -17,7 +17,7 @@ const WARNA_JENJANG = ['#1C7A3C', '#1E4FA0', '#B7791F', '#7B3FA0', '#B23B2E'];
 // Disambung lewat ID Siswa (PAUD) dan NISN (data nilai/presensi lama).
 export default function LinimasaSiswa({ siswa: s }) {
   const {
-    riwayatAkademik, raporPaud, rapor, nilai, presensi, asesmenPaud, prestasi, perkembangan, tahunAjaran,
+    riwayatAkademik, raporPaud, raporSekolah, rapor, nilai, presensi, asesmenPaud, prestasi, perkembangan, tahunAjaran,
   } = useAppData();
   const [cetak, setCetak] = useState(null);
   const [terbuka, setTerbuka] = useState({});
@@ -32,6 +32,8 @@ export default function LinimasaSiswa({ siswa: s }) {
     const riwayat = riwayatAkademik.filter(r => cocokSiswa(r, s));
     raporPaud.filter(punyaId).forEach(r => { const x = slot(r.tahunAjaran, r.semester); if (x) x.raporPaud = r; });
     rapor.filter(punyaNisn).forEach(r => { const x = slot(r.tahunAjaran, r.semester); if (x) x.raporSd = r; });
+    // Rapor SD v1.48.0 (pakai ID Siswa) menggantikan catatan rapor lama di semester yg sama.
+    raporSekolah.filter(punyaId).forEach(r => { const x = slot(r.tahunAjaran, r.semester); if (x) x.raporSd = r; });
     nilai.filter(n => punyaNisn(n) && n.nilai !== null).forEach(n => { const x = slot(n.tahunAjaran, n.semester); if (x) { x.nilai.push(n); x.tingkat ||= n.tingkat; x.rombel ||= n.rombel; } });
     asesmenPaud.filter(a => punyaId(a) || (!a.idSiswa && punyaNisn(a))).forEach(a => {
       const x = slot(a.tahunAjaran, a.semester); if (!x) return;
@@ -46,6 +48,7 @@ export default function LinimasaSiswa({ siswa: s }) {
     const list = Object.values(per).map(x => {
       const rw = riwayat.find(r => r.tahunAjaran === x.ta);
       const ar = x.raporPaud?.status === 'Terbit' ? x.raporPaud.arsip : null;
+      const arSd = x.raporSd?.status === 'Terbit' ? x.raporSd.arsip || null : null;
       const tingkat = rw?.kelasTingkat || x.raporPaud?.tingkat || x.raporSd?.tingkat || x.tingkat || '';
       const rombel = rw?.rombel || x.raporPaud?.rombel || x.raporSd?.rombel || x.rombel || '';
       const perMapel = {};
@@ -53,7 +56,7 @@ export default function LinimasaSiswa({ siswa: s }) {
       const totalHadir = Object.values(x.hadir).reduce((a, b) => a + b, 0);
       return {
         ...x, tingkat, rombel, jenjang: jenjangDariTingkat(tingkat), paud: tingkat ? formatRaporTingkat(tingkat) === 'PAUD' : !!x.raporPaud || x.asesmen.length > 0,
-        riwayat: rw, arsip: ar, capaian: ar ? ar.elemen.filter(e => e.capaian).map(e => ({ nama: e.nama, kode: e.capaian })) : [],
+        riwayat: rw, arsip: ar || arSd, capaian: ar ? ar.elemen.filter(e => e.capaian).map(e => ({ nama: e.nama, kode: e.capaian })) : [],
         fotoRapor: ar ? ar.elemen.flatMap(e => e.foto) : [],
         rata: rata(Object.values(perMapel).map(rata)), jmlMapel: Object.keys(perMapel).length,
         persenHadir: totalHadir ? Math.round((x.hadir.Hadir / totalHadir) * 100) : null, totalHadir,
@@ -70,7 +73,7 @@ export default function LinimasaSiswa({ siswa: s }) {
       jmlPrestasi: list.reduce((a, x) => a + x.prestasi.length, 0),
       sejak: list[0]?.ta || '',
     };
-  }, [s, riwayatAkademik, raporPaud, rapor, nilai, presensi, asesmenPaud, prestasi, perkembangan, tahunAjaran]);
+  }, [s, riwayatAkademik, raporPaud, raporSekolah, rapor, nilai, presensi, asesmenPaud, prestasi, perkembangan, tahunAjaran]);
 
   const urutanJenjang = SEMUA_JENJANG.map(j => j.kode);
   const warna = (kode) => WARNA_JENJANG[Math.max(0, urutanJenjang.indexOf(kode)) % WARNA_JENJANG.length];

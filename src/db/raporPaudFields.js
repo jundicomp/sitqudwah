@@ -14,6 +14,8 @@ export const BADGE_STATUS_PAUD = { 'Belum Diisi': 'badge-muted', Draft: 'badge-g
 export const PENGATURAN_PAUD_BAWAAN = {
   namaSatuan: 'KB Islam Terpadu Qudwah',
   jabatanKepala: 'Kepala Satuan PAUD KB Islam Terpadu Qudwah',
+  namaKepala: '',
+  niyKepala: '',
   tempat: 'Banyuasin',
   butuhPersetujuan: true,
   elemen: [
@@ -161,7 +163,7 @@ export function susunDokumenPaud({ p, siswa, isian, rombel, ta, semester, profil
     versi: 1,
     satuan: p.namaSatuan, jabatanKepala: p.jabatanKepala, tempat: p.tempat, tanggal: tgl,
     ta, semester, semesterRomawi: semesterRomawi(semester),
-    rombel: rombel?.label || '', wali: rombel?.wali || '', kepala: profil?.kepalaSekolah || '',
+    rombel: rombel?.label || '', wali: rombel?.wali || '', kepala: p.namaKepala || profil?.kepalaSekolah || '', kepalaNiy: p.niyKepala || '',
     skala: p.skala.map(x => x.kode),
     anak: {
       nama: siswa.nama, panggilan, nisn: siswa.nisn, jk: siswa.jenisKelamin,

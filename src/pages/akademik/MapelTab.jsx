@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { JENJANG, formatRaporBawaan } from '../../config/jenjang';
 import { simpanMapelKeSheet, addLogEntry, isConfigured } from '../../services/googleSheets';
 
-const salin = (list) => list.map(m => ({ nama: m.nama, jenjang: [...m.jenjang], aktif: m.aktif !== false, namaAwal: m.nama }));
+const salin = (list) => list.map(m => ({ nama: m.nama, jenjang: [...m.jenjang], aktif: m.aktif !== false, kelompok: m.kelompok || '', namaAwal: m.nama }));
 
 // Kelola daftar mata pelajaran: tambah, ganti nama, urutkan, pilih jenjang, nonaktifkan, hapus.
 export default function MapelTab() {
@@ -62,7 +62,7 @@ export default function MapelTab() {
     if (!isConfigured('akademik')) { toast('File Sheets Akademik belum tersambung.', 'error'); return; }
     setMenyimpan(true);
     try {
-      await simpanMapelKeSheet(draft.map((m, i) => ({ No: i + 1, Nama: m.nama.trim(), Jenjang: m.jenjang.join(', '), Aktif: m.aktif ? 'Ya' : 'Tidak' })));
+      await simpanMapelKeSheet(draft.map((m, i) => ({ No: i + 1, Nama: m.nama.trim(), Jenjang: m.jenjang.join(', '), Aktif: m.aktif ? 'Ya' : 'Tidak', Kelompok: (m.kelompok || '').trim() })));
       await addLogEntry({ username: currentUser.username, namaUser: currentUser.nama, aksi: 'Ubah Mata Pelajaran', modul: 'Kurikulum & KKM', detail: draft.map(m => m.nama + (m.aktif ? '' : ' (nonaktif)')).join(', ') });
       setBerubah(false);
       await refreshMapel();
@@ -80,7 +80,7 @@ export default function MapelTab() {
         {!mapelDariSheets && <p style={{ margin: '0 0 12px', fontSize: 13.5, background: 'var(--gold-soft)', padding: '8px 12px', borderRadius: 8 }}>Sekolah belum menyimpan daftar mapelnya sendiri — saat ini memakai daftar bawaan (Kurikulum Merdeka SD + mapel khas SIT). Sesuaikan lalu klik Simpan.</p>}
         <div className="table-scroll">
           <table>
-            <thead><tr><th style={{ width: 70 }}>Urutan</th><th>Nama mata pelajaran</th>{jenjangSekolah.length > 1 && <th>Jenjang</th>}<th>Dipakai</th><th>Aktif</th><th></th></tr></thead>
+            <thead><tr><th style={{ width: 70 }}>Urutan</th><th>Nama mata pelajaran</th><th title="Mapel dengan kelompok yang sama tampil sebagai a., b., … di bawah judul kelompok pada rapor">Kelompok di rapor</th>{jenjangSekolah.length > 1 && <th>Jenjang</th>}<th>Dipakai</th><th>Aktif</th><th></th></tr></thead>
             <tbody>
               {draft.map((m, i) => {
                 const n = totalPakai(m.namaAwal);
@@ -92,6 +92,7 @@ export default function MapelTab() {
                     </td>
                     <td><input className="input-cell" value={m.nama} placeholder="mis. Tahfidz" onChange={e => ubah(i, { nama: e.target.value })}
                       readOnly={n > 0} title={n > 0 ? 'Sudah dipakai data — tidak bisa diganti nama' : undefined} style={n > 0 ? { background: '#F6F8F5' } : undefined} /></td>
+                    <td><input className="input-cell" value={m.kelompok} placeholder="mis. Keagamaan" onChange={e => ubah(i, { kelompok: e.target.value })} style={{ width: 140 }} /></td>
                     {jenjangSekolah.length > 1 && (
                       <td style={{ whiteSpace: 'nowrap' }}>
                         {jenjangSekolah.map(j => (
@@ -111,12 +112,12 @@ export default function MapelTab() {
             </tbody>
           </table>
         </div>
-        <button className="btn" style={{ marginTop: 10 }} onClick={() => { setDraft(d => [...d, { nama: '', jenjang: [], aktif: true, namaAwal: '' }]); setBerubah(true); }}>+ Tambah mata pelajaran</button>
+        <button className="btn" style={{ marginTop: 10 }} onClick={() => { setDraft(d => [...d, { nama: '', jenjang: [], aktif: true, kelompok: '', namaAwal: '' }]); setBerubah(true); }}>+ Tambah mata pelajaran</button>
 
         {yatim.length > 0 && (
           <div className="banner-info" style={{ marginTop: 14, background: 'var(--gold-soft)', color: '#6E4B00' }}>
             <span><b>Ada mapel di data yang tidak ada di daftar:</b> {yatim.map(n => `${n} (${ketPakai(n)})`).join(', ')}. Biasanya data lama. Tambahkan ke daftar supaya tetap tampil rapi di KKM & rapor, lalu nonaktifkan kalau sudah tidak dipakai.</span>
-            <button className="btn btn-sm" onClick={() => { setDraft(d => [...d, ...yatim.map(nama => ({ nama, jenjang: [], aktif: true, namaAwal: nama }))]); setBerubah(true); }}>Tambahkan ke daftar</button>
+            <button className="btn btn-sm" onClick={() => { setDraft(d => [...d, ...yatim.map(nama => ({ nama, jenjang: [], aktif: true, kelompok: '', namaAwal: nama }))]); setBerubah(true); }}>Tambahkan ke daftar</button>
           </div>
         )}
 
