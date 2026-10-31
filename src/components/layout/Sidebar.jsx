@@ -1,13 +1,23 @@
-import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppContext';
 import pkg from '../../../package.json';
 import { APP_NAME } from '../../config/appInfo';
+import { NAV_STRUCTURE, groupHasAccess } from './navConfig';
+
+// v1.51.0: sidebar desktop kini dirender dari navConfig (sumber yg sama dgn TabletRail &
+// MobileNav), bisa diciutkan jadi ikon saja (tombol burger), dan grup menu bersifat
+// akordeon: grup halaman yg sedang aktif tetap terbuka, plus maksimal 1 grup lain yg
+// sedang dibuka -- membuka grup lain otomatis menutup yg sebelumnya.
 
 const Arrow = () => (
   <svg className="nav-group-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M9 6l6 6-6 6" /></svg>
 );
+const Burger = () => (
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+);
+const KUNCI_CIUT = 'sq-sidebar-ciut';
 
 // __BUILD_TIME__ ditanam Vite saat "npm run build" dijalankan (lihat vite.config.js) --
 // bukan variabel biasa, jadi TIDAK BOLEH dihapus meski terlihat "undefined" di editor.
@@ -24,23 +34,15 @@ function formatWaktuBuild(isoString) {
   }
 }
 
-function NavGroup({ id, label, children, sub, open, onToggle }) {
-  return (
-    <div className={`nav-group ${sub ? 'nav-subgroup' : ''} ${open ? 'open' : ''}`}>
-      <div className="nav-group-header" onClick={() => onToggle(id)}>
-        <span>{label}</span>
-        <Arrow />
-      </div>
-      <div className="nav-group-items">{children}</div>
-    </div>
-  );
-}
+const bacaCiut = () => { try { return localStorage.getItem(KUNCI_CIUT) === '1'; } catch { return false; } };
+const cocokPath = (pathname, to) => pathname === to || pathname.startsWith(to + '/');
+const itemsGrup = (n) => (n.items ? n.items : (n.subgroups || []).flatMap(sg => sg.items));
 
-function Item({ to, children, canAccess }) {
-  if (canAccess === false) return null;
+function Item({ it, canAccess, onClick }) {
+  if (!canAccess(it.pageId)) return null;
   return (
-    <NavLink to={to} className={({ isActive }) => 'nav-item' + (isActive ? ' active' : '')}>
-      {children}
+    <NavLink to={it.to} onClick={onClick} className={({ isActive }) => 'nav-item' + (isActive ? ' active' : '')}>
+      {it.label}
     </NavLink>
   );
 }
@@ -48,137 +50,137 @@ function Item({ to, children, canAccess }) {
 export default function Sidebar() {
   const { canAccess } = useAuth();
   const { profilSekolah } = useAppData();
-  const [openGroups, setOpenGroups] = useState({ spp: true, keuangan: true });
-  const toggle = (id) => setOpenGroups(g => ({ ...g, [id]: !g[id] }));
+  const { pathname } = useLocation();
+  const [ciut, setCiut] = useState(bacaCiut);
+  const [dibuka, setDibuka] = useState(null);        // grup lain (selain grup aktif) yg sedang dibuka
+  const [aktifDitutup, setAktifDitutup] = useState(false); // grup aktif sengaja ditutup user
+  const [subDibuka, setSubDibuka] = useState(null);  // sub-grup Pengaturan yg dibuka
+  const [flyout, setFlyout] = useState(null);        // { id, top } saat sidebar diciutkan
+  const tutupTimer = useRef(null);
+
+  const grupList = useMemo(() => NAV_STRUCTURE.filter(n => n.type === 'group' && groupHasAccess(n, canAccess)), [canAccess]);
+  const grupAktif = useMemo(() => grupList.find(g => itemsGrup(g).some(it => cocokPath(pathname, it.to)))?.id || null, [grupList, pathname]);
+  const subAktif = useMemo(() => {
+    const g = grupList.find(x => x.id === grupAktif);
+    return g?.subgroups?.find(sg => sg.items.some(it => cocokPath(pathname, it.to)))?.id || null;
+  }, [grupList, grupAktif, pathname]);
+
+  // Pindah halaman: grup halaman baru terbuka, grup "jelajah" sebelumnya ditutup.
+  useEffect(() => { setDibuka(null); setAktifDitutup(false); setSubDibuka(null); setFlyout(null); }, [pathname]);
+  useEffect(() => { try { localStorage.setItem(KUNCI_CIUT, ciut ? '1' : '0'); } catch { /* abaikan */ } }, [ciut]);
+
+  const terbuka = (id) => (id === grupAktif ? !aktifDitutup : id === dibuka);
+  const toggle = (id) => {
+    if (id === grupAktif) { setAktifDitutup(v => !v); return; }
+    setDibuka(d => (d === id ? null : id));
+    setSubDibuka(null);
+  };
+  const subTerbuka = (id) => (subDibuka ? subDibuka === id : id === subAktif);
+
+  const bukaFlyout = (id, e) => {
+    clearTimeout(tutupTimer.current);
+    const r = e.currentTarget.getBoundingClientRect();
+    const g = grupList.find(x => x.id === id);
+    const perkiraan = 52 + itemsGrup(g).filter(it => canAccess(it.pageId)).length * 34 + (g.subgroups?.length || 0) * 26;
+    setFlyout({ id, top: Math.max(8, Math.min(r.top, window.innerHeight - perkiraan - 8)) });
+  };
+  const tutupFlyoutNanti = () => { clearTimeout(tutupTimer.current); tutupTimer.current = setTimeout(() => setFlyout(null), 180); };
+  const tahanFlyout = () => clearTimeout(tutupTimer.current);
+  const grupFlyout = flyout && grupList.find(g => g.id === flyout.id);
+
+  const logo = profilSekolah?.logo ? (
+    <img src={profilSekolah.logo} alt="Logo Sekolah" width="38" height="38" style={{ objectFit: 'contain', borderRadius: 8 }} />
+  ) : (
+    <svg width="38" height="38" viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="21" fill="#1C7A3C" />
+      <text x="24" y="25" textAnchor="middle" dominantBaseline="central" fontFamily="Arial, sans-serif" fontSize="16" fontWeight="800" fill="#F0B429">SQ</text>
+    </svg>
+  );
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${ciut ? 'ciut' : ''}`}>
       <div className="sidebar-head">
-        {profilSekolah?.logo ? (
-          <img src={profilSekolah.logo} alt="Logo Sekolah" width="38" height="38" style={{ objectFit: 'contain', borderRadius: 8 }} />
-        ) : (
-          <svg width="38" height="38" viewBox="0 0 48 48">
-            <circle cx="24" cy="24" r="21" fill="#1C7A3C" />
-            <text x="24" y="25" textAnchor="middle" dominantBaseline="central" fontFamily="Arial, sans-serif" fontSize="16" fontWeight="800" fill="#F0B429">SQ</text>
-          </svg>
+        <div className="sidebar-logo">{logo}</div>
+        {!ciut && (
+          <div className="sidebar-brand">
+            <div className="brand-name">{profilSekolah?.nama || APP_NAME}</div>
+            <div className="brand-sub">{APP_NAME}</div>
+          </div>
         )}
-        <div>
-          <div className="brand-name">{profilSekolah?.nama || APP_NAME}</div>
-          <div className="brand-sub">{APP_NAME}</div>
-        </div>
+        <button type="button" className="sidebar-burger" onClick={() => { setCiut(v => !v); setFlyout(null); }}
+          aria-label={ciut ? 'Lebarkan menu' : 'Ciutkan menu'} title={ciut ? 'Lebarkan menu' : 'Ciutkan menu'}>
+          <Burger />
+        </button>
       </div>
 
       <nav className="sidebar-nav">
-        <Item to="/dashboard" canAccess={canAccess('dashboard')}>Dashboard</Item>
+        {canAccess('dashboard') && (
+          <NavLink to="/dashboard" className={({ isActive }) => 'nav-item nav-top' + (isActive ? ' active' : '')} title={ciut ? 'Dashboard' : undefined}>
+            <span className="nav-ikon">🏠</span>{!ciut && <span>Dashboard</span>}
+          </NavLink>
+        )}
 
-        <NavGroup id="spp" label="🎓 SPP" open={openGroups.spp} onToggle={toggle}>
-          <Item to="/dashboard-spp" canAccess={canAccess('dashboard-spp')}>Dashboard SPP</Item>
-          <Item to="/pembayaran" canAccess={canAccess('pembayaran')}>Pembayaran</Item>
-        </NavGroup>
-
-        <NavGroup id="keuangan" label="💰 KEUANGAN" open={openGroups.keuangan} onToggle={toggle}>
-          <Item to="/tagihan" canAccess={canAccess('tagihan')}>Tagihan &amp; Biaya</Item>
-          <Item to="/bersihkan-duplikat" canAccess={canAccess('bersihkan-duplikat')}>Cek Data dan Sistem</Item>
-          <Item to="/pemasukan-pengeluaran" canAccess={canAccess('pemasukan-pengeluaran')}>Pemasukan &amp; Pengeluaran Lain</Item>
-          <Item to="/tunggakan" canAccess={canAccess('tunggakan')}>Rekap Tunggakan</Item>
-          <Item to="/beasiswa" canAccess={canAccess('beasiswa')}>Beasiswa</Item>
-          <Item to="/laporan-keuangan" canAccess={canAccess('laporan-keuangan')}>Laporan Keuangan</Item>
-        </NavGroup>
-
-        <NavGroup id="akademik" label="📘 AKADEMIK" open={openGroups.akademik} onToggle={toggle}>
-          <Item to="/jadwal" canAccess={canAccess('jadwal')}>Jadwal Pelajaran</Item>
-          <Item to="/kalender" canAccess={canAccess('kalender')}>Kalender Akademik</Item>
-          <Item to="/kkm" canAccess={canAccess('kkm')}>Kurikulum &amp; KKM</Item>
-          <Item to="/presensi" canAccess={canAccess('presensi')}>Presensi Siswa</Item>
-          <Item to="/nilai" canAccess={canAccess('nilai')}>Nilai Akademik</Item>
-          <Item to="/penilaian-paud" canAccess={canAccess('penilaian-paud')}>Penilaian PAUD</Item>
-          <Item to="/rapor-paud" canAccess={canAccess('rapor-paud')}>Rapor Digital PAUD</Item>
-          <Item to="/rapor-sd" canAccess={canAccess('rapor-sd')}>Rapor Digital SD</Item>
-          <Item to="/bank-soal" canAccess={canAccess('bank-soal')}>Bank Soal &amp; Ujian</Item>
-        </NavGroup>
-
-        <NavGroup id="kepegawaian" label="👩‍🏫 KEPEGAWAIAN" open={openGroups.kepegawaian} onToggle={toggle}>
-          <Item to="/jadwal-mengajar" canAccess={canAccess('jadwal-mengajar')}>Jadwal Mengajar</Item>
-          <Item to="/presensi-guru" canAccess={canAccess('presensi-guru')}>Presensi Guru &amp; Staff</Item>
-          <Item to="/kinerja" canAccess={canAccess('kinerja')}>Penilaian Kinerja</Item>
-          <Item to="/pelatihan" canAccess={canAccess('pelatihan')}>Pelatihan &amp; Sertifikasi</Item>
-        </NavGroup>
-
-        <NavGroup id="presensi-barcode" label="📷 PRESENSI BARCODE" open={openGroups['presensi-barcode']} onToggle={toggle}>
-          <Item to="/scan-presensi" canAccess={canAccess('scan-presensi')}>Scan Presensi</Item>
-          <Item to="/dashboard-presensi" canAccess={canAccess('dashboard-presensi')}>Dashboard Rekapitulasi</Item>
-          <Item to="/laporan-presensi" canAccess={canAccess('laporan-presensi')}>Laporan Presensi</Item>
-          <Item to="/id-card" canAccess={canAccess('id-card')}>Barcode &amp; ID Card</Item>
-          <Item to="/pengaturan-presensi" canAccess={canAccess('pengaturan-presensi')}>Pengaturan Presensi</Item>
-        </NavGroup>
-
-        <NavGroup id="kesiswaan" label="🎒 KESISWAAN" open={openGroups.kesiswaan} onToggle={toggle}>
-          <Item to="/perkembangan" canAccess={canAccess('perkembangan')}>Catatan Perkembangan</Item>
-          <Item to="/prestasi" canAccess={canAccess('prestasi')}>Prestasi &amp; Penghargaan</Item>
-          <Item to="/pelanggaran" canAccess={canAccess('pelanggaran')}>Pelanggaran &amp; Konseling</Item>
-          <Item to="/mutasi" canAccess={canAccess('mutasi')}>Mutasi Siswa</Item>
-          <Item to="/laporan-siswa" canAccess={canAccess('laporan-siswa')}>Laporan Siswa</Item>
-        </NavGroup>
-
-        <NavGroup id="komunikasi" label="💬 KOMUNIKASI" open={openGroups.komunikasi} onToggle={toggle}>
-          <Item to="/pengumuman" canAccess={canAccess('pengumuman')}>Pengumuman</Item>
-          <Item to="/surat" canAccess={canAccess('surat')}>Surat Menyurat</Item>
-        </NavGroup>
-
-        <NavGroup id="perpustakaan" label="📚 PERPUSTAKAAN" open={openGroups.perpustakaan} onToggle={toggle}>
-          <Item to="/sirkulasi" canAccess={canAccess('sirkulasi')}>Sirkulasi</Item>
-          <Item to="/katalog-buku" canAccess={canAccess('katalog-buku')}>Katalog Buku</Item>
-          <Item to="/reservasi-buku" canAccess={canAccess('reservasi-buku')}>Reservasi Buku</Item>
-          <Item to="/denda-perpus" canAccess={canAccess('denda-perpus')}>Denda &amp; Keterlambatan</Item>
-          <Item to="/laporan-perpus" canAccess={canAccess('laporan-perpus')}>Laporan Sirkulasi</Item>
-        </NavGroup>
-
-        <NavGroup id="laporan-grafik" label="📊 LAPORAN &amp; GRAFIK" open={openGroups['laporan-grafik']} onToggle={toggle}>
-          <Item to="/grafik-nilai" canAccess={canAccess('grafik-nilai')}>Grafik Nilai &amp; Tren</Item>
-          <Item to="/grafik-absensi" canAccess={canAccess('grafik-absensi')}>Grafik Absensi</Item>
-          <Item to="/grafik-keuangan" canAccess={canAccess('grafik-keuangan')}>Grafik Keuangan</Item>
-          <Item to="/export-laporan" canAccess={canAccess('export-laporan')}>Pusat Export Laporan</Item>
-        </NavGroup>
-
-        <NavGroup id="sarpras" label="🏫 SARPRAS" open={openGroups.sarpras} onToggle={toggle}>
-          <Item to="/aset" canAccess={canAccess('aset')}>Data Aset &amp; Inventaris</Item>
-          <Item to="/peminjaman-aset" canAccess={canAccess('peminjaman-aset')}>Peminjaman Aset</Item>
-          <Item to="/pemeliharaan-aset" canAccess={canAccess('pemeliharaan-aset')}>Pemeliharaan Aset</Item>
-          <Item to="/aset-laporan" canAccess={canAccess('laporan-rekap-aset')}>Laporan Rekap Aset</Item>
-        </NavGroup>
-
-        <NavGroup id="pengaturan" label="⚙️ PENGATURAN" open={openGroups.pengaturan} onToggle={toggle}>
-          <NavGroup id="pgt-user" label="👤 USER" sub open={openGroups['pgt-user']} onToggle={toggle}>
-            <Item to="/manajemen-user" canAccess={canAccess('manajemen-user')}>Manajemen User</Item>
-            <Item to="/hakakses" canAccess={canAccess('hakakses')}>Manajemen Hak Akses</Item>
-          </NavGroup>
-          <NavGroup id="pgt-modul" label="🧩 MODUL" sub open={openGroups['pgt-modul']} onToggle={toggle}>
-            <Item to="/profil" canAccess={canAccess('profil')}>Profil Sekolah &amp; Tahun Ajaran</Item>
-            <Item to="/kelas" canAccess={canAccess('kelas')}>Data Kelas &amp; Rombel</Item>
-            <Item to="/guru" canAccess={canAccess('guru')}>Data Guru &amp; Staff</Item>
-            <Item to="/siswa" canAccess={canAccess('siswa')}>Data Siswa</Item>
-          </NavGroup>
-          <NavGroup id="pgt-system" label="🖥️ SYSTEM" sub open={openGroups['pgt-system']} onToggle={toggle}>
-            <Item to="/koneksi-sheets" canAccess={canAccess('koneksi-sheets')}>Pengaturan Koneksi</Item>
-            <Item to="/pengaturan-sistem" canAccess={canAccess('pengaturan-sistem')}>Pengaturan Sistem</Item>
-            <Item to="/log-histori" canAccess={canAccess('log-histori')}>Log Histori</Item>
-            <Item to="/backup" canAccess={canAccess('backup')}>Backup &amp; Restore</Item>
-            <Item to="/peta-halaman" canAccess={canAccess('peta-halaman')}>Peta Halaman</Item>
-          </NavGroup>
-        </NavGroup>
+        {grupList.map(g => (ciut ? (
+          <button key={g.id} type="button" className={`nav-ikon-grup ${g.id === grupAktif ? 'aktif' : ''} ${flyout?.id === g.id ? 'hover' : ''}`}
+            aria-label={g.label} onMouseEnter={e => bukaFlyout(g.id, e)} onMouseLeave={tutupFlyoutNanti}
+            onClick={e => (flyout?.id === g.id ? setFlyout(null) : bukaFlyout(g.id, e))}>
+            <span className="nav-ikon">{g.icon}</span>
+          </button>
+        ) : (
+          <div key={g.id} className={`nav-group ${terbuka(g.id) ? 'open' : ''} ${g.id === grupAktif ? 'berisi-aktif' : ''}`}>
+            <div className="nav-group-header" role="button" tabIndex={0} aria-expanded={terbuka(g.id)}
+              onClick={() => toggle(g.id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(g.id); } }}>
+              <span><span className="nav-ikon">{g.icon}</span>{g.label}</span>
+              <Arrow />
+            </div>
+            <div className="nav-group-items">
+              {g.items && g.items.map(it => <Item key={it.to} it={it} canAccess={canAccess} />)}
+              {g.subgroups && g.subgroups.filter(sg => sg.items.some(it => canAccess(it.pageId))).map(sg => (
+                <div key={sg.id} className={`nav-group nav-subgroup ${subTerbuka(sg.id) ? 'open' : ''}`}>
+                  <div className="nav-group-header" role="button" tabIndex={0} aria-expanded={subTerbuka(sg.id)}
+                    onClick={() => setSubDibuka(subTerbuka(sg.id) ? '__tutup__' : sg.id)}
+                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSubDibuka(subTerbuka(sg.id) ? '__tutup__' : sg.id); } }}>
+                    <span>{sg.groupLabel}</span>
+                    <Arrow />
+                  </div>
+                  <div className="nav-group-items">
+                    {sg.items.map(it => <Item key={it.to} it={it} canAccess={canAccess} />)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )))}
       </nav>
 
-      <div className="sidebar-foot">
-        Jundicomp © 2026
-        <div style={{ fontSize: 10.5, opacity: .7, marginTop: 3 }}>
-          {canAccess('changelog') ? (
-            <NavLink to="/changelog" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 2 }} title="Lihat riwayat pembaruan aplikasi">
-              v{pkg.version}
-            </NavLink>
-          ) : (
-            <span>v{pkg.version}</span>
-          )} · {formatWaktuBuild(typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : null)}
+      {ciut && grupFlyout && (
+        <div className="sidebar-flyout" style={{ top: flyout.top, maxHeight: `calc(100vh - ${flyout.top + 8}px)` }} onMouseEnter={tahanFlyout} onMouseLeave={tutupFlyoutNanti}>
+          <div className="sidebar-flyout-judul">{grupFlyout.icon} {grupFlyout.label}</div>
+          {grupFlyout.items && grupFlyout.items.map(it => <Item key={it.to} it={it} canAccess={canAccess} onClick={() => setFlyout(null)} />)}
+          {grupFlyout.subgroups && grupFlyout.subgroups.filter(sg => sg.items.some(it => canAccess(it.pageId))).map(sg => (
+            <div key={sg.id}>
+              <div className="sidebar-flyout-sub">{sg.groupLabel}</div>
+              {sg.items.map(it => <Item key={it.to} it={it} canAccess={canAccess} onClick={() => setFlyout(null)} />)}
+            </div>
+          ))}
         </div>
+      )}
+
+      <div className="sidebar-foot">
+        {ciut ? <span title={`v${pkg.version}`}>v{pkg.version}</span> : (
+          <>
+            Jundicomp © 2026
+            <div style={{ fontSize: 10.5, opacity: .7, marginTop: 3 }}>
+              {canAccess('changelog') ? (
+                <NavLink to="/changelog" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 2 }} title="Lihat riwayat pembaruan aplikasi">
+                  v{pkg.version}
+                </NavLink>
+              ) : (
+                <span>v{pkg.version}</span>
+              )} · {formatWaktuBuild(typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : null)}
+            </div>
+          </>
+        )}
       </div>
     </aside>
   );

@@ -4,6 +4,15 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.51.0',
+    tanggal: '2026-11-01',
+    poin: [
+      'Sidebar bisa diciutkan dengan tombol ☰ sehingga hanya ikon modul yang tampil; arahkan atau klik ikon untuk membuka daftar menunya. Pilihan ciut/lebar diingat di perangkat masing-masing',
+      'Modul di sidebar kini bergantian terbuka: modul halaman yang sedang aktif tetap terbuka, dan membuka modul lain otomatis menutup modul yang dibuka sebelumnya',
+      'Sidebar tetap terlihat saat halaman di-scroll',
+    ],
+  },
+  {
     versi: '1.50.0',
     tanggal: '2026-11-01',
     poin: [
