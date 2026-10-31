@@ -6,6 +6,7 @@ import { nominalEfektifTagihan } from '../../db/beasiswaFields';
 import { printElementById } from '../../utils/exportTable';
 import SuggestionDropdown from '../../components/common/SuggestionDropdown';
 import PortofolioAkademikSiswa from '../../components/akademik/PortofolioAkademikSiswa';
+import LinimasaSiswa from '../../components/akademik/LinimasaSiswa';
 
 function Baris({ label, value }) {
   return (
@@ -40,9 +41,11 @@ export default function PortofolioSiswaTab() {
   const saran = useMemo(() => {
     if (!cari.trim() || dipilih) return [];
     const t = cari.trim().toLowerCase();
-    return siswa.filter(s => s.nama.toLowerCase().includes(t) || s.nisn.includes(t)).slice(0, 8);
+    return siswa.filter(s => s.nama.toLowerCase().includes(t) || s.nisn.includes(t) || (s.idSiswa || '').toLowerCase().includes(t) || (s.panggilan || '').toLowerCase().includes(t)).slice(0, 8);
   }, [cari, siswa, dipilih]);
 
+  // Ambil versi terbaru siswa dari data (mis. setelah naik jenjang) -- dipilih cuma penanda.
+  const terkini = dipilih ? (siswa.find(x => x.id === dipilih.id) || dipilih) : null;
   const keuangan = useMemo(() => {
     if (!dipilih) return null;
     const cutoffMs = Date.now();
@@ -77,7 +80,7 @@ export default function PortofolioSiswaTab() {
             <input
               ref={inputRef}
               type="text" value={cari} onChange={e => setCari(e.target.value)}
-              placeholder="Cari nama atau NISN..." style={{ width: '100%' }}
+              placeholder="Cari nama, panggilan, NISN, atau ID Siswa..." style={{ width: '100%' }}
             />
             <SuggestionDropdown anchorRef={inputRef} visible={saran.length > 0}>
               {saran.map(s => (
@@ -85,31 +88,31 @@ export default function PortofolioSiswaTab() {
                   <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--green-soft)', color: 'var(--green-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700 }}>{initials(s.nama)}</div>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 600 }}>{s.nama}</div>
-                    <div style={{ fontSize: 11, color: 'var(--muted)' }}>NISN: {s.nisn || '-'} · {s.kelasTingkat ? namaTingkat(s.kelasTingkat) : 'Kelas -'}</div>
+                    <div style={{ fontSize: 11, color: 'var(--muted)' }}>{s.idSiswa || 'tanpa ID'} · NISN: {s.nisn || '-'} · {s.kelasTingkat ? namaTingkat(s.kelasTingkat) : 'Kelas -'}{s.status && s.status !== 'Aktif' ? ` · ${s.status}` : ''}</div>
                   </div>
                 </div>
               ))}
             </SuggestionDropdown>
             <SuggestionDropdown anchorRef={inputRef} visible={!!cari.trim() && saran.length === 0}>
               <div style={{ padding: '12px 14px', fontSize: 12.5, color: 'var(--muted)' }}>
-                Tidak ditemukan siswa dengan nama atau NISN mengandung "{cari.trim()}". Coba kata kunci lain, atau cek ejaannya di menu Data Siswa (Tabel).
+                Tidak ditemukan siswa dengan nama, NISN, atau ID mengandung "{cari.trim()}". Coba kata kunci lain, atau cek ejaannya di menu Data Siswa (Tabel).
               </div>
             </SuggestionDropdown>
           </div>
         )}
 
         {dipilih && (
-          <div id="portofolio-siswa-print" style={{ maxWidth: 700, margin: '0 auto' }}>
+          <div id="portofolio-siswa-print" style={{ maxWidth: 820, margin: '0 auto' }}>
             <div style={{ borderRadius: 14, overflow: 'hidden', boxShadow: '0 6px 24px rgba(0,0,0,.08)', border: '1px solid var(--border)' }}>
               <div style={{ background: 'linear-gradient(135deg, var(--green), var(--green-dark))', padding: '32px 28px 26px', color: '#fff', position: 'relative' }}>
-                <div style={{ width: 70, height: 70, borderRadius: 14, background: 'var(--gold)', position: 'absolute', right: 26, top: 26, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, color: 'var(--green-dark)' }}>
-                  {initials(dipilih.nama)}
-                </div>
+                {terkini.foto
+                  ? <img src={terkini.foto} alt="Pas foto" style={{ width: 70, height: 92, borderRadius: 10, objectFit: 'cover', position: 'absolute', right: 26, top: 22, border: '3px solid var(--gold)', background: '#fff' }} />
+                  : <div style={{ width: 70, height: 70, borderRadius: 14, background: 'var(--gold)', position: 'absolute', right: 26, top: 26, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, color: 'var(--green-dark)' }}>{initials(dipilih.nama)}</div>}
                 <h2 style={{ fontSize: 22, margin: 0 }}>{dipilih.nama}</h2>
-                <div style={{ fontSize: 12.5, opacity: .85, marginTop: 4 }}>NISN: {dipilih.nisn || '-'}</div>
+                <div style={{ fontSize: 12.5, opacity: .85, marginTop: 4 }}>{terkini.panggilan ? `"${terkini.panggilan}" · ` : ''}NISN: {dipilih.nisn || '-'}{terkini.idSiswa ? ` · ID ${terkini.idSiswa}` : ''}</div>
                 <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-                  <span style={{ background: 'rgba(255,255,255,.2)', padding: '4px 12px', borderRadius: 999, fontSize: 11 }}>{dipilih.status || 'Aktif'}</span>
-                  <span style={{ background: 'rgba(255,255,255,.2)', padding: '4px 12px', borderRadius: 999, fontSize: 11 }}>{dipilih.kelasTingkat ? namaTingkat(dipilih.kelasTingkat) : 'Kelas -'}</span>
+                  <span style={{ background: 'rgba(255,255,255,.2)', padding: '4px 12px', borderRadius: 999, fontSize: 11 }}>{terkini.status || 'Aktif'}</span>
+                  <span style={{ background: 'rgba(255,255,255,.2)', padding: '4px 12px', borderRadius: 999, fontSize: 11 }}>{terkini.kelasTingkat ? `${namaTingkat(terkini.kelasTingkat)}${terkini.rombel ? ' · ' + terkini.rombel : ''}` : 'Kelas -'}</span>
                   <span style={{ background: 'rgba(255,255,255,.2)', padding: '4px 12px', borderRadius: 999, fontSize: 11 }}>{dipilih.jenisKelamin || '-'}</span>
                   {beasiswaDipilih && (
                     <span style={{ background: 'var(--gold)', color: 'var(--green-dark)', padding: '4px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700 }}>🎓 {beasiswaDipilih.kategoriBeasiswa}</span>
@@ -127,9 +130,16 @@ export default function PortofolioSiswaTab() {
                     <Baris label="Jenis Pendaftaran" value={dipilih.jenisPendaftaran} />
                     <Baris label="Nama Ayah Kandung" value={dipilih.namaAyah} />
                     <Baris label="Nama Ibu Kandung" value={dipilih.namaIbu} />
-                    <Baris label="Pekerjaan Orang Tua" value={dipilih.pekerjaan} />
+                    <Baris label="Pekerjaan Ayah / Ibu" value={`${terkini.pekerjaanAyah || '-'} / ${terkini.pekerjaanIbu || '-'}`} />
+                    <Baris label="No. HP Ayah / Ibu" value={`${terkini.hpAyah || '-'} / ${terkini.hpIbu || '-'}`} />
+                    <Baris label="Anak ke-" value={terkini.anakKe ? `${terkini.anakKe}${terkini.jumlahSaudara ? ` dari ${terkini.jumlahSaudara} bersaudara` : ''}` : ''} />
                     <Baris label="Alamat" value={dipilih.alamat} />
                   </div>
+                </div>
+
+                <div style={{ marginBottom: 22 }}>
+                  <div style={{ fontSize: 11.5, fontWeight: 700, textTransform: 'uppercase', color: 'var(--green-dark)', borderBottom: '2px solid var(--green-soft)', paddingBottom: 6, marginBottom: 12 }}>Linimasa Perjalanan di Sekolah</div>
+                  <LinimasaSiswa siswa={terkini} />
                 </div>
 
                 <div>

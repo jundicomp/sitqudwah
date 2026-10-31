@@ -33,7 +33,7 @@ export default function PortofolioAkademikSiswa({ nisn }) {
     };
   }, [nisn, nilai, presensi, prestasi, pelanggaran, rapor, mutasi, sirkulasi, perkembangan]);
 
-  if (!nisn) return <p style={{ fontSize: 13, color: 'var(--muted)' }}>Siswa ini belum punya NISN, data akademik tidak bisa ditautkan.</p>;
+  if (!nisn) return <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 18 }}>Rekap nilai, presensi, dan prestasi di bawah ini memerlukan NISN. Penilaian & rapor PAUD sudah tampil di Linimasa (tersambung lewat ID Siswa).</p>;
   return (
     <div>
       <div style={judul}>Rekam Akademik per Semester</div>

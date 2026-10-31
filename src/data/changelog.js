@@ -4,6 +4,17 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.47.0',
+    tanggal: '2026-10-31',
+    poin: [
+      'Portofolio Siswa › Linimasa Perjalanan: satu halaman perjalanan anak per semester, dari KB/TK sampai SD — kelas & wali saat itu, capaian elemen PAUD, rata-rata nilai SD, kehadiran, prestasi, jumlah catatan guru, dan galeri foto kegiatan',
+      'Penanda "Masuk jenjang SD" di linimasa dan keputusan akhir tahun (naik kelas / lanjut jenjang / lulus) dari Riwayat Akademik',
+      'Rapor PAUD yang sudah terbit bisa langsung dicetak ulang dari linimasa (memakai arsip saat terbit)',
+      'Ringkasan di atas linimasa: mulai tercatat, jenjang yang dilalui, jumlah semester, rapor terbit, prestasi, dan foto',
+      'Profil portofolio kini menampilkan pas foto, nama panggilan, ID Siswa, pekerjaan & No. HP ayah-ibu; pencarian bisa memakai nama panggilan atau ID Siswa',
+    ],
+  },
+  {
     versi: '1.46.0',
     tanggal: '2026-10-31',
     poin: [

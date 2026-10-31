@@ -575,3 +575,29 @@ td{white-space:nowrap;}
 .rp-dok table, .rp-dok th, .rp-dok td, .rp-dok tr{background:#fff !important;color:#111 !important;}
 .rp-dok th{font-size:11pt;text-transform:none;letter-spacing:0;}
 .rp-dok td,.rp-dok th{white-space:normal;}
+
+/* v1.47.0 Linimasa portofolio siswa */
+.lini-ringkas{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:16px;}
+.lini-ringkas div{background:var(--green-soft);border-radius:10px;padding:10px 12px;text-align:center;}
+.lini-ringkas b{display:block;font-size:15px;color:var(--green-dark);}
+.lini-ringkas span{font-size:11px;color:var(--muted);}
+.lini-list{list-style:none;margin:0;padding:0 0 0 22px;position:relative;}
+.lini-list:before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:3px;background:#D5E0D8;border-radius:3px;}
+.lini-item{position:relative;margin-bottom:14px;break-inside:avoid;page-break-inside:avoid;}
+.lini-titik{position:absolute;left:-22px;top:14px;width:17px;height:17px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px #C9D6CD;}
+.lini-jenjang-baru{font-size:11.5px;font-weight:800;color:var(--green-dark);text-transform:uppercase;letter-spacing:.4px;margin:4px 0 6px;}
+.lini-kartu{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
+.lini-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+.lini-periode{font-size:11.5px;color:var(--muted);font-weight:700;}
+.lini-kelas{font-size:14.5px;font-weight:800;display:flex;align-items:center;gap:6px;}
+.lini-chip{color:#fff;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;}
+.lini-aksi{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.lini-isi{margin-top:8px;}
+.lini-baris{font-size:13px;margin:4px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.lini-kecil{font-size:12px;color:#3D4E43;gap:10px;}
+.lini-redup{color:var(--muted);}
+.lini-capaian{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:11.5px;}
+.lini-capaian span{padding:3px 7px;background:#F6F8F5;}
+.lini-capaian b{padding:3px 7px;background:var(--green);color:#fff;}
+.lini-prestasi{margin:6px 0 0;padding-left:4px;list-style:none;font-size:12.5px;}
+.lini-prestasi li{margin:2px 0;}
