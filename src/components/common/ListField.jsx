@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 // Field tipe "list" -- isian yang bisa ditambah beberapa item (mis. beberapa Tugas
-// Tambahan sekaligus: "Kepala Madrasah", "Kaur Kurikulum", dst). Disimpan sbg SATU
+// Tambahan sekaligus: "Kepala Sekolah", "Waka Kurikulum", dst). Disimpan sbg SATU
 // string ke Google Sheets (dipisah "; "), karena sel spreadsheet cuma bisa simpan
 // teks tunggal -- tapi tampil di form sbg daftar interaktif, bukan teks mentah.
 export default function ListField({ value, onChange, placeholder }) {

@@ -4,6 +4,34 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.45.2',
+    tanggal: '2026-10-31',
+    poin: [
+      'Repo publik dirapikan: README dan panduan teknis dihapus dari repo, script Apps Script tidak lagi ikut diunggah (disimpan terpisah oleh pengelola)',
+    ],
+  },
+  {
+    versi: '1.45.1',
+    tanggal: '2026-10-31',
+    poin: [
+      'Pembersihan menyeluruh sisa sistem lama: istilah & contoh madrasah dihapus dari aplikasi, riwayat pembaruan, dan dokumentasi; pilihan cepat jenjang kini KB, TK, SD, SMP, SMA, SMK',
+      'File bawaan template yang tidak dipakai dihapus; ikon tab browser bawaan diganti logo SQ (tetap otomatis memakai logo sekolah kalau sudah diunggah di Profil Sekolah)',
+      'Diperiksa ulang: seluruh 59 halaman beserta semua tab dibuka satu per satu sebagai Admin maupun wali kelas — tidak ada error',
+    ],
+  },
+  {
+    versi: '1.45.0',
+    tanggal: '2026-10-31',
+    poin: [
+      'Kurikulum & KKM › tab baru "Mata Pelajaran": daftar mapel kini milik sekolah — tambah, ganti nama, urutkan, pilih jenjang tempat mapel dipakai, nonaktifkan, atau hapus. Mapel yang sudah punya nilai/KKM/jadwal/soal tidak bisa dihapus, cukup dinonaktifkan',
+      'Daftar mapel bawaan diganti ke struktur Kurikulum Merdeka SD + mapel khas SIT. Mapel lama yang masih ada di data ditandai dan bisa ditambahkan ke daftar dengan sekali klik',
+      'Pilihan mapel di Nilai Akademik, KKM, Jadwal, Bank Soal, Rapor, dan laporan mengikuti daftar sekolah (dan jenjang kelasnya)',
+      'Kelas berformat PAUD (KB/TK) tidak lagi muncul di Atur KKM dan Nilai Akademik — penilaian PAUD lewat menu Penilaian PAUD. Tombol "Isi nilai standar" tidak lagi membuat KKM untuk tingkat PAUD',
+      'Bersih-bersih sisa sistem lama: data contoh bawaan dihapus, sebutan kepala di surat keterangan pindah menjadi "Kepala Sekolah", kolom yang tidak dipakai disembunyikan dari form & tabel siswa, contoh isian & README diperbarui',
+      'Data Siswa: kolom lama "Pekerjaan" orang tua otomatis terbaca sebagai Pekerjaan Ayah saat diedit',
+    ],
+  },
+  {
     versi: '1.44.1',
     tanggal: '2026-10-31',
     poin: [
@@ -23,7 +51,7 @@ export const CHANGELOG = [
       'Akses wali kelas: akun yang terhubung ke data guru (Manajemen User › Terhubung ke Guru) hanya melihat rapor kelas yang dia pegang di Data Kelas. Kepala Sekolah & Admin melihat semua kelas',
       'Tab "Pengaturan PAUD" (khusus Kepala Sekolah & Admin): elemen narasi, skala & kalimat, template kalimat pembuka, kalimat penyemangat, muatan lokal, bidang karakter, aspek kesehatan, petunjuk penggunaan',
       'Data Siswa: kolom baru ID Siswa (pengenal tetap dari KB/TK sampai SD), nama panggilan, anak ke/dari, pekerjaan & No. HP ayah dan ibu, pas foto. Tombol "Buat ID sekarang" untuk siswa lama',
-      'Jenjang & Tingkat: kolom "Format rapor" (PAUD / Sekolah) per jenjang, terisi otomatis (KB/TK/PAUD/RA = PAUD)',
+      'Jenjang & Tingkat: kolom "Format rapor" (PAUD / Sekolah) per jenjang, terisi otomatis (KB/TK/PAUD = PAUD)',
       'Foto disimpan di Google Drive sekolah (folder "Siskom Qudwah - Foto"), dikecilkan otomatis sebelum diunggah',
       'Perbaikan: No. HP / NISN berawalan 0 tidak lagi kehilangan angka 0 saat disimpan ke Data Induk',
     ],
@@ -61,7 +89,7 @@ export const CHANGELOG = [
     versi: '1.40.0',
     tanggal: '2026-10-01',
     poin: [
-      'Jenjang & tingkat kelas kini diatur sendiri dari aplikasi: Pengaturan › Data Kelas & Rombel › tab "Jenjang & Tingkat". Bisa tambah jenjang (tombol cepat PAUD, TK, RA, SD, MI, SMP, MTs, SMA, MA, SMK), tambah/hapus/urutkan tingkat, dan menonaktifkan jenjang yang tidak dipakai',
+      'Jenjang & tingkat kelas kini diatur sendiri dari aplikasi: Pengaturan › Data Kelas & Rombel › tab "Jenjang & Tingkat". Bisa tambah jenjang (tombol cepat KB, TK, SD, SMP, SMA, SMK), tambah/hapus/urutkan tingkat, dan menonaktifkan jenjang yang tidak dipakai',
       'Perubahan jenjang langsung berlaku di semua pilihan tingkat (Data Kelas, Data Siswa, Tarif, KKM, Bank Soal, Kalender, Pengumuman) tanpa perlu memuat ulang aplikasi',
       'Pengaman: tingkat yang masih dipakai kelas atau siswa tidak bisa dihapus, dan nama tingkat yang sama di dua jenjang ditolak',
     ],
@@ -82,7 +110,7 @@ export const CHANGELOG = [
     tanggal: '2026-09-30',
     poin: [
       'Layar login kini memeriksa KETIGA koneksi (data induk, keuangan, akademik) dan menampilkan penyebabnya kalau gagal, mis. "kata sandi (secret) tidak cocok" atau "URL tidak bisa diakses"',
-      'Sisa tulisan "SPP dan Sarpras" dan inisial "MI" di layar login, sidebar, kwitansi & aset diganti identitas Siskom Qudwah',
+      'Sisa tulisan & inisial nama sekolah lama di layar login, sidebar, kwitansi & aset diganti identitas Siskom Qudwah',
       'Pilihan jenjang siswa ditambah TK, SD, SMP, dan SMA',
     ],
   },
@@ -466,7 +494,7 @@ export const CHANGELOG = [
     versi: '1.28.0',
     tanggal: '2026-09-15',
     poin: [
-      'Data Siswa / Rombel: tab "Rombel" sekarang jadi Laporan Rombel lengkap — pilih Kelas, pilih Rombel spesifik (mis. 1A), klik Tampilkan untuk melihat daftar siswanya, dengan jumlah siswa, pengaturan jumlah baris per halaman (10/20/50/100/Semua), pencarian, dan export Excel & PDF (judul MI Ikhlasiyah / Laporan Rombel / Kelas-Rombel)',
+      'Data Siswa / Rombel: tab "Rombel" sekarang jadi Laporan Rombel lengkap — pilih Kelas, pilih Rombel spesifik (mis. 1A), klik Tampilkan untuk melihat daftar siswanya, dengan jumlah siswa, pengaturan jumlah baris per halaman (10/20/50/100/Semua), pencarian, dan export Excel & PDF (judul Nama sekolah / Laporan Rombel / Kelas-Rombel)',
     ],
   },
   {
@@ -474,7 +502,7 @@ export const CHANGELOG = [
     tanggal: '2026-09-15',
     poin: [
       'Riwayat Pembayaran: tambah filter rentang tanggal (bisa lihat transaksi hari per hari), kolom Tanggal dipindah ke setelah kolom No, total nominal ditampilkan di bawah kolom Nominal, dan pengaturan jumlah baris per halaman (10/20/50/100/Semua)',
-      'Riwayat Pembayaran: export Excel dan PDF sekarang pakai judul 3 baris (MI Ikhlasiyah / Laporan Pembayaran / Tanggal sesuai filter yang aktif)',
+      'Riwayat Pembayaran: export Excel dan PDF sekarang pakai judul 3 baris (Nama sekolah / Laporan Pembayaran / Tanggal sesuai filter yang aktif)',
     ],
   },
   {
@@ -836,7 +864,7 @@ export const CHANGELOG = [
     versi: '1.0.3',
     tanggal: '2026-09-05',
     poin: [
-      'Data Guru & Staff: field "Tugas Tambahan" sekarang bisa diisi lebih dari satu (mis. Kepala Madrasah + Ketua Yayasan sekaligus)',
+      'Data Guru & Staff: field "Tugas Tambahan" sekarang bisa diisi lebih dari satu (mis. Kepala Sekolah + Ketua Yayasan sekaligus)',
       'Kategori tambah pilihan "Guru & Staff" untuk yang berperan ganda',
     ],
   },

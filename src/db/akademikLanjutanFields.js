@@ -20,16 +20,14 @@ export const STATUS_RAPOR_OPTIONS = ['Draft', 'Terbit'];
 export const SIKAP_OPTIONS = ['Sangat Baik', 'Baik', 'Cukup', 'Perlu Bimbingan'];
 export const TINGKAT_LIST = TINGKAT_OPTIONS;
 
-// KKM bawaan per mapel dari versi HTML -- dipakai tombol "Isi nilai standar".
-export const KKM_BASE = {
-  "Al-Qur'an Hadits": 72, 'Akidah Akhlak': 72, Fiqih: 70, SKI: 68, 'Bahasa Arab': 65,
-  PPKn: 70, 'Bahasa Indonesia': 68, Matematika: 65, IPA: 66, IPS: 68, SBdP: 75, PJOK: 75, 'Bahasa Inggris': 65,
-};
+// Nilai awal utk tombol "Isi sel kosong dengan nilai standar" (bisa diubah per sel).
+export const KKM_BASE = { PJOK: 75, 'Seni dan Budaya': 75 };
+export const KKM_BASE_UMUM = 70;
 // Naik 1 poin per tingkat di dalam jenjangnya (kelas 1 / 7 / 10 / TK A = dasar).
 export const kkmStandar = (mapel, tingkat) => {
   const j = JENJANG.find(x => x.tingkat.includes(String(tingkat)));
   const idx = j ? j.tingkat.indexOf(String(tingkat)) : 0;
-  return Math.min(80, (KKM_BASE[mapel] || 68) + Math.max(0, idx));
+  return Math.min(80, (KKM_BASE[mapel] || KKM_BASE_UMUM) + Math.max(0, idx));
 };
 
 export const WARNA_AGENDA = { Ujian: 'var(--red)', Libur: 'var(--gold)', 'Kegiatan Sekolah': 'var(--green)', Rapat: 'var(--blue)', Lainnya: 'var(--muted)' };

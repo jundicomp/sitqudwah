@@ -61,7 +61,7 @@ export default function JenjangTab() {
       if (!j.tingkat.length) return `Jenjang ${k} belum punya tingkat.`;
       for (const t of j.tingkat) {
         if (/,/.test(t)) return `Nama tingkat "${t}" tidak boleh mengandung koma.`;
-        if (tingkat.has(t)) return `Tingkat "${t}" ada di dua jenjang (${tingkat.get(t)} dan ${k}). Bedakan namanya, mis. "MTs 7".`;
+        if (tingkat.has(t)) return `Tingkat "${t}" ada di dua jenjang (${tingkat.get(t)} dan ${k}). Bedakan namanya, mis. "SMP 7".`;
         tingkat.set(t, k);
       }
     }

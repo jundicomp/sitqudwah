@@ -36,7 +36,7 @@ function SuratPindah({ m, onClose }) {
         <div style={{ borderTop: '3px double #111', margin: '6px 0 16px' }} />
         <h3 style={{ textAlign: 'center', textDecoration: 'underline', margin: 0 }}>SURAT KETERANGAN PINDAH</h3>
         <p style={{ textAlign: 'center', marginTop: 2 }}>Nomor: {m['Nomor Surat'] || '....................'}</p>
-        <p>Yang bertanda tangan di bawah ini, Kepala {profilSekolah?.nama || 'Madrasah'}, menerangkan bahwa:</p>
+        <p>Yang bertanda tangan di bawah ini, Kepala {profilSekolah?.nama || APP_NAME}, menerangkan bahwa:</p>
         <table><tbody>
           <tr><td style={{ width: '35%' }}>Nama</td><td>{m['Nama Siswa']}</td></tr>
           <tr><td>NISN</td><td>{m.NISN}</td></tr>
@@ -44,9 +44,9 @@ function SuratPindah({ m, onClose }) {
           <tr><td>Sekolah tujuan</td><td>{m['Sekolah Asal / Tujuan'] || '-'}</td></tr>
           <tr><td>Alasan pindah</td><td>{m.Alasan || '-'}</td></tr>
         </tbody></table>
-        <p>terhitung sejak tanggal {formatTanggal(String(m.Tanggal).slice(0, 10) + 'T00:00:00')} telah pindah dari madrasah kami. Surat keterangan ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
+        <p>terhitung sejak tanggal {formatTanggal(String(m.Tanggal).slice(0, 10) + 'T00:00:00')} telah pindah dari sekolah kami. Surat keterangan ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
         <div className="ttd" style={{ justifyContent: 'flex-end' }}>
-          <div>{formatTanggal(sekarangWIB().tanggal + 'T00:00:00')}<br />Kepala Madrasah<div className="garis">{profilSekolah?.kepalaSekolah || '\u00a0'}</div></div>
+          <div>{formatTanggal(sekarangWIB().tanggal + 'T00:00:00')}<br />Kepala Sekolah<div className="garis">{profilSekolah?.kepalaSekolah || '\u00a0'}</div></div>
         </div>
       </div>
     </Modal>

@@ -7,10 +7,11 @@ import { TabBar, AkademikBelumTersambung, Field, Select, Kosong } from '../../co
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import {
-  MAPEL_OPTIONS, SEMESTER_OPTIONS, JENIS_NILAI_OPTIONS, NILAI_HEADERS,
+  MAPEL_OPTIONS, mapelUntukTingkat, SEMESTER_OPTIONS, JENIS_NILAI_OPTIONS, NILAI_HEADERS,
   siswaDiRombel, semesterDariTanggal, predikatNilai, badgePredikat, PREDIKAT_LABEL, getSkalaPredikat,
 } from '../../db/akademikFields';
 import { todayWIB } from '../../db/helpers';
+import { formatRaporTingkat } from '../../config/jenjang';
 import {
   upsertNilaiToSheet, fetchNilaiFromSheet, updateNilaiInSheet, deleteNilaiFromSheet, addLogEntry, isConfigured,
 } from '../../services/googleSheets';
@@ -30,7 +31,9 @@ const nilaiValid = (v) => v === '' || (Number.isFinite(Number(v)) && Number(v) >
 const rata = (arr) => arr.length ? Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 10) / 10 : null;
 
 function useFilterPeriode() {
-  const { tahunAjaranOptions, taAktif, rombelList } = useAkademikOptions();
+  const { tahunAjaranOptions, taAktif, rombelList: semuaRombel } = useAkademikOptions();
+  // Kelas berformat PAUD dinilai lewat menu Penilaian PAUD, bukan nilai angka per mapel.
+  const rombelList = useMemo(() => semuaRombel.filter(r => formatRaporTingkat(r.tingkat) !== 'PAUD'), [semuaRombel]);
   const [ta, setTa] = useState('');
   const [semester, setSemester] = useState(semesterDariTanggal());
   const [rombelKey, setRombelKey] = useState('');
@@ -42,11 +45,14 @@ function useFilterPeriode() {
 
 // ---------------------------------------------------------------------------
 function InputNilai() {
-  const { siswa, nilai, nilaiLoaded, jadwal, refreshNilai, toast } = useAppData();
+  const { siswa, nilai, nilaiLoaded, jadwal, refreshNilai, toast, mapelList } = useAppData();
   const { currentUser } = useAuth();
   const { guruOptions } = useAkademikOptions();
   const f = useFilterPeriode();
   const [mapel, setMapel] = useState(MAPEL_OPTIONS[0]);
+  // Pilihan mapel mengikuti jenjang kelas yg dipilih (Kurikulum & KKM › Mata Pelajaran).
+  const mapelKelas = useMemo(() => (f.rombel ? mapelUntukTingkat(f.rombel.tingkat) : MAPEL_OPTIONS), [f.rombel, mapelList]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (mapelKelas.length && !mapelKelas.includes(mapel)) setMapel(mapelKelas[0]); }, [mapelKelas, mapel]);
   const [jenis, setJenis] = useState('Harian');
   const [tanggal, setTanggal] = useState(todayWIB());
   const [guru, setGuru] = useState('');
@@ -130,7 +136,7 @@ function InputNilai() {
           </Field>
         </div>
         <div className="filter-bar">
-          <Field label="Mata Pelajaran"><Select value={mapel} onChange={setMapel} options={MAPEL_OPTIONS} /></Field>
+          <Field label="Mata Pelajaran"><Select value={mapel} onChange={setMapel} options={mapelKelas} /></Field>
           <Field label="Jenis Nilai"><Select value={jenis} onChange={setJenis} options={JENIS_NILAI_OPTIONS} /></Field>
           <Field label="Tanggal Penilaian"><input type="date" value={tanggal} onChange={e => setTanggal(e.target.value)} /></Field>
           <Field label="Guru" grow><Select value={guru} onChange={setGuru} options={guruOptions} placeholder="— pilih —" /></Field>

@@ -334,7 +334,7 @@ export const updateBeasiswaSiswaInSheet = (row) => updateInSheet('beasiswaSiswa'
 export const deleteBeasiswaSiswaFromSheet = (no) => deleteFromSheet('beasiswaSiswa', no, 'keuangan');
 
 // ---- Alias AKADEMIK & KESISWAAN (file Sheets ketiga, target='akademik') ----
-// Lihat google-apps-script/Code-Akademik.gs.
+// Lihat script Code-Akademik.gs.
 export async function bulkUpsertInSheet(sheetName, keyFields, rows, target = 'akademik') {
   const json = await postToSheet({ action: 'bulkUpsert', sheet: sheetName, keyFields, rows }, target);
   if (!json.ok) throw new Error(json.error || 'Gagal menyimpan data.');
@@ -497,3 +497,7 @@ export async function perbaikiNomorSemua(target = 'master') {
   if (!json.hasil) throw new Error(`Apps Script ${TARGET_LABEL[target]} belum diperbarui. Tempel ulang script terbaru lalu Deploy → New version, kemudian coba lagi.`);
   return json.hasil; // { namaTab: jumlahDiperbaiki }
 }
+
+// ---- Mata Pelajaran (v1.45.0) -- file Sheets Akademik ----
+export const fetchMapelFromSheet = () => fetchFromSheet('mapel', 'akademik');
+export const simpanMapelKeSheet = (rows) => replaceAllInSheet('mapel', rows, 'akademik');

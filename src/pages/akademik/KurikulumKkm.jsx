@@ -6,14 +6,16 @@ import GenericStoredTable from '../../components/sheetCrud/GenericStoredTable';
 import { TabBar, AkademikBelumTersambung, Field, Select } from '../../components/akademik/shared';
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
-import { MAPEL_OPTIONS } from '../../db/akademikFields';
+import { mapelUntukJenjang } from '../../db/akademikFields';
 import { KKM_HEADERS, TINGKAT_LIST, kkmStandar } from '../../db/akademikLanjutanFields';
-import { JENJANG, namaTingkat } from '../../config/jenjang';
+import { JENJANG, namaTingkat, formatRaporBawaan } from '../../config/jenjang';
+import MapelTab from './MapelTab';
 import { fetchKkmFromSheet, updateKkmInSheet, deleteKkmFromSheet, upsertKkmToSheet, addLogEntry, isConfigured } from '../../services/googleSheets';
 import { exportToExcel } from '../../utils/exportTable';
 import SkalaPredikatTab from './SkalaPredikatTab';
 
 const TABS = [
+  { id: 'mapel', label: 'MATA PELAJARAN' },
   { id: 'matriks', label: 'ATUR KKM' },
   { id: 'tabel', label: 'DATA KKM' },
   { id: 'predikat', label: 'SKALA PREDIKAT' },
@@ -26,14 +28,17 @@ const valid = (v) => v === '' || (Number.isFinite(Number(v)) && Number(v) >= 0 &
 const k = (t, m) => `${t}|${m}`;
 
 function MatriksKkm() {
-  const { kkm, refreshKkm, toast } = useAppData();
+  const { kkm, refreshKkm, toast, mapelList } = useAppData();
+  // PAUD tidak memakai mapel & KKM (dinilai lewat Penilaian PAUD) -> tidak ditampilkan.
+  const jenjangSekolah = JENJANG.filter(j => (j.formatRapor || formatRaporBawaan(j.kode)) !== 'PAUD');
   const { currentUser } = useAuth();
   const { tahunAjaranOptions, taAktif } = useAkademikOptions();
   const [ta, setTa] = useState('');
   const [salinDari, setSalinDari] = useState('');
-  const [jenjang, setJenjang] = useState(JENJANG[0]?.kode || '');
+  const [jenjang, setJenjang] = useState(jenjangSekolah[0]?.kode || '');
+  useEffect(() => { if (!jenjangSekolah.some(j => j.kode === jenjang) && jenjangSekolah.length) setJenjang(jenjangSekolah[0].kode); }, [jenjangSekolah, jenjang]);
   // Tabel cuma menampilkan 1 jenjang (biar tidak 14 kolom); isian & simpan tetap mencakup semua.
-  const tingkatTampil = JENJANG.find(j => j.kode === jenjang)?.tingkat || TINGKAT_LIST;
+  const tingkatTampil = jenjangSekolah.find(j => j.kode === jenjang)?.tingkat || [];
   const [isian, setIsian] = useState({});
   const [berubah, setBerubah] = useState(false);
   const [menyimpan, setMenyimpan] = useState(false);
@@ -47,14 +52,19 @@ function MatriksKkm() {
   const tersimpan = useMemo(() => tersimpanTa(ta), [kkm, ta]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { setIsian(tersimpan); setBerubah(false); }, [tersimpan]);
 
-  const mapelTampil = useMemo(() => [...MAPEL_OPTIONS, ...new Set(kkm.filter(x => x.tahunAjaran === ta && !MAPEL_OPTIONS.includes(x.mapel)).map(x => x.mapel))], [kkm, ta]);
+  // Mapel jenjang ini (Mata Pelajaran) + mapel lama yg sudah punya KKM di tingkat jenjang ini.
+  const mapelTampil = useMemo(() => {
+    const daftar = mapelUntukJenjang(jenjang);
+    const lama = kkm.filter(x => x.tahunAjaran === ta && tingkatTampil.includes(x.tingkat) && !daftar.includes(x.mapel)).map(x => x.mapel);
+    return [...daftar, ...new Set(lama)];
+  }, [kkm, ta, jenjang, tingkatTampil, mapelList]); // eslint-disable-line react-hooks/exhaustive-deps
   const set = (t, m, v) => { setIsian(s => ({ ...s, [k(t, m)]: v })); setBerubah(true); };
   const adaInvalid = Object.values(isian).some(v => !valid(v));
-  const terisi = Object.values(isian).filter(v => v !== '' && v !== undefined).length;
+  const terisi = tingkatTampil.reduce((n, t) => n + mapelTampil.filter(m => isian[k(t, m)] !== undefined && isian[k(t, m)] !== '').length, 0);
 
   function isiStandar() {
     const baru = { ...isian };
-    TINGKAT_LIST.forEach(t => mapelTampil.forEach(m => { if (baru[k(t, m)] === undefined || baru[k(t, m)] === '') baru[k(t, m)] = kkmStandar(m, t); }));
+    tingkatTampil.forEach(t => mapelTampil.forEach(m => { if (baru[k(t, m)] === undefined || baru[k(t, m)] === '') baru[k(t, m)] = kkmStandar(m, t); }));
     setIsian(baru); setBerubah(true);
   }
   function salin() {
@@ -67,12 +77,13 @@ function MatriksKkm() {
     if (!isConfigured('akademik')) { toast('File Sheets Akademik belum tersambung.', 'error'); return; }
     if (adaInvalid) { toast('Ada KKM di luar 0–100.', 'error'); return; }
     const rows = [];
-    TINGKAT_LIST.forEach(t => mapelTampil.forEach(m => {
-      const v = isian[k(t, m)];
+    // Semua sel yg diubah (di jenjang mana pun yg sempat dibuka), bukan cuma jenjang yg tampil.
+    Object.entries(isian).forEach(([key, v]) => {
       if (v === undefined || v === '') return;
-      if (tersimpan[k(t, m)] !== undefined && Number(tersimpan[k(t, m)]) === Number(v)) return; // tidak berubah
-      rows.push({ 'Tahun Ajaran': ta, Tingkat: t, 'Mata Pelajaran': m, KKM: Number(v), Keterangan: '' });
-    }));
+      if (tersimpan[key] !== undefined && Number(tersimpan[key]) === Number(v)) return; // tidak berubah
+      const [t, ...sisa] = key.split('|');
+      rows.push({ 'Tahun Ajaran': ta, Tingkat: t, 'Mata Pelajaran': sisa.join('|'), KKM: Number(v), Keterangan: '' });
+    });
     if (!rows.length) { toast('Tidak ada perubahan untuk disimpan.'); setBerubah(false); return; }
     setMenyimpan(true);
     try {
@@ -84,8 +95,8 @@ function MatriksKkm() {
   }
 
   function exportMatriks() {
-    const headers = ['Mata Pelajaran', ...TINGKAT_LIST.map(namaTingkat)];
-    exportToExcel(headers, mapelTampil.map(m => ({ 'Mata Pelajaran': m, ...Object.fromEntries(TINGKAT_LIST.map(t => [namaTingkat(t), isian[k(t, m)] ?? ''])) })),
+    const headers = ['Mata Pelajaran', ...tingkatTampil.map(namaTingkat)];
+    exportToExcel(headers, mapelTampil.map(m => ({ 'Mata Pelajaran': m, ...Object.fromEntries(tingkatTampil.map(t => [namaTingkat(t), isian[k(t, m)] ?? ''])) })),
       `KKM_${ta}`.replace(/[^\w-]+/g, '_'), `KKM/KKTP per Mata Pelajaran — ${ta}`);
   }
 
@@ -98,7 +109,7 @@ function MatriksKkm() {
       <div className="card-body">
         <div className="filter-bar">
           <Field label="Tahun Ajaran"><Select value={ta} onChange={setTa} options={tahunAjaranOptions} /></Field>
-          {JENJANG.length > 1 && <Field label="Jenjang"><Select value={jenjang} onChange={setJenjang} options={JENJANG.map(j => ({ value: j.kode, label: j.nama }))} /></Field>}
+          {jenjangSekolah.length > 1 && <Field label="Jenjang"><Select value={jenjang} onChange={setJenjang} options={jenjangSekolah.map(j => ({ value: j.kode, label: j.nama }))} /></Field>}
           <Field label="Salin dari tahun ajaran">
             <Select value={salinDari} onChange={setSalinDari} placeholder="— pilih —" options={tahunAjaranOptions.filter(x => x !== ta)} />
           </Field>
@@ -127,7 +138,7 @@ function MatriksKkm() {
           </table>
         </div>
         <div className="save-bar">
-          <span className="badge badge-muted">{terisi} dari {mapelTampil.length * TINGKAT_LIST.length} sel terisi</span>
+          <span className="badge badge-muted">{terisi} dari {mapelTampil.length * tingkatTampil.length} sel terisi</span>
           <button className="btn btn-primary" onClick={simpan} disabled={menyimpan || !berubah || adaInvalid}>{menyimpan ? 'Menyimpan…' : 'Simpan KKM'}</button>
         </div>
       </div>
@@ -144,6 +155,7 @@ export default function KurikulumKkm() {
       <div className="card">
         <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />
         <div className="card-body" style={{ background: 'transparent', padding: 20 }}>
+          {tab === 'mapel' && bolehTab('mapel') && <MapelTab />}
           {tab === 'matriks' && bolehTab('matriks') && <MatriksKkm />}
           {tab === 'predikat' && bolehTab('predikat') && <SkalaPredikatTab />}
           {tab === 'tabel' && bolehTab('tabel') && (

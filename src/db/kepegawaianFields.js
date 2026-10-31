@@ -8,7 +8,7 @@ export const JENIS_KEGIATAN_GURU = ['Pelatihan', 'Workshop', 'Seminar', 'Diklat'
 export const TINGKAT_KEGIATAN = TINGKAT_LOMBA_OPTIONS;
 export const ASPEK_KINERJA = ['Perencanaan', 'Pelaksanaan', 'Penilaian', 'Kedisiplinan', 'Komunikasi'];
 
-// 1 JP di MI = 35 menit. Target beban mengajar guru bersertifikat = 24 JP/minggu.
+// 1 JP di SD = 35 menit. Target beban mengajar guru bersertifikat = 24 JP/minggu.
 export const MENIT_PER_JP = 35;
 export const TARGET_JP_MINGGU = 24;
 

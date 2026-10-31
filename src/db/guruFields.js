@@ -21,7 +21,7 @@ export const STATUS_GURU_OPTIONS = ['Aktif', 'Tidak Aktif'];
 // SATU daftar field, dipakai bersama utk Guru MAUPUN Staff -- tidak ada lagi
 // percabangan berdasarkan kategori. Field "Jabatan" sengaja DIHAPUS (permintaan
 // user) -- perannya digantikan sepenuhnya oleh "Tugas Tambahan" (tipe list, bisa
-// diisi beberapa peran sekaligus, mis. "Kepala Madrasah", "Wali Kelas 3A", dst).
+// diisi beberapa peran sekaligus, mis. "Kepala Sekolah", "Wali Kelas 3A", dst).
 // Field spesifik-guru (Mapel/Sertifikasi/Jam Mengajar/TMT) tetap ditampilkan utk
 // SEMUA orang, cukup dibiarkan kosong kalau memang tidak relevan (mis. utk Staff).
 export const GURU_FIELDS = [
@@ -36,7 +36,7 @@ export const GURU_FIELDS = [
   { key: 'Sertifikasi', label: 'Sertifikasi (khusus Guru)', type: 'select', options: SERTIFIKASI_OPTIONS },
   { key: 'Jumlah Jam Mengajar', label: 'Jumlah Jam Mengajar (khusus Guru)', type: 'number' },
   { key: 'TMT Mengajar', label: 'TMT (Tanggal Mulai Tugas)', type: 'date' },
-  { key: 'Tugas Tambahan', label: 'Tugas Tambahan', type: 'list', placeholder: 'mis. Kepala Madrasah, Kaur Kesiswaan, Wali Kelas 3A' },
+  { key: 'Tugas Tambahan', label: 'Tugas Tambahan', type: 'list', placeholder: 'mis. Kepala Sekolah, Waka Kesiswaan, Wali Kelas 3A' },
   { key: 'Status Kepegawaian', label: 'Status Kepegawaian', type: 'select', options: STATUS_KEPEGAWAIAN_OPTIONS },
   { key: 'No HP', label: 'No. HP', type: 'text' },
   { key: 'Email', label: 'Email', type: 'email' },

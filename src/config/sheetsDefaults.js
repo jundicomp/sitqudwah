@@ -21,15 +21,15 @@
 export const DEFAULT_SHEETS_CONFIG = {
   // ⚠️ Isi `secret` masing-masing PERSIS sama dgn baris `const SECRET = '...'`
   // di Apps Script file tsb (huruf besar-kecil & tanda baca harus sama).
-  master: {   // File "Data Induk"  -> google-apps-script/Code.gs
+  master: {   // File "Data Induk"  -> Apps Script Code.gs
     url: 'https://script.google.com/macros/s/AKfycbzWOIrNe1A5GDpyyM7PC4D6Z9-LFzPkDKdlOzAyXSNKacSKfNMx1fa5OJRZ8FGSnqeN/exec',
     secret: 'Qdw-Induk-7kP2x9',
   },
-  keuangan: { // File "Keuangan"    -> google-apps-script/Code-Keuangan.gs
+  keuangan: { // File "Keuangan"    -> Apps Script Code-Keuangan.gs
     url: 'https://script.google.com/macros/s/AKfycbxmUCe7XOzPnrKyiwDBbckkjU7poLhrYQcMqw5skX2RlbXDyMqT8P0bFynfBWVk5cuteg/exec',
     secret: 'Qdw-Keu-4mR8q1',
   },
-  akademik: { // File "Akademik"    -> google-apps-script/Code-Akademik.gs
+  akademik: { // File "Akademik"    -> Apps Script Code-Akademik.gs
     url: 'https://script.google.com/macros/s/AKfycbxSxPinqswSbJTS_GU-aOAuaXk5VdVIfpVArKkaczbdE9r0ByPdfbQo3WXLxAekxH6T/exec',
     secret: 'Qdw-Akd-9tW3z6',
   },

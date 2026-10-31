@@ -17,7 +17,7 @@ import { normalizeSheetRiwayatAkademik } from '../db/riwayatAkademikFields';
 import { normalizeSheetJadwal, normalizeSheetPresensi, normalizeSheetNilai, normalizeSheetPrestasi, normalizeSheetPelanggaran } from '../db/akademikFields';
 import { normalizeSheetPresensiGuru, normalizeSheetKinerja, normalizeSheetPelatihan } from '../db/kepegawaianFields';
 import { setJenjang, normalizeSheetJenjang, jenjangDariSheets } from '../config/jenjang';
-import { setSkalaPredikat, getSkalaPredikat, normalizeSheetSkalaPredikat } from '../db/akademikFields';
+import { setSkalaPredikat, getSkalaPredikat, normalizeSheetSkalaPredikat, setMapel, normalizeSheetMapel, SEMUA_MAPEL } from '../db/akademikFields';
 import { normalizeSheetAsesmenPaud, normalizeSheetRaporPaud, pengaturanPaudDariRows, lengkapiPengaturanPaud } from '../db/raporPaudFields';
 import { normalizeSheetPerkembangan, normalizeSheetAspek, ASPEK_BAWAAN } from '../db/perkembanganFields';
 import { normalizeSheetAkreditasi, normalizeSheetSemester, normalizeSheetMutasi, normalizeSheetPengumuman, normalizeSheetSurat, setPeriodeSemester } from '../db/komunikasiFields';
@@ -35,7 +35,7 @@ import {
   fetchPresensiGuruFromSheet, fetchKinerjaFromSheet, fetchPelatihanFromSheet, fetchPengaturanPresensiFromSheet,
   fetchJenjangFromSheet,
   perkembanganApi, fetchAspekPerkembanganFromSheet, fetchSkalaPredikatFromSheet,
-  fetchAsesmenPaudFromSheet, fetchRaporPaudFromSheet, fetchPengaturanRaporPaudFromSheet,
+  fetchAsesmenPaudFromSheet, fetchRaporPaudFromSheet, fetchPengaturanRaporPaudFromSheet, fetchMapelFromSheet,
   akreditasiApi, semesterApi, mutasiApi, pengumumanApi, suratApi,
   fetchBukuFromSheet, fetchSirkulasiFromSheet, fetchDendaPerpusFromSheet, fetchReservasiFromSheet, fetchPengaturanPerpusFromSheet,
   fetchKkmFromSheet, fetchAgendaFromSheet, fetchBankSoalFromSheet, fetchUjianFromSheet, fetchRaporFromSheet,
@@ -172,6 +172,7 @@ const HAK_AKSES_TABS = {
     { id: 'manual', label: 'Tambah Agenda' },
   ],
   kkm: [
+    { id: 'mapel', label: 'Mata Pelajaran' },
     { id: 'matriks', label: 'Atur KKM' },
     { id: 'tabel', label: 'Data KKM' },
     { id: 'predikat', label: 'Skala Predikat' },
@@ -507,7 +508,7 @@ export function AppProvider({ children }) {
 
   const [toasts, setToasts] = useState([]);
 
-  // ---- Data induk: SUMBER ASLINYA Google Sheets, bukan lagi data dami ----
+  // ---- Data induk: SUMBER ASLINYA Google Sheets, ----
   // "deferInitialFetch: true" di SEMUANYA -- data awal diisi SEKALIGUS lewat batch
   // (lihat useEffect fetchAllFromSheet di bawah), bukan 14 request terpisah saat
   // mount. refresh() manual (setelah tambah/edit/hapus) TETAP 1 request spt biasa.
@@ -555,6 +556,7 @@ export function AppProvider({ children }) {
   const bankSoalRes = useSheetResource(fetchBankSoalFromSheet, normalizeSheetBankSoal, 'akademik', defer);
   const ujianRes = useSheetResource(fetchUjianFromSheet, normalizeSheetUjian, 'akademik', defer);
   const raporRes = useSheetResource(fetchRaporFromSheet, normalizeSheetRapor, 'akademik', defer);
+  const mapelRes = useSheetResource(fetchMapelFromSheet, normalizeSheetMapel, 'akademik', defer);
   const asesmenPaudRes = useSheetResource(fetchAsesmenPaudFromSheet, normalizeSheetAsesmenPaud, 'akademik', defer);
   const raporPaudRes = useSheetResource(fetchRaporPaudFromSheet, normalizeSheetRaporPaud, 'akademik', defer);
   const [pengaturanPaudRaw, setPengaturanPaudRaw] = useState(null);
@@ -683,6 +685,7 @@ export function AppProvider({ children }) {
       raporRes.setFromBatch(semua.rapor || []);
       skalaPredikatRes.setFromBatch(semua.skalaPredikat || []);
       asesmenPaudRes.setFromBatch(semua.asesmenPaud || []);
+      mapelRes.setFromBatch(semua.mapel || []);
       raporPaudRes.setFromBatch(semua.raporPaud || []);
       isiPengaturanPaud(semua.pengaturanRaporPaud || []);
     } catch (err) {
@@ -694,7 +697,7 @@ export function AppProvider({ children }) {
       presensiGuruRes.refresh(); pengaturanPresensiRes.refresh(); kinerjaRes.refresh(); pelatihanRes.refresh();
       kkmRes.refresh(); agendaRes.refresh(); bankSoalRes.refresh(); ujianRes.refresh(); raporRes.refresh();
       skalaPredikatRes.refresh();
-      asesmenPaudRes.refresh(); raporPaudRes.refresh(); refreshPengaturanPaud();
+      asesmenPaudRes.refresh(); raporPaudRes.refresh(); refreshPengaturanPaud(); mapelRes.refresh();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -706,6 +709,11 @@ export function AppProvider({ children }) {
     setJenjang(list);
     return list;
   }, [jenjangRes.data]);
+
+  // Mata pelajaran: daftar milik sekolah, atau bawaan kalau belum pernah disimpan.
+  // Dipasang saat render (spt jenjang) supaya semua pilihan mapel langsung ikut.
+  const mapelTersimpan = useMemo(() => (mapelRes.data || []).filter(Boolean), [mapelRes.data]);
+  const mapelList = useMemo(() => { setMapel(mapelTersimpan); return [...SEMUA_MAPEL]; }, [mapelTersimpan]);
 
   // Skala predikat: milik sekolah, atau bawaan kalau belum pernah disimpan. Dipasang
   // saat render (spt jenjang) supaya predikatNilai() di semua halaman langsung ikut.
@@ -844,6 +852,7 @@ export function AppProvider({ children }) {
     reservasi: reservasiRes.data, refreshReservasi: reservasiRes.refresh,
     pengaturanPerpusRows: pengaturanPerpusRes.data, refreshPengaturanPerpus: pengaturanPerpusRes.refresh,
     kkm: kkmRes.data, kkmLoaded: kkmRes.loaded, refreshKkm: kkmRes.refresh,
+    mapelList, mapelDariSheets: mapelTersimpan.length > 0, refreshMapel: mapelRes.refresh,
     asesmenPaud: asesmenPaudRes.data, refreshAsesmenPaud: asesmenPaudRes.refresh,
     raporPaud: raporPaudRes.data, raporPaudLoaded: raporPaudRes.loaded, refreshRaporPaud: raporPaudRes.refresh,
     pengaturanPaud, pengaturanPaudTersimpan: !!pengaturanPaudRaw, refreshPengaturanPaud,

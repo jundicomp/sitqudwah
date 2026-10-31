@@ -186,7 +186,7 @@ function CatatanPerAnak() {
             <div className="field"><label>Bidang</label><PilihBidang value={f.bidang} onChange={v => setF({ ...f, bidang: v })} bidang={bidang} /></div>
             <div className="field"><label>Kegiatan</label><input value={f.kegiatan} placeholder="mis. Menanam tanaman obat" onChange={e => setF({ ...f, kegiatan: e.target.value })} /></div>
             <div className="field span2"><label>Capaian (opsional)</label><CapaianPills skala={p.skala} value={f.capaian} onChange={v => setF({ ...f, capaian: v })} /></div>
-            <div className="field span2"><label>Catatan</label><textarea rows={4} value={f.catatan} placeholder="Apa yang dilihat guru hari ini? mis. Rayyan mau maju sendiri memimpin doa sebelum makan." onChange={e => setF({ ...f, catatan: e.target.value })} /></div>
+            <div className="field span2"><label>Catatan</label><textarea rows={4} value={f.catatan} placeholder="Apa yang dilihat guru hari ini? mis. Ananda mau maju sendiri memimpin doa sebelum makan." onChange={e => setF({ ...f, catatan: e.target.value })} /></div>
             <div className="field span2"><label>Foto</label>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                 <GaleriFoto foto={f.foto} onHapus={u => setF(x => ({ ...x, foto: x.foto.filter(y => y !== u) }))} />

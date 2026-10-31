@@ -22,6 +22,7 @@ export default function EditSiswaModal({ row, onClose, onSaved }) {
       if (!val) {
         if (f.key === 'Status') val = 'Aktif';
         if (f.key === 'Jenis Pendaftaran') val = 'Siswa Baru';
+        if (f.key === 'Pekerjaan Ayah') val = row['Pekerjaan'] ?? ''; // kolom lama 1 utk orang tua
       }
       initial[f.key] = val;
     });

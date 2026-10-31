@@ -15,7 +15,7 @@ onJenjangBerubah(() => DITUJUKAN_OPTIONS.splice(0, DITUJUKAN_OPTIONS.length,
 export const SIFAT_SURAT = ['Biasa', 'Penting', 'Segera', 'Rahasia'];
 export const STATUS_SURAT_MASUK = ['Diterima', 'Didisposisi', 'Ditindaklanjuti', 'Selesai', 'Diarsipkan'];
 export const STATUS_SURAT_KELUAR = ['Draft', 'Ditandatangani', 'Terkirim', 'Diarsipkan'];
-// Kode klasifikasi umum arsip sekolah/madrasah (bisa diketik bebas juga).
+// Kode klasifikasi umum arsip sekolah (bisa diketik bebas juga).
 export const KLASIFIKASI_SURAT = ['PP (Pendidikan & Pengajaran)', 'KP (Kepegawaian)', 'KU (Keuangan)', 'HM (Kehumasan)', 'PS (Kesiswaan)', 'TU (Ketatausahaan)', 'RT (Rumah Tangga/Sarpras)', 'UND (Undangan)', 'KET (Keterangan)'];
 
 export function normalizeSheetAkreditasi(r, i) {
@@ -25,7 +25,7 @@ export function normalizeSheetSemester(r, i) {
   return { id: 'SMS-' + (r['No'] ?? i), no: r['No'], tahunAjaran: s(r['Tahun Ajaran']), semester: s(r['Semester']), mulai: tgl(r['Mulai']), selesai: tgl(r['Selesai']) };
 }
 export function normalizeSheetMutasi(r, i) {
-  return { id: 'MTS-' + (r['No'] ?? i), no: r['No'], tanggal: tgl(r['Tanggal']), jenis: s(r['Jenis Mutasi']), nisn: s(r['NISN']), nama: s(r['Nama Siswa']), tingkat: s(r['Tingkat']), rombel: s(r['Rombel']), sekolah: s(r['Sekolah Asal / Tujuan']), alasan: s(r['Alasan']), nomorSurat: s(r['Nomor Surat']) };
+  return { id: 'MUT-' + (r['No'] ?? i), no: r['No'], tanggal: tgl(r['Tanggal']), jenis: s(r['Jenis Mutasi']), nisn: s(r['NISN']), nama: s(r['Nama Siswa']), tingkat: s(r['Tingkat']), rombel: s(r['Rombel']), sekolah: s(r['Sekolah Asal / Tujuan']), alasan: s(r['Alasan']), nomorSurat: s(r['Nomor Surat']) };
 }
 export function normalizeSheetPengumuman(r, i) {
   return {

@@ -10,7 +10,7 @@ const BORDER_SEMUA_SISI = { top: BORDER_TIPIS, bottom: BORDER_TIPIS, left: BORDE
 // versi gratis SheetJS TERBUKTI tidak menyimpan style sel sama sekali (sudah diuji),
 // exceljs genuinely open-source dan mendukung ini.
 // title: string (1 baris judul, spt sebelumnya) ATAU array string (multi-baris,
-// mis. ['MI Ikhlasiyah', 'Laporan Pembayaran', 'Tanggal: 15-09-2026']) -- baris
+// mis. ['SIT Qudwah', 'Laporan Pembayaran', 'Tanggal: 15-09-2026']) -- baris
 // pertama ditulis besar/tebal (judul utama), baris berikutnya lebih kecil (subjudul).
 // footer: opsional, objek { [namaHeader]: nilai } utk 1 baris ringkasan/total yg
 // ditambahkan PALING BAWAH stlh semua baris data (mis. { Nominal: 'Rp 1.000.000' }

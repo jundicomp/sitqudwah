@@ -37,7 +37,6 @@ export const JENIS_PENDAFTARAN_OPTIONS = ['Siswa Baru', 'Pindahan'];
 export const SISWA_FIELDS = [
   { key: 'Kabupaten/Kota', label: 'Kabupaten / Kota', type: 'text' },
   { key: 'NPSN', label: 'NPSN', type: 'text' },
-  { key: 'NSM', label: 'NSM', type: 'text' },
   { key: 'Jenjang', label: 'Jenjang', type: 'select', options: JENJANG_KODE_OPTIONS },
   { key: 'Kelas/Tingkat', label: 'Kelas / Tingkat', type: 'select', options: TINGKAT_OPTIONS },
   { key: 'Nama Lengkap', label: 'Nama Lengkap', type: 'text', required: true },

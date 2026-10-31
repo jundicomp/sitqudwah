@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Script & catatan pribadi (jangan diunggah ke repo publik)
+google-apps-script/
+apps-script/
+*.md

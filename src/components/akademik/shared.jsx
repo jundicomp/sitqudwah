@@ -18,7 +18,7 @@ export function AkademikBelumTersambung() {
     <div className="card">
       <div className="card-body" style={{ fontSize: 13.5, lineHeight: 1.6 }}>
         <b>File Sheets Akademik belum tersambung.</b> Modul ini menyimpan data di spreadsheet ketiga
-        (terpisah dari Data Induk &amp; Keuangan). Pasang <code>google-apps-script/Code-Akademik.gs</code> di
+        (terpisah dari Data Induk &amp; Keuangan). Pasang script <code>Code-Akademik.gs</code> di
         Google Sheets baru, deploy sebagai Web App, lalu isi URL &amp; sandinya di
         <code> src/config/sheetsDefaults.js</code> bagian <code>akademik</code> dan build ulang.
       </div>

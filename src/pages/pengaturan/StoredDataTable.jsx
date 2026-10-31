@@ -11,6 +11,9 @@ import EditSiswaModal from './EditSiswaModal';
 import ManualForm from './ManualForm';
 import ExcelUpload from './ExcelUpload';
 import { APP_NAME } from '../../config/appInfo';
+// Kolom yg tetap ada di Sheet (kompatibilitas) tapi tidak ditampilkan: NSM (tidak dipakai),
+// "Pekerjaan" lama (diganti Pekerjaan Ayah/Ibu), Foto (berupa link).
+const KOLOM_TERSEMBUNYI = ['No', 'Foto', 'NSM', 'Pekerjaan'];
 import BannerNomorGanda, { nomorBermasalah } from '../../components/sheetCrud/BannerNomorGanda';
 
 const ICON_EDIT = (
@@ -89,7 +92,7 @@ export default function StoredDataTable({ refreshKey }) {
 
   const noBermasalah = nomorBermasalah(rows);
   const columns = [
-    ...SISWA_HEADERS.filter(h => h !== 'No' && h !== 'Foto').map(h => ({
+    ...SISWA_HEADERS.filter(h => !KOLOM_TERSEMBUNYI.includes(h)).map(h => ({
       key: h, label: h,
       accessor: (r) => h === 'Tanggal Lahir' ? formatTanggalAngka(r[h]) : r[h],
     })),

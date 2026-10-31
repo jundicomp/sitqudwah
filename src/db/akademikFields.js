@@ -1,10 +1,47 @@
-import { bandingTingkat, namaTingkat } from '../config/jenjang';
+import { bandingTingkat, namaTingkat, jenjangDariTingkat, formatRaporTingkat } from '../config/jenjang';
 // Konstanta & helper bersama modul Akademik (Jadwal, Presensi, Nilai) dan
 // Kesiswaan (Prestasi, Pelanggaran, Laporan Siswa). Daftar pilihan diambil dari
 // versi HTML (sumber_migrasi.html) supaya istilahnya sama persis.
 import { todayWIB } from './helpers';
 
-export const MAPEL_OPTIONS = ["Al-Qur'an Hadits", 'Akidah Akhlak', 'Fiqih', 'SKI', 'Bahasa Arab', 'PPKn', 'Bahasa Indonesia', 'Matematika', 'IPA', 'IPS', 'SBdP', 'PJOK', 'Bahasa Inggris'];
+// ---------------------------------------------------------------------------
+// MATA PELAJARAN -- dikelola sekolah di Akademik › Kurikulum & KKM › Mata Pelajaran
+// (v1.45.0). Daftar di bawah HANYA bawaan sebelum sekolah menyimpan daftarnya sendiri
+// (mengikuti struktur Kurikulum Merdeka SD + mapel khas SIT). MAPEL_OPTIONS adalah
+// array "hidup" (isinya diganti di tempat oleh setMapel) supaya semua form ikut berubah.
+// Jenjang kosong = dipakai di semua jenjang sekolah (bukan PAUD).
+// ---------------------------------------------------------------------------
+export const MAPEL_BAWAAN = [
+  'Pendidikan Agama Islam dan Budi Pekerti', "Al-Qur'an (Tahsin & Tahfidz)", 'Bahasa Arab', 'Pendidikan Pancasila',
+  'Bahasa Indonesia', 'Matematika', 'IPAS', 'Seni dan Budaya', 'PJOK', 'Bahasa Inggris', 'Muatan Lokal',
+].map(nama => ({ nama, jenjang: [], aktif: true }));
+export const SEMUA_MAPEL = [];   // termasuk nonaktif
+export const MAPEL_OPTIONS = []; // nama mapel aktif, urut sesuai daftar sekolah
+let mapelDariSheets = false;
+const gantiIsi = (arr, isi) => arr.splice(0, arr.length, ...isi);
+export function setMapel(list) {
+  mapelDariSheets = Array.isArray(list) && list.length > 0;
+  gantiIsi(SEMUA_MAPEL, mapelDariSheets ? list : MAPEL_BAWAAN);
+  gantiIsi(MAPEL_OPTIONS, SEMUA_MAPEL.filter(m => m.aktif).map(m => m.nama));
+}
+export const mapelDariSheet = () => mapelDariSheets;
+setMapel(null);
+export function mapelUntukJenjang(kode) {
+  return SEMUA_MAPEL.filter(m => m.aktif && (!m.jenjang.length || m.jenjang.includes(kode))).map(m => m.nama);
+}
+export function mapelUntukTingkat(tingkat) {
+  if (formatRaporTingkat(tingkat) === 'PAUD') return [];
+  return mapelUntukJenjang(jenjangDariTingkat(tingkat));
+}
+export function normalizeSheetMapel(r) {
+  const nama = String(r['Nama'] ?? '').trim();
+  if (!nama) return null;
+  return {
+    nama,
+    jenjang: String(r['Jenjang'] ?? '').split(',').map(x => x.trim()).filter(Boolean),
+    aktif: !/^(tidak|false|0|nonaktif)$/i.test(String(r['Aktif'] ?? '').trim()),
+  };
+}
 export const HARI_OPTIONS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 export const SEMESTER_OPTIONS = ['Ganjil', 'Genap'];
 export const STATUS_PRESENSI = ['Hadir', 'Sakit', 'Izin', 'Alpha'];

@@ -18,15 +18,11 @@ export const JENJANG_BAWAAN = [
 
 // Template cepat utk tombol "+ Tambah" di layar pengaturan.
 export const TEMPLATE_JENJANG = [
-  { kode: 'PAUD', nama: 'PAUD / Kelompok Bermain', tingkat: ['KB'] },
+  { kode: 'KB', nama: 'Kelompok Bermain', tingkat: ['KB A', 'KB B'] },
   { kode: 'TK', nama: 'TK', tingkat: ['TK A', 'TK B'] },
-  { kode: 'RA', nama: 'RA', tingkat: ['RA A', 'RA B'] },
   { kode: 'SD', nama: 'SD', tingkat: ['1', '2', '3', '4', '5', '6'] },
-  { kode: 'MI', nama: 'MI', tingkat: ['1', '2', '3', '4', '5', '6'] },
   { kode: 'SMP', nama: 'SMP', tingkat: ['7', '8', '9'] },
-  { kode: 'MTs', nama: 'MTs', tingkat: ['7', '8', '9'] },
   { kode: 'SMA', nama: 'SMA', tingkat: ['10', '11', '12'] },
-  { kode: 'MA', nama: 'MA', tingkat: ['10', '11', '12'] },
   { kode: 'SMK', nama: 'SMK', tingkat: ['10', '11', '12'] },
 ];
 
@@ -65,7 +61,7 @@ export const tingkatTerakhirJenjang = (tingkat) => {
 // Urutan tampil mengikuti urutan jenjang & tingkat yg diatur sekolah.
 export const urutanTingkat = (t) => { const i = TINGKAT_OPTIONS.indexOf(String(t)); return i === -1 ? 999 : i; };
 export const bandingTingkat = (a, b) => urutanTingkat(a) - urutanTingkat(b) || String(a).localeCompare(String(b), 'id', { numeric: true });
-// Angka polos -> "Kelas 7"; tingkat bernama (TK A, KB, RA B) tampil apa adanya.
+// Angka polos -> "Kelas 7"; tingkat bernama (TK A, KB A) tampil apa adanya.
 export const namaTingkat = (t) => (/^\d+$/.test(String(t).trim()) ? `Kelas ${t}` : String(t));
 export const LABEL_SEMUA_JENJANG = (kode) => `Semua ${kode}`;
 export const LABEL_JENJANG = (kode) => `Jenjang ${kode}`;
@@ -82,7 +78,7 @@ export function normalizeSheetJenjang(r) {
 // ---- Format rapor per jenjang (v1.44.0) ----
 // PAUD = rapor naratif BB/MB/BSH/BSB + foto; Sekolah = rapor nilai per mapel.
 export const FORMAT_RAPOR_OPTIONS = ['PAUD', 'Sekolah'];
-export const formatRaporBawaan = (kode) => (/^(TK|KB|PAUD|RA|TPA|BA|POS)/i.test(String(kode)) ? 'PAUD' : 'Sekolah');
+export const formatRaporBawaan = (kode) => (/^(TK|KB|PAUD|TPA|POS)/i.test(String(kode)) ? 'PAUD' : 'Sekolah');
 export function formatRaporTingkat(tingkat) {
   const t = String(tingkat ?? '').trim();
   const j = SEMUA_JENJANG.find(x => x.tingkat.includes(t));
