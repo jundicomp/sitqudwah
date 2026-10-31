@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 // Hook bersama dipakai SEMUA halaman bertab -- filter tab mana yg boleh dilihat role
@@ -8,7 +9,11 @@ import { useAuth } from '../context/AuthContext';
 // diizinkan kalau tab yg lagi aktif ternyata tidak boleh.
 export default function useTabAccess(pageId, urutanTabId) {
   const { canAccess } = useAuth();
-  const [tab, setTab] = useState(urutanTabId[0]);
+  // v1.50.0: tab bisa dibuka langsung lewat link, mis. #/rapor-sd?tab=arsip (dipakai Peta Halaman).
+  const { search } = useLocation();
+  const tabDariUrl = new URLSearchParams(search).get('tab');
+  const [tab, setTab] = useState(urutanTabId.includes(tabDariUrl) ? tabDariUrl : urutanTabId[0]);
+  useEffect(() => { if (tabDariUrl && urutanTabId.includes(tabDariUrl)) setTab(tabDariUrl); }, [tabDariUrl]); // eslint-disable-line react-hooks/exhaustive-deps
   function bolehTab(tabId) { return canAccess(pageId, tabId); }
 
   useEffect(() => {

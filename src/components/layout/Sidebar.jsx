@@ -163,6 +163,7 @@ export default function Sidebar() {
             <Item to="/pengaturan-sistem" canAccess={canAccess('pengaturan-sistem')}>Pengaturan Sistem</Item>
             <Item to="/log-histori" canAccess={canAccess('log-histori')}>Log Histori</Item>
             <Item to="/backup" canAccess={canAccess('backup')}>Backup &amp; Restore</Item>
+            <Item to="/peta-halaman" canAccess={canAccess('peta-halaman')}>Peta Halaman</Item>
           </NavGroup>
         </NavGroup>
       </nav>

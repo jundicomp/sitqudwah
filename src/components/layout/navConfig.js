@@ -128,6 +128,7 @@ export const NAV_STRUCTURE = [
           { to: '/pengaturan-sistem', pageId: 'pengaturan-sistem', label: 'Pengaturan Sistem' },
           { to: '/log-histori', pageId: 'log-histori', label: 'Log Histori' },
           { to: '/backup', pageId: 'backup', label: 'Backup & Restore' },
+          { to: '/peta-halaman', pageId: 'peta-halaman', label: 'Peta Halaman' },
         ],
       },
     ],

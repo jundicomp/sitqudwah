@@ -4,6 +4,16 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.50.0',
+    tanggal: '2026-11-01',
+    poin: [
+      'Halaman baru Pengaturan › System › Peta Halaman: seluruh menu, halaman, dan tab dalam satu peta, lengkap dengan status — siap, sedang dikerjakan, atau harus ada',
+      'Setiap nama halaman dan tab di peta bisa diklik dan langsung membuka halaman serta tab yang dimaksud',
+      'Ringkasan progres (persentase halaman siap), filter per status, dan pencarian halaman/tab',
+      'Rencana berikutnya ikut tercatat di peta: Modul Ajar, Capaian & Tujuan Pembelajaran, nilai per tujuan pembelajaran, dan pembatasan kelas untuk guru',
+    ],
+  },
+  {
     versi: '1.49.0',
     tanggal: '2026-11-01',
     poin: [

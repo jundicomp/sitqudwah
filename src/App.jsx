@@ -63,6 +63,7 @@ import RaporDigital, { RaporLamaRedirect } from './pages/akademik/RaporDigital';
 import PenilaianPaud from './pages/akademik/PenilaianPaud';
 import BankSoalUjian from './pages/akademik/BankSoalUjian';
 import ComingSoon from './pages/ComingSoon';
+import PetaHalaman from './pages/pengaturan/PetaHalaman';
 
 const PLACEHOLDER_PAGES = [];
 
@@ -85,6 +86,7 @@ function Gate() {
         <Route path="/koneksi-sheets" element={<KoneksiSheets />} />
         <Route path="/pengaturan-sistem" element={<PengaturanSistem />} />
         <Route path="/log-histori" element={<LogHistori />} />
+        <Route path="/peta-halaman" element={<PetaHalaman />} />
         <Route path="/profil-saya" element={<ProfilSaya />} />
         <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="/tagihan" element={<TagihanBiaya />} />

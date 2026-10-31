@@ -106,6 +106,7 @@ const HAK_AKSES_PAGES = [
   { id: 'koneksi-sheets', label: 'Pengaturan Koneksi Google Sheets', grup: 'Pengaturan' },
   { id: 'pengaturan-sistem', label: 'Pengaturan Sistem', grup: 'Pengaturan' },
   { id: 'log-histori', label: 'Log Histori', grup: 'Pengaturan' },
+  { id: 'peta-halaman', label: 'Peta Halaman', grup: 'Pengaturan' },
 ];
 
 const ADMIN_ONLY_PAGES = ['koneksi-sheets', 'pengaturan-sistem'];
