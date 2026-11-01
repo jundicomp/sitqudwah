@@ -103,7 +103,7 @@ export default function TujuanPembelajaranTab() {
         });
       }));
       const tpRows = [
-        ...tpLain.map(x => ({ 'ID TP': x.idTp || buatIdTp(idAda), 'Mata Pelajaran': x.mapel, Fase: x.fase, Tingkat: x.tingkat, Semester: x.semester, Urutan: x.urutan, Kode: x.kode, Elemen: x.elemen, 'Tujuan Pembelajaran': x.tujuan, 'Alokasi JP': x.jp, Aktif: x.aktif ? 'Ya' : 'Tidak', 'Diubah Oleh': '', 'Diubah Pada': '' })),
+        ...tpLain.map(x => ({ 'ID TP': x.idTp || buatIdTp(idAda), 'Mata Pelajaran': x.mapel, Fase: x.fase, Tingkat: x.tingkat, Semester: x.semester, Urutan: x.urutan, Kode: x.kode, Elemen: x.elemen, 'Tujuan Pembelajaran': x.tujuan, 'Alokasi JP': x.jp, Aktif: x.aktif ? 'Ya' : 'Tidak', 'Diubah Oleh': x.diubahOleh, 'Diubah Pada': x.diubahPada })),
         ...tpBaru,
       ].map((r, i) => ({ No: i + 1, ...r }));
       await simpanCpKeSheet(cpRows);

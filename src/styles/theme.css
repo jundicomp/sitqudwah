@@ -717,3 +717,98 @@ a.ph-tab:hover{border-color:#1C7A3C;background:#fff}
 .tp-meta select{flex:1;min-width:0;font-size:12.5px}
 .tp-jp{width:62px}
 .tp-tempel{display:flex;flex-direction:column;gap:6px}
+
+/* ===== Modul Ajar (v1.53.0) ===== */
+.ma-kartu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.ma-kartu{text-align:left;background:#fff;border:2px solid #E3E8E2;border-radius:14px;padding:14px 16px;cursor:pointer;font:inherit;color:inherit;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.ma-kartu:hover{border-color:#BFDCC8}.ma-kartu.on{border-color:#1C7A3C;box-shadow:0 0 0 3px rgba(28,122,60,.12)}
+.ma-kartu-h{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.ma-kartu-h b{font-size:15.5px;color:#123D22}.ma-kartu-h span{font-size:12.5px;font-weight:700;color:#1C7A3C;white-space:nowrap}
+.ma-kartu-sub{font-size:12.5px;color:#5A6A60;margin:3px 0 10px}
+.ma-bar{height:6px;background:#EEF1EC;border-radius:99px;overflow:hidden}.ma-bar i{display:block;height:100%;background:#1C7A3C}
+.ma-kartu-f{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12.5px;color:#3D4E43;gap:6px}
+.ma-atp{list-style:none;margin:0;padding:0}
+.ma-atp li{display:flex;gap:10px;padding:9px 0;border-bottom:1px dashed #E3E8E2;align-items:flex-start}
+.ma-atp li code{flex:0 0 auto;font-size:12px;font-weight:800;color:#7A8680;background:#F1F4F0;border-radius:6px;padding:2px 6px;margin-top:1px}
+.ma-atp li.ada code{color:#1C7A3C;background:#E3F1E7}
+.ma-atp-isi{flex:1;font-size:14px}.ma-atp-isi small{color:#5A6A60}
+.ma-atp-modul{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
+.ma-chip{display:inline-flex;gap:6px;align-items:center;border:1px solid #DCE3DD;background:#F6F8F5;border-radius:8px;padding:3px 8px 3px 4px;font:inherit;font-size:12.5px;cursor:pointer;color:#17261C}
+.ma-chip:hover{border-color:#1C7A3C;background:#fff}
+.ma-tambah-tp{margin-top:14px;display:flex;flex-direction:column;gap:6px;background:#F8FAF7;border:1px solid #E3E8E2;border-radius:12px;padding:12px}
+.ma-tambah-tp label{font-size:13px;font-weight:700}.ma-tambah-tp textarea{font:inherit;font-size:13.5px}
+.ma-tambah-tp small{color:var(--muted);font-size:12px}.ma-tambah-tp .btn{align-self:flex-start}
+.md-bagian{border:1px solid #E3E8E2;border-radius:12px;margin-bottom:10px;background:#fff;overflow:hidden}
+.md-bagian-h{width:100%;display:flex;gap:10px;align-items:center;text-align:left;background:#F8FAF7;border:0;padding:11px 14px;cursor:pointer;font:inherit;color:#17261C}
+.md-bagian-h b{display:block;font-size:14.5px}.md-bagian-h small{display:block;font-size:12px;color:#5A6A60}
+.md-bagian-h > span:nth-child(2){flex:1}
+.md-panah{transition:transform .2s;color:#5A6A60}.md-bagian.buka .md-panah{transform:rotate(90deg)}
+.md-titik{width:12px;height:12px;border-radius:50%;border:2px dashed #9AA59F;flex:0 0 auto}.md-titik.ok{background:#1C7A3C;border:2px solid #1C7A3C}
+.md-bagian-isi{padding:12px 14px 6px}
+.md-bagian-isi textarea{width:100%;resize:vertical}
+.md-tp-list{display:flex;flex-direction:column;gap:5px;max-height:260px;overflow:auto}
+.md-tp{display:flex;gap:8px;align-items:flex-start;border:1px solid #E3E8E2;border-radius:9px;padding:7px 9px;font-size:13.5px;cursor:pointer;font-weight:400}
+.md-tp.on{border-color:#1C7A3C;background:#F2F9F4}
+.md-tp code{font-size:11.5px;font-weight:800;color:#1C7A3C;background:#E3F1E7;border-radius:5px;padding:1px 5px;flex:0 0 auto}
+.md-tp small{color:#5A6A60}
+.md-pendukung{display:flex;gap:16px;flex-wrap:wrap;background:#F2F9F4;border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:10px}
+.md-cek{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.md-cek label{display:flex;gap:8px;align-items:center;border:1px solid #E3E8E2;border-radius:9px;padding:7px 9px;font-size:13px;font-weight:500;cursor:pointer}
+.md-cek label.on{border-color:#1C7A3C;background:#F2F9F4}
+.md-lamp{display:grid;grid-template-columns:1fr 1.6fr auto auto;gap:6px;align-items:center;margin-bottom:6px}
+/* dokumen modul -- format sekolah (v1.54.0) */
+.md{font-family:Carlito,Calibri,'Liberation Sans',Arial,sans-serif;font-size:10.5pt;line-height:1.4}
+.md-kop{text-align:center;margin-bottom:5mm;line-height:1.5}
+.md-kop-1,.md-kop-2,.md-kop-3,.md-kop-4{font-weight:700;font-size:11pt}
+.md-bar{border:1px solid #333;text-align:center;font-weight:700;font-size:10.5pt;padding:1.2mm;margin:6mm 0 3mm;break-after:avoid;page-break-after:avoid}
+.md-p{margin:0 0 2mm}.md-p.j,.md-tbl td.j{text-align:justify}
+.md-iktp{margin:0 0 2mm}
+.md-tbl{width:100%;border-collapse:collapse;font-size:10pt;margin-bottom:2mm}
+.md-tbl th,.md-tbl td{border:1px solid #555 !important;padding:1.2mm 2mm;vertical-align:top;text-align:left;background:#fff !important;color:#111 !important}
+.md-tbl th{font-weight:700;white-space:normal}
+.md-tbl tr{break-inside:avoid;page-break-inside:avoid}
+.md-sub{font-weight:400;margin-top:1mm}
+.md-pertemuan{margin-bottom:4mm}
+.md-ol{margin:0;padding-left:5mm}.md-ol li{margin-bottom:1mm}
+.md-kosong{color:#888}.md-url{color:#555;font-size:9pt;word-break:break-all}
+.md-ttd{display:flex;justify-content:space-around;margin-top:10mm;break-inside:avoid;page-break-inside:avoid;text-align:center}
+.md-ttd > div{width:45%}
+.md-garis{margin-top:18mm}
+/* editor modul tambahan */
+.md-cp-lihat{background:#F8FAF7;border:1px solid #E3E8E2;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:13px;display:flex;flex-direction:column;gap:6px}
+.md-cp-lihat div{display:grid;grid-template-columns:140px 1fr;gap:8px}.md-cp-lihat small{color:var(--muted)}
+.md-iktp-baris{display:grid;grid-template-columns:22px 1fr 70px auto;gap:6px;align-items:start;margin-bottom:6px}
+.md-iktp-baris > span{padding-top:7px;font-weight:700;font-size:13px}
+.md-iktp-baris textarea,.md-langkah textarea,.md-asesmen textarea,.md-dim textarea{width:100%;resize:vertical;font:inherit;font-size:13.5px}
+.md-dim{border:1px solid #E3E8E2;border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.md-dim.on{border-color:#1C7A3C;background:#F7FBF8}
+.md-dim label{display:flex;gap:8px;align-items:center;font-size:13.5px;font-weight:600;cursor:pointer}
+.md-dim textarea{margin-top:6px}
+.md-langkah-h{display:flex;gap:10px;align-items:center;margin:10px 0 6px;font-size:13.5px}
+.md-langkah-h span{font-size:12.5px;color:#5A6A60;margin-right:auto}.md-langkah-h span.beda{color:#B23B2E;font-weight:700}
+.md-langkah{display:grid;grid-template-columns:auto 230px 1fr auto;gap:6px;align-items:start;background:#F8FAF7;border:1px solid #E3E8E2;border-radius:10px;padding:6px;margin-bottom:6px}
+.md-langkah-meta{display:flex;flex-direction:column;gap:4px}
+.md-menit{display:flex;gap:4px;align-items:center;font-size:12.5px;color:#5A6A60}.md-menit input{width:70px}
+.md-asesmen{display:grid;grid-template-columns:90px 1fr 1.6fr 1fr;gap:6px;align-items:start;margin-bottom:6px}
+.md-asesmen b{padding-top:7px;font-size:13.5px}
+@media (max-width:1000px){.md-langkah{grid-template-columns:auto 1fr auto}.md-langkah textarea{grid-column:2}.md-asesmen{grid-template-columns:1fr}}
+
+/* ===== Format Modul (v1.55.0) ===== */
+.fm-list{display:flex;flex-direction:column;gap:6px}
+.fm-baris{border:1px solid #E3E8E2;border-radius:10px;background:#fff;padding:6px 10px}
+.fm-baris.custom{border-color:#C9D7F0;background:#F7F9FE}
+.fm-baris.sembunyi{opacity:.55;background:#F6F7F6}
+.fm-atas{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fm-no{width:24px;text-align:center;font-weight:800;color:#1C7A3C}
+.fm-judul{flex:1;min-width:240px;font-weight:600}
+.fm-tampil{display:flex;gap:5px;align-items:center;font-size:12.5px;font-weight:600}
+.fm-ket{font-size:12px;color:#7A8680;flex-basis:100%;padding-left:66px}
+.fm-detail{margin:8px 0 4px 66px;padding:10px 12px;background:#fff;border:1px dashed #C9D7F0;border-radius:10px}
+.md-tabel-baris{display:grid;grid-template-columns:200px 1fr 28px;gap:6px;align-items:start;margin-bottom:6px}
+.md-tabel-baris b{font-size:13.5px;padding-top:7px}
+.md-tabel-baris textarea{width:100%;resize:vertical;font:inherit;font-size:13.5px}
+
+/* ===== Galeri Modul (v1.56.0): tabel rapat supaya 11 kolom muat tanpa geser ===== */
+.galeri-tabel th,.galeri-tabel td{padding:7px 7px;font-size:12.8px}
+.galeri-tabel th{white-space:normal;line-height:1.2;vertical-align:bottom}
+.galeri-tabel td .btn-sm{padding:4px 8px;font-size:12px}

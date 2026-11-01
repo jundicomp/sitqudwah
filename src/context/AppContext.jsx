@@ -20,6 +20,7 @@ import { setJenjang, normalizeSheetJenjang, jenjangDariSheets } from '../config/
 import { setSkalaPredikat, getSkalaPredikat, normalizeSheetSkalaPredikat, setMapel, normalizeSheetMapel, SEMUA_MAPEL } from '../db/akademikFields';
 import { normalizeSheetAsesmenPaud, normalizeSheetRaporPaud, pengaturanPaudDariRows, lengkapiPengaturanPaud } from '../db/raporPaudFields';
 import { normalizeSheetCp, normalizeSheetTp } from '../db/kurikulumFields';
+import { normalizeSheetModul, pengaturanModulDariRows, lengkapiPengaturanModul } from '../db/modulAjarFields';
 import { normalizeSheetRaporSekolah, pengaturanSdDariRows, lengkapiPengaturanSd } from '../db/raporSdFields';
 import { normalizeSheetPerkembangan, normalizeSheetAspek, ASPEK_BAWAAN } from '../db/perkembanganFields';
 import { normalizeSheetAkreditasi, normalizeSheetSemester, normalizeSheetMutasi, normalizeSheetPengumuman, normalizeSheetSurat, setPeriodeSemester } from '../db/komunikasiFields';
@@ -37,7 +38,7 @@ import {
   fetchPresensiGuruFromSheet, fetchKinerjaFromSheet, fetchPelatihanFromSheet, fetchPengaturanPresensiFromSheet,
   fetchJenjangFromSheet,
   perkembanganApi, fetchAspekPerkembanganFromSheet, fetchSkalaPredikatFromSheet,
-  fetchAsesmenPaudFromSheet, fetchRaporPaudFromSheet, fetchPengaturanRaporPaudFromSheet, fetchMapelFromSheet, fetchCpFromSheet, fetchTpFromSheet,
+  fetchAsesmenPaudFromSheet, fetchRaporPaudFromSheet, fetchPengaturanRaporPaudFromSheet, fetchMapelFromSheet, fetchCpFromSheet, fetchTpFromSheet, fetchModulAjarFromSheet, fetchPengaturanModulFromSheet,
   fetchRaporSekolahFromSheet, fetchPengaturanRaporSdFromSheet,
   akreditasiApi, semesterApi, mutasiApi, pengumumanApi, suratApi,
   fetchBukuFromSheet, fetchSirkulasiFromSheet, fetchDendaPerpusFromSheet, fetchReservasiFromSheet, fetchPengaturanPerpusFromSheet,
@@ -65,6 +66,7 @@ const HAK_AKSES_PAGES = [
   { id: 'penilaian-paud', label: 'Penilaian PAUD', grup: 'Akademik' },
   { id: 'kalender', label: 'Kalender Akademik', grup: 'Akademik' },
   { id: 'kkm', label: 'Kurikulum & KKM/KKTP', grup: 'Akademik' },
+  { id: 'modul-ajar', label: 'Modul Ajar', grup: 'Akademik' },
   { id: 'rapor-paud', label: 'Rapor Digital PAUD (KB/TK)', grup: 'Akademik' },
   { id: 'rapor-sd', label: 'Rapor Digital SD', grup: 'Akademik' },
   { id: 'bank-soal', label: 'Bank Soal & Ujian', grup: 'Akademik' },
@@ -189,6 +191,12 @@ const HAK_AKSES_TABS = {
     { id: 'matriks', label: 'Atur KKM' },
     { id: 'tabel', label: 'Data KKM' },
     { id: 'predikat', label: 'Skala Predikat' },
+  ],
+  'modul-ajar': [
+    { id: 'saya', label: 'Kelas & Mapel Saya' },
+    { id: 'modul', label: 'Susun Modul' },
+    { id: 'galeri', label: 'Galeri Modul' },
+    { id: 'format', label: 'Format Modul' },
   ],
   'rapor-paud': [
     { id: 'kelas', label: 'Rapor per Kelas' },
@@ -589,6 +597,14 @@ export function AppProvider({ children }) {
   const mapelRes = useSheetResource(fetchMapelFromSheet, normalizeSheetMapel, 'akademik', defer);
   const cpRes = useSheetResource(fetchCpFromSheet, normalizeSheetCp, 'akademik', defer);
   const tpRes = useSheetResource(fetchTpFromSheet, normalizeSheetTp, 'akademik', defer);
+  const modulAjarRes = useSheetResource(fetchModulAjarFromSheet, normalizeSheetModul, 'akademik', defer);
+  const [pengaturanModulRaw, setPengaturanModulRaw] = useState(null);
+  const isiPengaturanModul = useCallback((rows) => setPengaturanModulRaw(pengaturanModulDariRows(rows)), []);
+  const refreshPengaturanModul = useCallback(async () => {
+    if (!isConfigured('akademik')) return;
+    try { isiPengaturanModul(await fetchPengaturanModulFromSheet()); } catch { /* pakai bawaan */ }
+  }, [isiPengaturanModul]);
+  const pengaturanModul = useMemo(() => lengkapiPengaturanModul(pengaturanModulRaw), [pengaturanModulRaw]);
   const asesmenPaudRes = useSheetResource(fetchAsesmenPaudFromSheet, normalizeSheetAsesmenPaud, 'akademik', defer);
   const raporPaudRes = useSheetResource(fetchRaporPaudFromSheet, normalizeSheetRaporPaud, 'akademik', defer);
   const [pengaturanPaudRaw, setPengaturanPaudRaw] = useState(null);
@@ -720,6 +736,8 @@ export function AppProvider({ children }) {
       mapelRes.setFromBatch(semua.mapel || []);
       cpRes.setFromBatch(semua.cp || []);
       tpRes.setFromBatch(semua.tp || []);
+      modulAjarRes.setFromBatch(semua.modulAjar || []);
+      isiPengaturanModul(semua.pengaturanModul || []);
       raporSekolahRes.setFromBatch(semua.raporSekolah || []);
       isiPengaturanSd(semua.pengaturanRaporSd || []);
       raporPaudRes.setFromBatch(semua.raporPaud || []);
@@ -733,7 +751,7 @@ export function AppProvider({ children }) {
       presensiGuruRes.refresh(); pengaturanPresensiRes.refresh(); kinerjaRes.refresh(); pelatihanRes.refresh();
       kkmRes.refresh(); agendaRes.refresh(); bankSoalRes.refresh(); ujianRes.refresh(); raporRes.refresh();
       skalaPredikatRes.refresh();
-      asesmenPaudRes.refresh(); raporPaudRes.refresh(); refreshPengaturanPaud(); mapelRes.refresh(); cpRes.refresh(); tpRes.refresh(); raporSekolahRes.refresh(); refreshPengaturanSd();
+      asesmenPaudRes.refresh(); raporPaudRes.refresh(); refreshPengaturanPaud(); mapelRes.refresh(); cpRes.refresh(); tpRes.refresh(); modulAjarRes.refresh(); refreshPengaturanModul(); raporSekolahRes.refresh(); refreshPengaturanSd();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -892,6 +910,8 @@ export function AppProvider({ children }) {
     pengaturanSd, pengaturanSdTersimpan: !!pengaturanSdRaw, refreshPengaturanSd,
     mapelList, mapelDariSheets: mapelTersimpan.length > 0, refreshMapel: mapelRes.refresh,
     cp: cpRes.data, refreshCp: cpRes.refresh, tp: tpRes.data, tpLoaded: tpRes.loaded, refreshTp: tpRes.refresh,
+    modulAjar: modulAjarRes.data, refreshModulAjar: modulAjarRes.refresh,
+    pengaturanModul, pengaturanModulTersimpan: !!pengaturanModulRaw, refreshPengaturanModul,
     asesmenPaud: asesmenPaudRes.data, refreshAsesmenPaud: asesmenPaudRes.refresh,
     raporPaud: raporPaudRes.data, raporPaudLoaded: raporPaudRes.loaded, refreshRaporPaud: raporPaudRes.refresh,
     pengaturanPaud, pengaturanPaudTersimpan: !!pengaturanPaudRaw, refreshPengaturanPaud,

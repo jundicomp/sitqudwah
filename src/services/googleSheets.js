@@ -508,6 +508,13 @@ export const simpanCpKeSheet = (rows) => replaceAllInSheet('cp', rows, 'akademik
 export const fetchTpFromSheet = () => fetchFromSheet('tp', 'akademik');
 export const simpanTpKeSheet = (rows) => replaceAllInSheet('tp', rows, 'akademik');
 
+// ---- Modul Ajar (v1.53.0) -- file Sheets Akademik ----
+export const fetchModulAjarFromSheet = () => fetchFromSheet('modulAjar', 'akademik');
+export const upsertModulAjarToSheet = (rows) => bulkUpsertInSheet('modulAjar', ['ID Modul'], rows);
+export const hapusModulAjarDiSheet = (no) => deleteFromSheet('modulAjar', no, 'akademik');
+export const fetchPengaturanModulFromSheet = () => fetchFromSheet('pengaturanModul', 'akademik');
+export const simpanPengaturanModulKeSheet = (rows) => replaceAllInSheet('pengaturanModul', rows, 'akademik');
+
 // ---- Rapor SD / format Sekolah (v1.48.0) -- file Sheets Akademik ----
 export const fetchRaporSekolahFromSheet = () => fetchFromSheet('raporSekolah', 'akademik');
 export const upsertRaporSekolahToSheet = (rows) => bulkUpsertInSheet('raporSekolah', ['Tahun Ajaran', 'Semester', 'ID Siswa'], rows);

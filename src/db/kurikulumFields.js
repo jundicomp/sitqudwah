@@ -32,6 +32,7 @@ export function normalizeSheetTp(r, i) {
     urutan: Number(r['Urutan']) || 0, kode: s(r['Kode']), elemen: s(r['Elemen']), tujuan: s(r['Tujuan Pembelajaran']),
     jp: jp === '' || jp === null || jp === undefined ? '' : Number(jp),
     aktif: !/^(tidak|false|0|nonaktif)$/i.test(s(r['Aktif'])),
+    diubahOleh: s(r['Diubah Oleh']), diubahPada: s(r['Diubah Pada']),
   };
 }
 
@@ -49,4 +50,13 @@ export const kodeTp = (tingkat, semester, urut) => `${tingkat}.${semester === 'G
 // TP satu mapel+tingkat+semester, berurutan.
 export function tpUntuk(tpRows, mapel, tingkat, semester) {
   return tpRows.filter(t => t.mapel === mapel && t.tingkat === String(tingkat) && t.semester === semester && t.aktif).sort((a, b) => a.urutan - b.urutan);
+}
+
+// Baris sheet "Tujuan Pembelajaran" dari data ter-normalisasi (utk simpan ulang semua baris).
+export function barisSheetTp(list, oleh = '', pada = '') {
+  return list.map((x, i) => ({
+    No: i + 1, 'ID TP': x.idTp, 'Mata Pelajaran': x.mapel, Fase: x.fase, Tingkat: x.tingkat, Semester: x.semester, Urutan: x.urutan,
+    Kode: x.kode, Elemen: x.elemen, 'Tujuan Pembelajaran': x.tujuan, 'Alokasi JP': x.jp, Aktif: x.aktif === false ? 'Tidak' : 'Ya',
+    'Diubah Oleh': x.diubahOleh ?? oleh, 'Diubah Pada': x.diubahPada ?? pada,
+  }));
 }

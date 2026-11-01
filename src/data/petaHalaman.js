@@ -17,27 +17,22 @@ export const STATUS_INFO = {
 
 // Status halaman/tab yg sudah ada tapi BELUM "siap". Key: pageId atau "pageId.tabId".
 // Kosongkan saja kalau semua sudah siap.
-export const STATUS_KHUSUS = {};
+export const STATUS_KHUSUS = {
+  'modul-ajar': 'progres', // 2 tab lagi: Rencana Tema PAUD & Persetujuan
+};
 
 // Entri Hak Akses yg sebenarnya izin tombol, bukan tab -- tidak ditampilkan di peta.
 export const BUKAN_TAB = ['siswa.manual', 'siswa.excel'];
 
 // Halaman BARU yg belum ada di aplikasi. `setelah` = disisipkan sesudah pageId itu.
-export const HALAMAN_RENCANA = [
-  {
-    pageId: 'modul-ajar', label: 'Modul Ajar', grup: 'akademik', setelah: 'kkm', status: 'progres',
-    ket: 'Guru menyusun modul ajar / RPP per tujuan pembelajaran, diajukan ke kepala sekolah',
-    tabs: [
-      { id: 'saya', label: 'Kelas & Mapel Saya', status: 'progres' },
-      { id: 'modul', label: 'Susun Modul', status: 'progres' },
-      { id: 'paud', label: 'Rencana Tema PAUD', status: 'rencana' },
-      { id: 'persetujuan', label: 'Persetujuan Kepala Sekolah', status: 'rencana' },
-    ],
-  },
-];
+export const HALAMAN_RENCANA = [];
 
 // Tab BARU di halaman yg sudah ada. Key: pageId.
 export const TAB_RENCANA = {
+  'modul-ajar': [
+    { id: 'paud', label: 'Rencana Tema PAUD', status: 'rencana' },
+    { id: 'persetujuan', label: 'Persetujuan Kepala Sekolah', status: 'rencana' },
+  ],
   nilai: [{ id: 'tp', label: 'Nilai per Tujuan Pembelajaran', status: 'rencana' }],
   'rapor-sd': [{ id: 'tp', label: 'Ketercapaian TP per Anak', status: 'rencana' }],
 };

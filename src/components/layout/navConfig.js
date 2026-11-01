@@ -30,6 +30,7 @@ export const NAV_STRUCTURE = [
       { to: '/jadwal', pageId: 'jadwal', label: 'Jadwal Pelajaran' },
       { to: '/kalender', pageId: 'kalender', label: 'Kalender Akademik' },
       { to: '/kkm', pageId: 'kkm', label: 'Kurikulum & KKM' },
+      { to: '/modul-ajar', pageId: 'modul-ajar', label: 'Modul Ajar' },
       { to: '/presensi', pageId: 'presensi', label: 'Presensi Siswa' },
       { to: '/nilai', pageId: 'nilai', label: 'Nilai Akademik' },
       { to: '/penilaian-paud', pageId: 'penilaian-paud', label: 'Penilaian PAUD' },

@@ -4,6 +4,53 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.56.0',
+    tanggal: '2026-11-01',
+    poin: [
+      'Modul Ajar › Galeri Modul (tab baru): semua modul ajar lintas tahun ajaran dalam satu tabel ringkas — materi pokok (bab & kode TP), mata pelajaran, kelas/rombel, fase, guru, semester, JP, pertemuan, status, tanggal diperbarui',
+      'Filter tahun ajaran, semester, mata pelajaran, kelas/rombel, guru, dan status, plus pencarian judul, bab, atau kode TP; ringkasan jumlah modul, mapel, guru, dan modul disetujui',
+      'Aksi per modul: Lihat (langsung ke pratinjau & cetak/PDF), Ubah (pemilik, selama draft/dikembalikan), Salin jadi draft baru; tabel bisa diekspor ke Excel',
+      'Guru melihat semua modul buatannya sendiri; Admin & Kepala Sekolah melihat modul semua guru',
+    ],
+  },
+  {
+    versi: '1.55.0',
+    tanggal: '2026-11-01',
+    poin: [
+      'Modul Ajar › Format Modul (tab baru, khusus Admin & Kepala Sekolah): susunan bagian modul ajar kini dinamis — ganti judul bagian, sembunyikan, ubah urutan, tambah bagian khas sekolah, dan hapus bagian buatan sendiri',
+      'Bagian baru bisa berbentuk paragraf (dengan petunjuk untuk guru) atau tabel komponen | deskripsi (baris komponen ditentukan sekolah, guru boleh/tidak boleh menambah baris)',
+      'Acuan dimensi (Profil Pelajar Pancasila 6 dimensi / Profil Lulusan 8 dimensi) untuk modul baru diatur di sini',
+      'Riwayat modul aman: tiap modul menyimpan salinan formatnya sendiri. Mengubah atau menghapus bagian di Format Modul hanya berlaku untuk modul baru; modul lama tetap tampil & tercetak seperti semula',
+      'Draft modul lama menampilkan pemberitahuan bila format sekolah berubah, dengan tombol "Pakai format terbaru" — isian yang sudah ada tidak hilang',
+    ],
+  },
+  {
+    versi: '1.54.0',
+    tanggal: '2026-11-01',
+    poin: [
+      'Modul Ajar kini mengikuti format modul ajar sekolah: Identitas, Capaian Pembelajaran, Lintas Disiplin Ilmu, IKTP, Topik Kontekstual — Pertanyaan Pemicu, Identifikasi, Desain Pembelajaran, Strategi Berdiferensiasi, Dimensi Profil, Kegiatan Pembelajaran, Asesmen, Remedial & Pengayaan, Penutup, dan tanda tangan',
+      'Identitas lengkap: bab, materi pokok, alokasi waktu otomatis (pertemuan × JP × menit), model & moda pembelajaran, sarana prasarana',
+      'Capaian Pembelajaran terisi otomatis dari Kurikulum & KKM (semua elemen fase itu)',
+      'IKTP dengan level kognitif (C1–C6), bisa diambil langsung dari TP yang dipilih',
+      'Kegiatan pembelajaran per pertemuan dengan tabel Tahapan · Alokasi Waktu · Kegiatan Guru dan Murid; tombol "Isi tahapan sesuai model" membuat baris AWAL–INTI–PENUTUP sesuai sintaks model (Blended Learning, PBL, PjBL, Discovery, Inquiry, dll.) lengkap dengan pembagian menit',
+      'Dimensi bisa memakai Profil Pelajar Pancasila (6 dimensi) atau Profil Lulusan (8 dimensi), masing-masing dengan wujud penerapannya',
+      'Asesmen per jenis (diagnostik, formatif, sumatif) dengan teknik, instrumen, dan waktu pelaksanaan',
+      'Modul yang dibuat dengan format sebelumnya otomatis dipindahkan ke format baru',
+    ],
+  },
+  {
+    versi: '1.53.0',
+    tanggal: '2026-11-01',
+    poin: [
+      'Menu baru Akademik › Modul Ajar untuk menyusun modul ajar / RPP pembelajaran mendalam',
+      'Tab Kelas & Mapel Saya: guru langsung melihat mapel & kelas yang dia ajar (dari Jadwal Pelajaran), progres berapa tujuan pembelajaran yang sudah punya modul, alur TP semester ini, dan bisa menambah TP untuk mapelnya sendiri',
+      'Tab Susun Modul: modul berisi informasi umum & TP yang dicakup, A. Identifikasi (kesiapan peserta didik dengan data jumlah siswa & rata-rata nilai, karakteristik materi, 8 dimensi profil lulusan), B. Desain pembelajaran, C. Pengalaman belajar (awal, memahami, mengaplikasi, merefleksi, penutup), D. Asesmen, dan E. Lampiran (link LKPD/materi)',
+      'Form dibagi per bagian yang bisa dilipat, dengan penanda bagian yang sudah terisi',
+      'Pratinjau & cetak/PDF modul dengan kop sekolah dan tanda tangan kepala sekolah serta penyusun; modul bisa diduplikat (mis. untuk kelas paralel atau tahun depan)',
+      'Guru hanya melihat & mengubah modul miliknya; Admin & Kepala Sekolah melihat semua modul',
+    ],
+  },
+  {
     versi: '1.52.0',
     tanggal: '2026-11-01',
     poin: [

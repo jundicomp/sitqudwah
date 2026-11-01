@@ -64,6 +64,7 @@ import PenilaianPaud from './pages/akademik/PenilaianPaud';
 import BankSoalUjian from './pages/akademik/BankSoalUjian';
 import ComingSoon from './pages/ComingSoon';
 import PetaHalaman from './pages/pengaturan/PetaHalaman';
+import ModulAjar from './pages/akademik/modulAjar/ModulAjar';
 
 const PLACEHOLDER_PAGES = [];
 
@@ -105,6 +106,7 @@ function Gate() {
         <Route path="/rapor-paud" element={<RaporDigital key="paud" jenis="PAUD" />} />
         <Route path="/rapor-sd" element={<RaporDigital key="sd" jenis="SD" />} />
         <Route path="/penilaian-paud" element={<PenilaianPaud />} />
+        <Route path="/modul-ajar" element={<ModulAjar />} />
         <Route path="/bank-soal" element={<BankSoalUjian />} />
         <Route path="/perkembangan" element={<CatatanPerkembangan />} />
         <Route path="/pengumuman" element={<Pengumuman />} />
