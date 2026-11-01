@@ -20,6 +20,8 @@ import { setJenjang, normalizeSheetJenjang, jenjangDariSheets } from '../config/
 import { setSkalaPredikat, getSkalaPredikat, normalizeSheetSkalaPredikat, setMapel, normalizeSheetMapel, SEMUA_MAPEL } from '../db/akademikFields';
 import { normalizeSheetAsesmenPaud, normalizeSheetRaporPaud, pengaturanPaudDariRows, lengkapiPengaturanPaud } from '../db/raporPaudFields';
 import { normalizeSheetCp, normalizeSheetTp } from '../db/kurikulumFields';
+import { normalizeSheetRencanaPaud } from '../db/rencanaPaudFields';
+import { pemeliharaanDariRows } from '../db/sistemFields';
 import { normalizeSheetModul, pengaturanModulDariRows, lengkapiPengaturanModul } from '../db/modulAjarFields';
 import { normalizeSheetRaporSekolah, pengaturanSdDariRows, lengkapiPengaturanSd } from '../db/raporSdFields';
 import { normalizeSheetPerkembangan, normalizeSheetAspek, ASPEK_BAWAAN } from '../db/perkembanganFields';
@@ -38,7 +40,7 @@ import {
   fetchPresensiGuruFromSheet, fetchKinerjaFromSheet, fetchPelatihanFromSheet, fetchPengaturanPresensiFromSheet,
   fetchJenjangFromSheet,
   perkembanganApi, fetchAspekPerkembanganFromSheet, fetchSkalaPredikatFromSheet,
-  fetchAsesmenPaudFromSheet, fetchRaporPaudFromSheet, fetchPengaturanRaporPaudFromSheet, fetchMapelFromSheet, fetchCpFromSheet, fetchTpFromSheet, fetchModulAjarFromSheet, fetchPengaturanModulFromSheet,
+  fetchAsesmenPaudFromSheet, fetchRaporPaudFromSheet, fetchPengaturanRaporPaudFromSheet, fetchMapelFromSheet, fetchCpFromSheet, fetchTpFromSheet, fetchModulAjarFromSheet, fetchPengaturanModulFromSheet, fetchRencanaPaudFromSheet, fetchSistemFromSheet,
   fetchRaporSekolahFromSheet, fetchPengaturanRaporSdFromSheet,
   akreditasiApi, semesterApi, mutasiApi, pengumumanApi, suratApi,
   fetchBukuFromSheet, fetchSirkulasiFromSheet, fetchDendaPerpusFromSheet, fetchReservasiFromSheet, fetchPengaturanPerpusFromSheet,
@@ -196,6 +198,8 @@ const HAK_AKSES_TABS = {
     { id: 'saya', label: 'Kelas & Mapel Saya' },
     { id: 'modul', label: 'Susun Modul' },
     { id: 'galeri', label: 'Galeri Modul' },
+    { id: 'paud', label: 'Rencana Tema PAUD' },
+    { id: 'persetujuan', label: 'Persetujuan Kepala Sekolah' },
     { id: 'format', label: 'Format Modul' },
   ],
   'rapor-paud': [
@@ -598,6 +602,7 @@ export function AppProvider({ children }) {
   const cpRes = useSheetResource(fetchCpFromSheet, normalizeSheetCp, 'akademik', defer);
   const tpRes = useSheetResource(fetchTpFromSheet, normalizeSheetTp, 'akademik', defer);
   const modulAjarRes = useSheetResource(fetchModulAjarFromSheet, normalizeSheetModul, 'akademik', defer);
+  const rencanaPaudRes = useSheetResource(fetchRencanaPaudFromSheet, normalizeSheetRencanaPaud, 'akademik', defer);
   const [pengaturanModulRaw, setPengaturanModulRaw] = useState(null);
   const isiPengaturanModul = useCallback((rows) => setPengaturanModulRaw(pengaturanModulDariRows(rows)), []);
   const refreshPengaturanModul = useCallback(async () => {
@@ -622,6 +627,12 @@ export function AppProvider({ children }) {
   const [profilSekolah, setProfilSekolahRaw] = useState(null);
   const [profilLoading, setProfilLoading] = useState(true);
   const [profilExists, setProfilExists] = useState(false);
+  const [pemeliharaan, setPemeliharaan] = useState(() => pemeliharaanDariRows([]));
+  const isiSistem = useCallback((rows) => { if (Array.isArray(rows)) setPemeliharaan(pemeliharaanDariRows(rows)); }, []);
+  const refreshSistem = useCallback(async () => {
+    if (!isConfigured('master')) return;
+    try { isiSistem(await fetchSistemFromSheet()); } catch { /* sheet belum ada -> anggap tidak ada pemeliharaan */ }
+  }, [isiSistem]);
   const isiProfilDariRows = useCallback((rows) => {
     if (rows.length > 0) {
       setProfilSekolahRaw(normalizeSheetProfil(rows[0]));
@@ -664,6 +675,7 @@ export function AppProvider({ children }) {
       tahunAjaranRes.setFromBatch(semua.tahunAjaran || []);
       riwayatAkademikRes.setFromBatch(semua.riwayatAkademik || []);
       isiProfilDariRows(semua.profil || []);
+      if (semua.sistem) isiSistem(semua.sistem);
       terapkanHakAksesJikaMasihTerbaru(tiketHakAkses, semua.roles || [], semua.hakAkses || []);
     } catch (err) {
       if (!withFallback) return; // polling berkala: diam saja, coba lagi siklus berikutnya
@@ -738,6 +750,7 @@ export function AppProvider({ children }) {
       tpRes.setFromBatch(semua.tp || []);
       modulAjarRes.setFromBatch(semua.modulAjar || []);
       isiPengaturanModul(semua.pengaturanModul || []);
+      rencanaPaudRes.setFromBatch(semua.rencanaPaud || []);
       raporSekolahRes.setFromBatch(semua.raporSekolah || []);
       isiPengaturanSd(semua.pengaturanRaporSd || []);
       raporPaudRes.setFromBatch(semua.raporPaud || []);
@@ -751,7 +764,7 @@ export function AppProvider({ children }) {
       presensiGuruRes.refresh(); pengaturanPresensiRes.refresh(); kinerjaRes.refresh(); pelatihanRes.refresh();
       kkmRes.refresh(); agendaRes.refresh(); bankSoalRes.refresh(); ujianRes.refresh(); raporRes.refresh();
       skalaPredikatRes.refresh();
-      asesmenPaudRes.refresh(); raporPaudRes.refresh(); refreshPengaturanPaud(); mapelRes.refresh(); cpRes.refresh(); tpRes.refresh(); modulAjarRes.refresh(); refreshPengaturanModul(); raporSekolahRes.refresh(); refreshPengaturanSd();
+      asesmenPaudRes.refresh(); raporPaudRes.refresh(); refreshPengaturanPaud(); mapelRes.refresh(); cpRes.refresh(); tpRes.refresh(); modulAjarRes.refresh(); refreshPengaturanModul(); rencanaPaudRes.refresh(); raporSekolahRes.refresh(); refreshPengaturanSd();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -848,6 +861,8 @@ export function AppProvider({ children }) {
   }, [muatRolesDanHakAkses]);
 
   const toast = useCallback((message, type = 'info') => {
+    // Dipakai PenjagaSistem: toast sukses = pekerjaan barusan sudah tersimpan.
+    if (type !== 'error') window.dispatchEvent(new CustomEvent('sq-toast-sukses'));
     const id = Date.now() + Math.random();
     setToasts(t => [...t, { id, message, type }]);
     setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 3200);
@@ -912,6 +927,8 @@ export function AppProvider({ children }) {
     cp: cpRes.data, refreshCp: cpRes.refresh, tp: tpRes.data, tpLoaded: tpRes.loaded, refreshTp: tpRes.refresh,
     modulAjar: modulAjarRes.data, refreshModulAjar: modulAjarRes.refresh,
     pengaturanModul, pengaturanModulTersimpan: !!pengaturanModulRaw, refreshPengaturanModul,
+    rencanaPaud: rencanaPaudRes.data, refreshRencanaPaud: rencanaPaudRes.refresh,
+    pemeliharaan, refreshSistem,
     asesmenPaud: asesmenPaudRes.data, refreshAsesmenPaud: asesmenPaudRes.refresh,
     raporPaud: raporPaudRes.data, raporPaudLoaded: raporPaudRes.loaded, refreshRaporPaud: raporPaudRes.refresh,
     pengaturanPaud, pengaturanPaudTersimpan: !!pengaturanPaudRaw, refreshPengaturanPaud,

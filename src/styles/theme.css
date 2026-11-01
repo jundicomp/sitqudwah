@@ -812,3 +812,43 @@ a.ph-tab:hover{border-color:#1C7A3C;background:#fff}
 .galeri-tabel th,.galeri-tabel td{padding:7px 7px;font-size:12.8px}
 .galeri-tabel th{white-space:normal;line-height:1.2;vertical-align:bottom}
 .galeri-tabel td .btn-sm{padding:4px 8px;font-size:12px}
+
+/* ===== Persetujuan modul (v1.57.0) ===== */
+.md-periksa{background:#EEF3FB;border:1px solid #C9D7F0;border-radius:12px;padding:10px 12px;margin-bottom:12px;display:flex;flex-direction:column;gap:6px}
+.md-periksa b{font-size:13.5px;color:#1E3F7A}.md-periksa textarea{width:100%;font:inherit;font-size:13.5px;resize:vertical}
+.md-periksa small{color:#4A5A70;font-size:12px}
+
+/* ===== Rencana tema PAUD (v1.57.0) ===== */
+.rp-hari{border:1px solid #E3E8E2;border-radius:10px;background:#F8FAF7;padding:8px 10px;margin-bottom:8px}
+.rp-hari-h{display:flex;gap:10px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.rp-hari-h b{min-width:56px;font-size:14px;color:#123D22}
+.rp-hari-el{display:flex;gap:5px;flex-wrap:wrap;flex:1}
+.rp-hari-el label{display:flex;gap:4px;align-items:center;font-size:11.5px;border:1px solid #DCE3DD;background:#fff;border-radius:99px;padding:2px 8px;cursor:pointer;font-weight:500}
+.rp-hari-el label.on{border-color:#B7791F;background:#FFF6DF}
+.rp-hari-el input{width:12px;height:12px}
+.rp-hari-g{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:6px}
+.rp-hari-g textarea{width:100%;font:inherit;font-size:13px;resize:vertical}
+@media (max-width:1000px){.rp-hari-g{grid-template-columns:1fr}}
+
+/* ===== Penjaga sistem: pemeliharaan & versi baru (v1.58.0) ===== */
+.pj-layar{position:fixed;inset:0;z-index:9000;background:rgba(18,61,34,.94);display:flex;align-items:center;justify-content:center;padding:20px}
+.pj-kartu{background:#fff;border-radius:20px;max-width:440px;width:100%;padding:30px 28px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.pj-ikon{font-size:46px}
+.pj-kartu h2{margin:8px 0 8px;font-size:22px;color:#123D22}
+.pj-kartu p{margin:0 0 8px;font-size:14.5px;line-height:1.5;color:#2B3A30}
+.pj-kartu .pj-sub{font-size:13px;color:#5A6A60}
+.pj-loader{height:6px;background:#E3F1E7;border-radius:99px;overflow:hidden;margin:16px 0 14px}
+.pj-loader i{display:block;height:100%;width:35%;background:#1C7A3C;border-radius:99px;animation:pj-geser 1.4s ease-in-out infinite}
+@keyframes pj-geser{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+.pj-pita{position:fixed;top:0;left:0;right:0;z-index:8000;display:flex;gap:12px;align-items:center;justify-content:center;padding:7px 16px;font-size:13px;text-align:center;flex-wrap:wrap}
+.pj-pita.pj-admin{background:#B7791F;color:#fff}.pj-pita.pj-admin .btn{background:#fff;color:#6A4800;border:0}
+.pj-pita.pj-jadwal{background:#FFF6DF;color:#6A4800;border-bottom:1px solid #F3D98C}
+.pj-update{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:8500;background:#123D22;color:#fff;border-radius:14px;padding:10px 12px 10px 16px;display:flex;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:calc(100vw - 32px);font-size:13px}
+.pj-update b{display:block;font-size:13.5px}.pj-update span{color:#CFE3D5}
+.pj-update .btn{white-space:nowrap}
+.pj-update.wajib{background:#8E2A20}
+@media (max-width:640px){.pj-update{bottom:76px;flex-wrap:wrap}}
+.pj-jadwal-box{margin-top:14px;background:#F8FAF7;border:1px solid #E3E8E2;border-radius:12px;padding:12px 14px}
+.pj-jadwal-box b{font-size:14px}.pj-jadwal-box p{font-size:12.5px;color:#5A6A60;margin:3px 0 10px}
+.pj-panduan{margin-top:12px;font-size:13px}.pj-panduan summary{cursor:pointer;font-weight:700}
+.pj-panduan ol{margin:8px 0 0 18px;line-height:1.55}

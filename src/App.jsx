@@ -65,6 +65,7 @@ import BankSoalUjian from './pages/akademik/BankSoalUjian';
 import ComingSoon from './pages/ComingSoon';
 import PetaHalaman from './pages/pengaturan/PetaHalaman';
 import ModulAjar from './pages/akademik/modulAjar/ModulAjar';
+import PenjagaSistem from './components/layout/PenjagaSistem';
 
 const PLACEHOLDER_PAGES = [];
 
@@ -154,6 +155,7 @@ export default function App() {
         <BrandingHead />
         <AuthProvider>
           <Gate />
+          <PenjagaSistem />
         </AuthProvider>
       </AppProvider>
     </HashRouter>

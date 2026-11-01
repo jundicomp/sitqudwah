@@ -6,6 +6,7 @@ import GenericStoredTable from '../../components/sheetCrud/GenericStoredTable';
 import { TombolUnggahFoto } from '../../components/common/FotoDrive';
 import { TabBar, AkademikBelumTersambung, Field, Select, Kosong } from '../../components/akademik/shared';
 import { CapaianPills, BannerIdSiswa, GaleriFoto, rombelPaud } from '../../components/paud/shared';
+import { saranKegiatanPaud } from '../../db/rencanaPaudFields';
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { siswaDiRombel, semesterDariTanggal, SEMESTER_OPTIONS } from '../../db/akademikFields';
@@ -48,7 +49,7 @@ const barisAsesmen = ({ tanggal, sw, rombel, ta, bidang, kegiatan, teknik, capai
 
 // ---- Tab 1: satu kegiatan, satu kelas sekaligus ----
 function CeklisKegiatan() {
-  const { siswa, pengaturanPaud: p, refreshAsesmenPaud, toast } = useAppData();
+  const { siswa, pengaturanPaud: p, refreshAsesmenPaud, rencanaPaud, toast } = useAppData();
   const { currentUser } = useAuth();
   const { taAktif, rombelList } = useAkademikOptions();
   const daftarRombel = useMemo(() => rombelPaud(rombelList), [rombelList]);
@@ -64,6 +65,8 @@ function CeklisKegiatan() {
   useEffect(() => { if (!rombelKey && daftarRombel.length) setRombelKey(daftarRombel[0].key); }, [daftarRombel, rombelKey]);
   const rombel = daftarRombel.find(r => r.key === rombelKey);
   const anak = useMemo(() => (rombel ? siswaDiRombel(siswa, rombel.tingkat, rombel.rombel) : []), [siswa, rombel]);
+  // Saran kegiatan dari Rencana Tema PAUD minggu ini (v1.57.0).
+  const saranKegiatan = useMemo(() => (rombel ? saranKegiatanPaud(rencanaPaud, { tingkat: rombel.tingkat, rombel: rombel.rombel, tanggal }) : []), [rencanaPaud, rombel, tanggal]);
   const set = (id, patch) => setNilai(n => ({ ...n, [id]: { ...(n[id] || {}), ...patch } }));
   const terisi = anak.filter(a => a.idSiswa && (nilai[a.idSiswa]?.capaian || nilai[a.idSiswa]?.catatan?.trim()));
 
@@ -94,7 +97,8 @@ function CeklisKegiatan() {
           <Field label="Tanggal"><input type="date" value={tanggal} onChange={e => setTanggal(e.target.value)} /></Field>
           <Field label="Kelas"><Select value={rombelKey} onChange={k => { setRombelKey(k); setNilai({}); }} options={daftarRombel.map(r => ({ value: r.key, label: r.label }))} /></Field>
           <Field label="Bidang"><PilihBidang value={bid} onChange={setBid} bidang={bidang} /></Field>
-          <Field label="Kegiatan" grow><input value={kegiatan} placeholder="mis. Sholat dhuha berjamaah" onChange={e => setKegiatan(e.target.value)} /></Field>
+          <Field label="Kegiatan" grow><input value={kegiatan} list="saran-kegiatan-paud" placeholder={saranKegiatan.length ? 'Pilih dari rencana tema minggu ini atau ketik sendiri' : 'mis. Sholat dhuha berjamaah'} onChange={e => setKegiatan(e.target.value)} />
+            <datalist id="saran-kegiatan-paud">{saranKegiatan.map(k => <option key={k} value={k} />)}</datalist></Field>
           <Field label="Teknik"><Select value={teknik} onChange={setTeknik} options={TEKNIK_PAUD} /></Field>
         </div>
         <div className="ringkas-bar" style={{ margin: '4px 0 10px', justifyContent: 'space-between' }}>
@@ -136,7 +140,7 @@ function CeklisKegiatan() {
 
 // ---- Tab 2: catatan anekdot / hasil karya utk satu anak + riwayatnya ----
 function CatatanPerAnak() {
-  const { siswa, asesmenPaud, pengaturanPaud: p, refreshAsesmenPaud, toast } = useAppData();
+  const { siswa, asesmenPaud, pengaturanPaud: p, refreshAsesmenPaud, rencanaPaud, toast } = useAppData();
   const { currentUser } = useAuth();
   const { taAktif, rombelList } = useAkademikOptions();
   const daftarRombel = useMemo(() => rombelPaud(rombelList), [rombelList]);
@@ -148,6 +152,7 @@ function CatatanPerAnak() {
   const [menyimpan, setMenyimpan] = useState(false);
   const [semester, setSemester] = useState(semesterDariTanggal());
   const sw = anakPaud.find(a => a.idSiswa === idAnak || a.id === idAnak);
+  const saranKegiatan2 = useMemo(() => (sw ? saranKegiatanPaud(rencanaPaud, { tingkat: sw.kelasTingkat, rombel: sw.rombel, tanggal: f.tanggal }) : []), [rencanaPaud, sw, f.tanggal]);
   const riwayat = useMemo(() => (sw ? asesmenPaud.filter(x => x.idSiswa === sw.idSiswa && x.tahunAjaran === taAktif && x.semester === semester).sort((a, b) => b.tanggal.localeCompare(a.tanggal)) : []), [asesmenPaud, sw, taAktif, semester]);
 
   async function simpan() {
@@ -184,7 +189,7 @@ function CatatanPerAnak() {
             <div className="field"><label>Tanggal</label><input type="date" value={f.tanggal} onChange={e => setF({ ...f, tanggal: e.target.value })} /></div>
             <div className="field"><label>Teknik</label><select value={f.teknik} onChange={e => setF({ ...f, teknik: e.target.value })}>{TEKNIK_PAUD.map(t => <option key={t}>{t}</option>)}</select></div>
             <div className="field"><label>Bidang</label><PilihBidang value={f.bidang} onChange={v => setF({ ...f, bidang: v })} bidang={bidang} /></div>
-            <div className="field"><label>Kegiatan</label><input value={f.kegiatan} placeholder="mis. Menanam tanaman obat" onChange={e => setF({ ...f, kegiatan: e.target.value })} /></div>
+            <div className="field"><label>Kegiatan</label><input value={f.kegiatan} list="saran-kegiatan-paud-2" placeholder="mis. Menanam tanaman obat" onChange={e => setF({ ...f, kegiatan: e.target.value })} /><datalist id="saran-kegiatan-paud-2">{saranKegiatan2.map(k => <option key={k} value={k} />)}</datalist></div>
             <div className="field span2"><label>Capaian (opsional)</label><CapaianPills skala={p.skala} value={f.capaian} onChange={v => setF({ ...f, capaian: v })} /></div>
             <div className="field span2"><label>Catatan</label><textarea rows={4} value={f.catatan} placeholder="Apa yang dilihat guru hari ini? mis. Ananda mau maju sendiri memimpin doa sebelum makan." onChange={e => setF({ ...f, catatan: e.target.value })} /></div>
             <div className="field span2"><label>Foto</label>

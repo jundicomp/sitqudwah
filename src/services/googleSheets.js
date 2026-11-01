@@ -77,7 +77,14 @@ export async function fetchAllFromSheet(target = 'master') {
   return json.data; // { sheetName: [...rows], ... }
 }
 
+// v1.58.0: penghalang tulis -- diisi PenjagaSistem saat mode pemeliharaan aktif (selain
+// Admin) atau saat aplikasi di browser ini sudah usang utk update yg WAJIB. Semua tulis
+// (add/update/delete/upsert/log) lewat postToSheet, jadi cukup dijaga di satu tempat ini.
+let alasanBlokirTulis = null;
+export function setBlokirTulis(alasan) { alasanBlokirTulis = alasan || null; }
+
 async function postToSheet(body, target = 'master') {
+  if (alasanBlokirTulis) throw new Error(alasanBlokirTulis);
   const { url, secret } = getSheetsConfig(target);
   if (!url) throw new Error(`URL Apps Script (${TARGET_LABEL[target]}) belum diatur. Buka Pengaturan Koneksi dulu.`);
   // PENTING -- SENGAJA TIDAK pakai fetchDenganRetry() di sini (beda dgn fetchFromSheet
@@ -498,6 +505,10 @@ export async function perbaikiNomorSemua(target = 'master') {
   return json.hasil; // { namaTab: jumlahDiperbaiki }
 }
 
+// ---- Pengaturan sistem / mode pemeliharaan (v1.58.0) -- file Data Induk ----
+export const fetchSistemFromSheet = () => fetchFromSheet('sistem', 'master');
+export const simpanSistemKeSheet = (rows) => replaceAllInSheet('sistem', rows, 'master');
+
 // ---- Mata Pelajaran (v1.45.0) -- file Sheets Akademik ----
 export const fetchMapelFromSheet = () => fetchFromSheet('mapel', 'akademik');
 export const simpanMapelKeSheet = (rows) => replaceAllInSheet('mapel', rows, 'akademik');
@@ -512,6 +523,9 @@ export const simpanTpKeSheet = (rows) => replaceAllInSheet('tp', rows, 'akademik
 export const fetchModulAjarFromSheet = () => fetchFromSheet('modulAjar', 'akademik');
 export const upsertModulAjarToSheet = (rows) => bulkUpsertInSheet('modulAjar', ['ID Modul'], rows);
 export const hapusModulAjarDiSheet = (no) => deleteFromSheet('modulAjar', no, 'akademik');
+export const fetchRencanaPaudFromSheet = () => fetchFromSheet('rencanaPaud', 'akademik');
+export const upsertRencanaPaudToSheet = (rows) => bulkUpsertInSheet('rencanaPaud', ['ID Rencana'], rows);
+export const hapusRencanaPaudDiSheet = (no) => deleteFromSheet('rencanaPaud', no, 'akademik');
 export const fetchPengaturanModulFromSheet = () => fetchFromSheet('pengaturanModul', 'akademik');
 export const simpanPengaturanModulKeSheet = (rows) => replaceAllInSheet('pengaturanModul', rows, 'akademik');
 

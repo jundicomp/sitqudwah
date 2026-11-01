@@ -15,12 +15,16 @@ import { simpanTpKeSheet, upsertModulAjarToSheet, hapusModulAjarDiSheet, addLogE
 import ModulEditor from './ModulEditor';
 import PengaturanFormatModul from './PengaturanFormatModul';
 import GaleriModul from './GaleriModul';
+import RencanaPaudTab from './RencanaPaudTab';
+import PersetujuanTab from './PersetujuanTab';
 import { bolehMenerbitkan } from '../../../db/akses';
 
 const TABS = [
   { id: 'saya', label: 'KELAS & MAPEL SAYA' },
   { id: 'modul', label: 'SUSUN MODUL' },
   { id: 'galeri', label: 'GALERI MODUL' },
+  { id: 'paud', label: 'RENCANA TEMA PAUD' },
+  { id: 'persetujuan', label: 'PERSETUJUAN' },
   { id: 'format', label: 'FORMAT MODUL' },
 ];
 
@@ -215,7 +219,7 @@ export default function ModulAjar() {
   const akses = useTabAccess('modul-ajar', TABS.map(t => t.id));
   const { tab, setTab } = akses;
   // Format Modul hanya utk Kepala Sekolah & Admin (selain izin tab di Hak Akses).
-  const bolehTab = (id) => akses.bolehTab(id) && (id !== 'format' || bolehMenerbitkan(currentUser));
+  const bolehTab = (id) => akses.bolehTab(id) && (!['format', 'persetujuan'].includes(id) || bolehMenerbitkan(currentUser));
   const [ta, setTa] = useState('');
   const [semester, setSemester] = useState(semesterDariTanggal());
   const [editor, setEditor] = useState(null);
@@ -254,10 +258,12 @@ export default function ModulAjar() {
           {tab === 'saya' && bolehTab('saya') && <KelasMapelSaya ta={ta} semester={semester} pasanganList={pasanganList} modulDipakai={modulDipakai} onBuat={buat} onBuka={setEditor} />}
           {tab === 'modul' && bolehTab('modul') && <DaftarModul modulDipakai={modulDipakai} onBuat={buat} onBuka={setEditor} />}
           {tab === 'galeri' && bolehTab('galeri') && <GaleriModul onBuka={setEditor} onLihat={(m) => setEditor({ ...m, __pratinjau: true })} />}
+          {tab === 'paud' && bolehTab('paud') && <RencanaPaudTab ta={ta} semester={semester} />}
+          {tab === 'persetujuan' && bolehTab('persetujuan') && <PersetujuanTab onPeriksaModul={(m) => setEditor({ ...m, __pratinjau: true, __periksa: true })} />}
           {tab === 'format' && bolehTab('format') && <PengaturanFormatModul />}
         </div>
       </div>
-      {editor && <ModulEditor key={(editor.idModul || 'baru') + (editor.__pratinjau ? 'p' : '')} modul={editor} mulaiPratinjau={!!editor.__pratinjau} pasanganList={pasanganList} onClose={() => setEditor(null)} />}
+      {editor && <ModulEditor key={(editor.idModul || 'baru') + (editor.__pratinjau ? 'p' : '')} modul={editor} mulaiPratinjau={!!editor.__pratinjau} pasanganList={pasanganList} onClose={() => setEditor(null)} onSelesaiPeriksa={editor.__periksa ? () => setEditor(null) : undefined} />}
     </Page>
   );
 }

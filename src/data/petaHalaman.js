@@ -18,7 +18,6 @@ export const STATUS_INFO = {
 // Status halaman/tab yg sudah ada tapi BELUM "siap". Key: pageId atau "pageId.tabId".
 // Kosongkan saja kalau semua sudah siap.
 export const STATUS_KHUSUS = {
-  'modul-ajar': 'progres', // 2 tab lagi: Rencana Tema PAUD & Persetujuan
 };
 
 // Entri Hak Akses yg sebenarnya izin tombol, bukan tab -- tidak ditampilkan di peta.
@@ -29,10 +28,6 @@ export const HALAMAN_RENCANA = [];
 
 // Tab BARU di halaman yg sudah ada. Key: pageId.
 export const TAB_RENCANA = {
-  'modul-ajar': [
-    { id: 'paud', label: 'Rencana Tema PAUD', status: 'rencana' },
-    { id: 'persetujuan', label: 'Persetujuan Kepala Sekolah', status: 'rencana' },
-  ],
   nilai: [{ id: 'tp', label: 'Nilai per Tujuan Pembelajaran', status: 'rencana' }],
   'rapor-sd': [{ id: 'tp', label: 'Ketercapaian TP per Anak', status: 'rencana' }],
 };

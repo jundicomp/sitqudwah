@@ -2,14 +2,14 @@ import { useMemo, useState } from 'react';
 import Modal from '../../../components/common/Modal';
 import { useAppData } from '../../../context/AppContext';
 import { useAuth } from '../../../context/AuthContext';
-import { bolehLihatSemuaKelas } from '../../../db/akses';
+import { bolehLihatSemuaKelas, bolehMenerbitkan, isAdmin } from '../../../db/akses';
 import { namaTingkat, jenjangDariTingkat } from '../../../config/jenjang';
 import { siswaDiRombel } from '../../../db/akademikFields';
 import { tpUntuk, faseDariTingkat } from '../../../db/kurikulumFields';
 import {
   DIMENSI_SET, LEVEL_KOGNITIF, MODA, DAFTAR_MODEL, BADGE_STATUS_MODUL, pertemuanKosong, langkahSesuaiModel,
   buatIdModul, cekKelengkapanModul, susunDokumenModul, teksAlokasi, menitPertemuan, namaModel, jpTotal,
-  formatModul, formatSama, judulBagian,
+  formatModul, formatSama, judulBagian, barisSheetModul,
 } from '../../../db/modulAjarFields';
 import { upsertModulAjarToSheet, addLogEntry, isConfigured } from '../../../services/googleSheets';
 import DokumenModul from './DokumenModul';
@@ -78,12 +78,14 @@ function BagianTambahan({ b, nilai, onChange }) {
 
 // modul: objek modul (normalizeSheetModul) atau draft baru (idModul '').
 // pasanganList: pasangan mapel+tingkat yg boleh dipilih saat membuat modul baru.
-export default function ModulEditor({ modul, pasanganList, onClose, mulaiPratinjau = false }) {
+export default function ModulEditor({ modul, pasanganList, onClose, mulaiPratinjau = false, onSelesaiPeriksa }) {
   const { tp, cp, siswa, nilai, refreshModulAjar, profilSekolah, pengaturanSd, pengaturanModul, toast } = useAppData();
   const { currentUser } = useAuth();
   const semua = bolehLihatSemuaKelas(currentUser);
+  const penerbit = bolehMenerbitkan(currentUser);
   const baru = !modul.idModul;
-  const [m, setM] = useState(() => { const x = salin(modul); delete x.__pratinjau; return x; });
+  const [catatanKepsek, setCatatanKepsek] = useState(modul.catatan || '');
+  const [m, setM] = useState(() => { const x = salin(modul); delete x.__pratinjau; delete x.__periksa; return x; });
   const [buka, setBuka] = useState(baru ? 'identitas' : 'kegiatan');
   const [pertemuanAktif, setPertemuanAktif] = useState(0);
   const [pratinjau, setPratinjau] = useState(mulaiPratinjau);
@@ -119,11 +121,13 @@ export default function ModulEditor({ modul, pasanganList, onClose, mulaiPratinj
 
   const kurang = cekKelengkapanModul(m);
   const p = pengaturanSd || {};
-  const dokumen = susunDokumenModul({
+  const dokumenHidup = susunDokumenModul({
     m, tpList: tp, cpList: cp, namaTingkat, jenjang: jenjangDariTingkat(m.tingkat),
     sekolah: [p.namaSingkat, p.desa].filter(Boolean).join(' ') || p.namaSekolah || profilSekolah?.nama || '',
     kepala: p.namaKepala || profilSekolah?.kepalaSekolah || '', kepalaNiy: p.niyKepala || '', tempat: p.tempat || '',
   });
+  // Modul yg sudah disetujui dicetak dari ARSIP (salinan saat disetujui), bukan data terkini.
+  const dokumen = m.status === 'Disetujui' && m.arsip ? m.arsip : dokumenHidup;
 
   function pilihPasangan(kunci) {
     const ps = pasanganList.find(x => x.kunci === kunci);
@@ -148,38 +152,48 @@ export default function ModulEditor({ modul, pasanganList, onClose, mulaiPratinj
   }
   const teksTp = () => tpTerpilih.map(t => t.tujuan).join(' ');
 
-  async function simpan() {
+  // aksiStatus: 'simpan' | 'ajukan' | 'tarik' | 'setujui' | 'kembalikan' | 'buka'
+  async function simpan(aksiStatus = 'simpan') {
     if (!m.mapel || !m.tingkat) { toast('Pilih mata pelajaran & kelas dulu.', 'error'); setBuka('identitas'); return; }
     if (!m.judul.trim()) { toast('Materi pokok belum diisi.', 'error'); setBuka('identitas'); return; }
+    if (aksiStatus === 'ajukan' && kurang.length) { toast(`Belum bisa diajukan, masih kurang: ${kurang.join(', ')}.`, 'error'); return; }
+    if (aksiStatus === 'kembalikan' && !catatanKepsek.trim()) { toast('Tulis catatan untuk guru sebelum mengembalikan modul.', 'error'); return; }
     if (!isConfigured('akademik')) { toast('File Sheets Akademik belum tersambung.', 'error'); return; }
     setMenyimpan(true);
     try {
       const idModul = m.idModul || buatIdModul();
-      const status = m.status || 'Draft';
-      await upsertModulAjarToSheet([{
-        'ID Modul': idModul, 'Tahun Ajaran': m.tahunAjaran, Semester: m.semester, 'Mata Pelajaran': m.mapel, Tingkat: m.tingkat,
-        Rombel: m.rombel, Guru: m.guru, Judul: m.judul.trim(), 'ID TP': m.tp.join(','), Isi: JSON.stringify(m.isi), Status: status,
-        'Catatan Kepala Sekolah': m.catatan || '', 'Diubah Oleh': currentUser.nama, 'Diubah Pada': new Date().toISOString(),
-      }]);
-      await addLogEntry({ username: currentUser.username, namaUser: currentUser.nama, aksi: baru ? 'Buat Modul Ajar' : 'Ubah Modul Ajar', modul: 'Modul Ajar', detail: `${m.judul.trim()} — ${m.mapel} ${namaTingkat(m.tingkat)}` });
-      setM(x => ({ ...x, idModul, status }));
+      const sekarang = new Date().toISOString();
+      const statusBaru = { simpan: m.status || 'Draft', ajukan: 'Diajukan', tarik: 'Draft', setujui: 'Disetujui', kembalikan: 'Dikembalikan', buka: 'Draft' }[aksiStatus];
+      const patch = { idModul, status: statusBaru, diubahOleh: currentUser.nama, diubahPada: sekarang };
+      if (aksiStatus === 'setujui') Object.assign(patch, { disetujuiOleh: currentUser.nama, tanggalDisetujui: sekarang.slice(0, 10), arsip: { ...dokumenHidup, status: 'Disetujui' }, catatan: catatanKepsek.trim() });
+      if (aksiStatus === 'kembalikan') Object.assign(patch, { catatan: catatanKepsek.trim(), disetujuiOleh: '', tanggalDisetujui: '', arsip: null });
+      if (aksiStatus === 'buka' || aksiStatus === 'tarik') Object.assign(patch, { disetujuiOleh: '', tanggalDisetujui: '', arsip: null });
+      await upsertModulAjarToSheet([barisSheetModul(m, patch)]);
+      const LOG = { simpan: baru ? 'Buat Modul Ajar' : 'Ubah Modul Ajar', ajukan: 'Ajukan Modul Ajar', tarik: 'Tarik Pengajuan Modul Ajar', setujui: 'Setujui Modul Ajar', kembalikan: 'Kembalikan Modul Ajar', buka: 'Buka Kembali Modul Ajar' };
+      await addLogEntry({ username: currentUser.username, namaUser: currentUser.nama, aksi: LOG[aksiStatus], modul: 'Modul Ajar', detail: `${m.judul.trim()} — ${m.mapel} ${namaTingkat(m.tingkat)} (${m.guru})` });
+      setM(x => ({ ...x, ...patch }));
       setBerubah(false);
       await refreshModulAjar();
-      toast('Modul ajar tersimpan.');
+      toast({ simpan: 'Modul ajar tersimpan.', ajukan: 'Modul diajukan ke kepala sekolah.', tarik: 'Pengajuan ditarik, modul kembali menjadi draft.', setujui: 'Modul disetujui dan diarsipkan.', kembalikan: 'Modul dikembalikan ke guru dengan catatan.', buka: 'Modul dibuka kembali menjadi draft.' }[aksiStatus]);
+      if (['setujui', 'kembalikan'].includes(aksiStatus) && onSelesaiPeriksa) onSelesaiPeriksa();
     } catch (e) {
       toast(/tidak dikenal/i.test(e.message) ? 'Apps Script Akademik belum diperbarui (tab "modulAjar" belum dikenal). Tempel ulang Code-Akademik.gs terbaru lalu Deploy → New version.' : e.message, 'error');
     } finally { setMenyimpan(false); }
   }
 
-  const aksi = pratinjau ? (
+  const pemilik = !!currentUser?.guru && m.guru === currentUser.guru;
+  const periksa = penerbit && m.status === 'Diajukan';
+  const aksi = (
     <>
-      <button className="btn" onClick={() => setPratinjau(false)}>Kembali ke isian</button>
-      <button className="btn btn-primary" onClick={() => setCetak(true)}>🖨️ Cetak / PDF</button>
-    </>
-  ) : (
-    <>
-      <button className="btn" onClick={() => setPratinjau(true)} disabled={!m.mapel}>Pratinjau</button>
-      {!terkunci && <button className="btn btn-primary" onClick={simpan} disabled={menyimpan || (!berubah && !baru)}>{menyimpan ? 'Menyimpan…' : 'Simpan'}</button>}
+      {pratinjau
+        ? <><button className="btn" onClick={() => setPratinjau(false)}>{terkunci ? 'Lihat isian' : 'Kembali ke isian'}</button><button className="btn" onClick={() => setCetak(true)}>🖨️ Cetak / PDF</button></>
+        : <button className="btn" onClick={() => setPratinjau(true)} disabled={!m.mapel}>Pratinjau</button>}
+      {!terkunci && <button className="btn" onClick={() => simpan('simpan')} disabled={menyimpan || (!berubah && !baru)}>{menyimpan ? 'Menyimpan…' : 'Simpan draft'}</button>}
+      {!terkunci && (pemilik || semua) && m.idModul && <button className="btn btn-primary" onClick={() => simpan('ajukan')} disabled={menyimpan}>Ajukan ke kepala sekolah</button>}
+      {m.status === 'Diajukan' && pemilik && !penerbit && <button className="btn" onClick={() => simpan('tarik')} disabled={menyimpan}>Tarik pengajuan</button>}
+      {periksa && <button className="btn" onClick={() => simpan('kembalikan')} disabled={menyimpan}>Kembalikan</button>}
+      {periksa && <button className="btn btn-primary" onClick={() => simpan('setujui')} disabled={menyimpan}>Setujui</button>}
+      {m.status === 'Disetujui' && isAdmin(currentUser) && <button className="btn" onClick={() => { if (window.confirm('Buka kembali modul yang sudah disetujui? Statusnya kembali menjadi draft dan arsip persetujuannya dilepas.')) simpan('buka'); }} disabled={menyimpan}>Buka kembali (jadi draft)</button>}
     </>
   );
 
@@ -423,6 +437,13 @@ export default function ModulEditor({ modul, pasanganList, onClose, mulaiPratinj
     <Modal wide title={!m.idModul ? 'Modul ajar baru' : (m.judul || 'Modul ajar')}
       subtitle={m.mapel ? `${m.mapel} · ${namaTingkat(m.tingkat)}${m.rombel ? ` (${m.rombel})` : ''}${fase ? ` · Fase ${fase}` : ''} · ${m.tahunAjaran} ${m.semester}` : 'Pilih mata pelajaran & kelas'}
       onClose={() => { if (berubah && !window.confirm('Perubahan belum disimpan. Tutup saja?')) return; onClose(); }} actions={aksi}>
+      {periksa && (
+        <div className="md-periksa">
+          <b>Pemeriksaan kepala sekolah</b>
+          <textarea rows={2} value={catatanKepsek} placeholder="Catatan untuk guru (wajib bila dikembalikan, opsional bila disetujui)…" aria-label="Catatan kepala sekolah" onChange={e => setCatatanKepsek(e.target.value)} />
+          <small>Periksa isi lewat Pratinjau, lalu klik <b>Setujui</b> atau <b>Kembalikan</b> di bawah.</small>
+        </div>
+      )}
       {pratinjau ? (
         <div style={{ background: '#E9EDEA', padding: 12, borderRadius: 10, maxHeight: '64vh', overflow: 'auto' }}>
           <DokumenModul dokumen={dokumen} />
@@ -439,6 +460,7 @@ export default function ModulEditor({ modul, pasanganList, onClose, mulaiPratinj
             {bolehUbah && terkunci && <span className="badge badge-blue">Terkunci — sedang/sudah disetujui</span>}
           </div>
           {m.status === 'Dikembalikan' && m.catatan && <div className="banner-info" style={{ marginBottom: 12 }}><span><b>Catatan kepala sekolah:</b> {m.catatan}</span></div>}
+          {m.status === 'Disetujui' && <div className="banner-info" style={{ marginBottom: 12 }}><span>Disetujui {m.disetujuiOleh ? `oleh ${m.disetujuiOleh} ` : ''}{m.tanggalDisetujui ? `pada ${m.tanggalDisetujui}` : ''}. Hasil cetak memakai arsip saat disetujui.{m.catatan ? ` Catatan: ${m.catatan}` : ''}</span></div>}
 
           {formatBeda && !terkunci && (
             <div className="banner-info" style={{ marginBottom: 12, display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'space-between' }}>

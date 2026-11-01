@@ -4,6 +4,29 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.58.0',
+    tanggal: '2026-11-01',
+    poin: [
+      'Mode pemeliharaan (Pengaturan Sistem): Admin bisa menyalakan layar "Sistem sedang diperbarui" untuk semua user lain saat ada pembaruan besar — mereka tidak bisa menyimpan apa pun selama pemeliharaan, lalu aplikasi terbuka sendiri begitu selesai',
+      'Pemeliharaan bisa dijadwalkan: pengumuman tampil di semua layar sejak disimpan, lalu mode pemeliharaan menyala dan mati sendiri sesuai jam yang ditentukan',
+      'Pembaruan otomatis: aplikasi mengecek versi baru tiap beberapa menit. Bila user sedang tidak mengisi apa-apa, halaman dimuat ulang sendiri; bila sedang mengisi, muncul pemberitahuan dan pemuatan ulang menunggu sampai pekerjaan tersimpan',
+      'Untuk pembaruan yang wajib, versi lama di browser dikunci dari menyimpan supaya data tidak rusak',
+      'Halaman login menampilkan pemberitahuan saat pemeliharaan berlangsung; Admin tetap bisa masuk untuk memeriksa hasil pembaruan',
+    ],
+  },
+  {
+    versi: '1.57.0',
+    tanggal: '2026-11-01',
+    poin: [
+      'Modul Ajar › Persetujuan (tab baru, khusus Kepala Sekolah & Admin): antrean modul ajar dan rencana tema PAUD yang diajukan guru, dengan hitungan Menunggu / Dikembalikan / Disetujui dan filter jenis & guru',
+      'Guru kini bisa Ajukan modul ke kepala sekolah (dicek kelengkapannya dulu) dan Tarik pengajuan selama belum diperiksa',
+      'Kepala sekolah memeriksa lewat pratinjau lalu Setujui atau Kembalikan dengan catatan (catatan wajib bila dikembalikan); catatan tampil di modul guru',
+      'Modul/rencana yang disetujui terkunci dan diarsipkan: hasil cetaknya tetap sama walau TP, CP, atau data sekolah berubah kemudian. Admin bisa membuka kembali menjadi draft',
+      'Modul Ajar › Rencana Tema PAUD (tab baru): rencana pembelajaran mingguan (RPPM) KB/TK per tema & subtema — tujuan, elemen yang dikembangkan, kegiatan harian (pembukaan · inti · penutup) dengan elemen per hari, alat & bahan, teknik dan rencana asesmen; bisa dicetak/PDF',
+      'Kegiatan inti di rencana tema minggu berjalan otomatis muncul sebagai pilihan kegiatan saat guru mengisi Penilaian PAUD',
+    ],
+  },
+  {
     versi: '1.56.0',
     tanggal: '2026-11-01',
     poin: [

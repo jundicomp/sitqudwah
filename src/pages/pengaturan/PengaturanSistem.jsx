@@ -5,6 +5,7 @@ import Page from '../../components/layout/Page';
 import { useAppData } from '../../context/AppContext';
 import { getSheetsConfig, isConfigured } from '../../services/googleSheets';
 import { todayWIB } from '../../db/helpers';
+import PemeliharaanCard from './PemeliharaanCard';
 import {
   fetchSiswaFromSheet, fetchKelasFromSheet, fetchGuruFromSheet, fetchAsetFromSheet,
   fetchPeminjamanFromSheet, fetchPemeliharaanFromSheet, fetchProfilFromSheet, fetchTahunAjaranFromSheet,
@@ -72,6 +73,8 @@ export default function PengaturanSistem() {
 
   return (
     <Page pageId="pengaturan-sistem" title="Pengaturan Sistem" path="Pengaturan / System / Pengaturan Sistem">
+      <PemeliharaanCard />
+
       <div className="card">
         <div className="card-head"><div><h3>Info Koneksi</h3><p>Status sambungan ke Google Sheets saat ini.</p></div></div>
         <div className="card-body">

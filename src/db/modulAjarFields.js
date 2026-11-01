@@ -154,6 +154,7 @@ export function normalizeSheetModul(r, i) {
     isi: migrasiIsi(parseJson(r['Isi']) || {}),
     status: s(r['Status']) || 'Draft', catatan: s(r['Catatan Kepala Sekolah']),
     diubahOleh: s(r['Diubah Oleh']), diubahPada: s(r['Diubah Pada']),
+    disetujuiOleh: s(r['Disetujui Oleh']), tanggalDisetujui: s(r['Tanggal Disetujui']).slice(0, 10), arsip: parseJson(r['Arsip']),
   };
 }
 
@@ -236,11 +237,20 @@ export function susunDokumenModul({ m, tpList, cpList, sekolah, kepala = '', kep
   };
 }
 
-// Baris sheet utk salinan modul (Duplikat) -- format & isi ikut tersalin apa adanya.
-export function barisDuplikatModul(x, guru, oleh) {
+// Baris sheet lengkap utk 1 modul (bulkUpsert menimpa SELURUH baris, jadi semua kolom wajib dikirim).
+export function barisSheetModul(m, patch = {}) {
+  const x = { ...m, ...patch };
   return {
-    'ID Modul': buatIdModul(), 'Tahun Ajaran': x.tahunAjaran, Semester: x.semester, 'Mata Pelajaran': x.mapel, Tingkat: x.tingkat,
-    Rombel: x.rombel, Guru: guru, Judul: `${x.judul} (salinan)`, 'ID TP': x.tp.join(','), Isi: JSON.stringify(x.isi), Status: 'Draft',
-    'Catatan Kepala Sekolah': '', 'Diubah Oleh': oleh, 'Diubah Pada': new Date().toISOString(),
+    'ID Modul': x.idModul, 'Tahun Ajaran': x.tahunAjaran, Semester: x.semester, 'Mata Pelajaran': x.mapel, Tingkat: x.tingkat,
+    Rombel: x.rombel, Guru: x.guru, Judul: String(x.judul || '').trim(), 'ID TP': (x.tp || []).join(','), Isi: JSON.stringify(x.isi), Status: x.status || 'Draft',
+    'Catatan Kepala Sekolah': x.catatan || '', 'Diubah Oleh': x.diubahOleh || '', 'Diubah Pada': x.diubahPada || new Date().toISOString(),
+    'Disetujui Oleh': x.disetujuiOleh || '', 'Tanggal Disetujui': x.tanggalDisetujui || '', Arsip: x.arsip ? JSON.stringify(x.arsip) : '',
   };
+}
+// Salinan modul (Duplikat) -- format & isi ikut tersalin, status kembali Draft.
+export function barisDuplikatModul(x, guru, oleh) {
+  return barisSheetModul(x, {
+    idModul: buatIdModul(), guru, judul: `${x.judul} (salinan)`, status: 'Draft', catatan: '', diubahOleh: oleh, diubahPada: new Date().toISOString(),
+    disetujuiOleh: '', tanggalDisetujui: '', arsip: null,
+  });
 }
