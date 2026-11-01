@@ -25,11 +25,13 @@ function sedangMengisi(lastInput, lastSukses) {
 
 export default function PenjagaSistem() {
   const { pemeliharaan, refreshSistem } = useAppData();
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
   const admin = isAdmin(currentUser);
+  const [loginAdmin, setLoginAdmin] = useState(false); // tombol "Masuk sebagai Admin" di layar pemeliharaan
   const [, setDetak] = useState(0); // render ulang tiap 30 dtk utk jadwal otomatis
   const st = statusPemeliharaan(pemeliharaan);
   const blokirPemeliharaan = st.aktif && !!currentUser && !admin;
+  const kunciLogin = st.aktif && !currentUser && !loginAdmin;
 
   const [versiBaru, setVersiBaru] = useState(null); // { versi, build, wajib }
   const [hitung, setHitung] = useState(null);       // hitung mundur muat ulang
@@ -39,6 +41,16 @@ export default function PenjagaSistem() {
 
   // Jam internal: jadwal pemeliharaan bisa mulai/berakhir tanpa ada perubahan data.
   useEffect(() => { const t = setInterval(() => setDetak(x => x + 1), 30000); return () => clearInterval(t); }, []);
+  // Di halaman login status pemeliharaan diambil sendiri (data induk lain belum dimuat).
+  useEffect(() => {
+    if (currentUser) return undefined;
+    refreshSistem();
+    const t = setInterval(refreshSistem, 30000);
+    return () => clearInterval(t);
+  }, [currentUser, refreshSistem]);
+  useEffect(() => { if (!st.aktif) setLoginAdmin(false); }, [st.aktif]);
+  // Setelah keluar, layar pemeliharaan menutup form login lagi.
+  useEffect(() => { if (!currentUser) setLoginAdmin(false); }, [currentUser]);
   // Saat layar pemeliharaan tampil, cek status lebih sering supaya cepat terbuka lagi.
   useEffect(() => {
     if (!blokirPemeliharaan) return undefined;
@@ -105,7 +117,7 @@ export default function PenjagaSistem() {
 
   return (
     <>
-      {blokirPemeliharaan && (
+      {(blokirPemeliharaan || kunciLogin) && (
         <div className="pj-layar" role="alertdialog" aria-live="assertive">
           <div className="pj-kartu">
             <div className="pj-ikon" aria-hidden="true">🛠️</div>
@@ -114,12 +126,15 @@ export default function PenjagaSistem() {
             {st.perkiraanSelesai && <p className="pj-sub">Perkiraan selesai pukul <b>{teksJam(st.perkiraanSelesai)}</b>.</p>}
             <div className="pj-loader" aria-hidden="true"><i /></div>
             <p className="pj-sub">Halaman akan terbuka sendiri setelah pembaruan selesai. Tidak perlu menutup aplikasi.</p>
+            {kunciLogin && <button type="button" className="pj-link" onClick={() => setLoginAdmin(true)}>Masuk sebagai Admin</button>}
+            {blokirPemeliharaan && <button type="button" className="pj-link" onClick={logout}>Keluar</button>}
           </div>
         </div>
       )}
 
-      {!currentUser && st.aktif && (
-        <div className="pj-pita pj-admin"><span>🛠️ <b>Sistem sedang diperbarui.</b> {st.pesan || 'Untuk sementara hanya Admin yang bisa masuk.'}{st.perkiraanSelesai ? ` Perkiraan selesai pukul ${teksJam(st.perkiraanSelesai)}.` : ''}</span></div>
+      {!currentUser && st.aktif && loginAdmin && (
+        <div className="pj-pita pj-admin"><span>🛠️ <b>Mode pemeliharaan.</b> Hanya akun Admin yang bisa masuk; akun lain tetap melihat layar pemeliharaan.</span>
+          <button type="button" className="btn btn-sm" onClick={() => setLoginAdmin(false)}>Kembali</button></div>
       )}
 
       {admin && st.aktif && currentUser && (

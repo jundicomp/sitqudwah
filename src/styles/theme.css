@@ -852,3 +852,5 @@ a.ph-tab:hover{border-color:#1C7A3C;background:#fff}
 .pj-jadwal-box b{font-size:14px}.pj-jadwal-box p{font-size:12.5px;color:#5A6A60;margin:3px 0 10px}
 .pj-panduan{margin-top:12px;font-size:13px}.pj-panduan summary{cursor:pointer;font-weight:700}
 .pj-panduan ol{margin:8px 0 0 18px;line-height:1.55}
+.pj-link{margin-top:14px;background:none;border:0;color:#8A968F;font:inherit;font-size:12px;text-decoration:underline;cursor:pointer}
+.pj-link:hover{color:#1C7A3C}

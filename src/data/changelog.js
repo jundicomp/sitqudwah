@@ -4,6 +4,15 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.58.1',
+    tanggal: '2026-11-02',
+    poin: [
+      'Saat mode pemeliharaan aktif, halaman login ikut tertutup layar "Sistem sedang diperbarui"; Admin masuk lewat tautan kecil "Masuk sebagai Admin" di layar tersebut',
+      'Akun selain Admin yang sudah login melihat layar pemeliharaan dengan tombol Keluar',
+      'Status pemeliharaan diingat di perangkat, sehingga layar pemeliharaan langsung tampil tanpa sempat memperlihatkan form login',
+    ],
+  },
+  {
     versi: '1.58.0',
     tanggal: '2026-11-01',
     poin: [

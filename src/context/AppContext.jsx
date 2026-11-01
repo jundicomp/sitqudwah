@@ -627,8 +627,18 @@ export function AppProvider({ children }) {
   const [profilSekolah, setProfilSekolahRaw] = useState(null);
   const [profilLoading, setProfilLoading] = useState(true);
   const [profilExists, setProfilExists] = useState(false);
-  const [pemeliharaan, setPemeliharaan] = useState(() => pemeliharaanDariRows([]));
-  const isiSistem = useCallback((rows) => { if (Array.isArray(rows)) setPemeliharaan(pemeliharaanDariRows(rows)); }, []);
+  // Status pemeliharaan disimpan juga di perangkat, supaya saat halaman dibuka layar
+  // pemeliharaan langsung tampil tanpa sempat memperlihatkan form login.
+  const [pemeliharaan, setPemeliharaan] = useState(() => {
+    try { const c = JSON.parse(localStorage.getItem('sq-pemeliharaan') || 'null'); if (c && typeof c === 'object') return { ...pemeliharaanDariRows([]), ...c }; } catch { /* abaikan */ }
+    return pemeliharaanDariRows([]);
+  });
+  const isiSistem = useCallback((rows) => {
+    if (!Array.isArray(rows)) return;
+    const p = pemeliharaanDariRows(rows);
+    setPemeliharaan(p);
+    try { localStorage.setItem('sq-pemeliharaan', JSON.stringify(p)); } catch { /* abaikan */ }
+  }, []);
   const refreshSistem = useCallback(async () => {
     if (!isConfigured('master')) return;
     try { isiSistem(await fetchSistemFromSheet()); } catch { /* sheet belum ada -> anggap tidak ada pemeliharaan */ }
