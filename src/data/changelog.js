@@ -4,6 +4,17 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.52.0',
+    tanggal: '2026-11-01',
+    poin: [
+      'Kurikulum & KKM › Capaian & Tujuan Pembelajaran (tab baru): isi Capaian Pembelajaran (CP) per mata pelajaran per fase, satu baris per elemen',
+      'Susun Tujuan Pembelajaran (TP) per kelas per semester; urutannya menjadi alur tujuan pembelajaran (ATP). Kode TP dibuat otomatis (kelas.semester.urutan), bisa diberi elemen dan alokasi JP',
+      'TP bisa ditambah satu per satu atau ditempel banyak sekaligus (satu tujuan per baris), dan diurutkan dengan tombol naik/turun',
+      'Tabel ringkasan jumlah TP per mapel per kelas, dengan penanda fase yang CP-nya belum diisi; klik sel untuk langsung membukanya',
+      'Fase otomatis dari kelas: Fase A (kelas 1–2), B (3–4), C (5–6), dan seterusnya. TP ini akan dipakai di Modul Ajar dan penilaian per TP',
+    ],
+  },
+  {
     versi: '1.51.0',
     tanggal: '2026-11-01',
     poin: [

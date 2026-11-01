@@ -35,9 +35,9 @@ export function Field({ label, children, grow }) {
   );
 }
 
-export function Select({ value, onChange, options, placeholder }) {
+export function Select({ value, onChange, options, placeholder, disabled }) {
   return (
-    <select value={value} onChange={e => onChange(e.target.value)}>
+    <select value={value} onChange={e => onChange(e.target.value)} disabled={disabled}>
       {placeholder !== undefined && <option value="">{placeholder}</option>}
       {options.map(o => typeof o === 'string'
         ? <option key={o} value={o}>{o}</option>

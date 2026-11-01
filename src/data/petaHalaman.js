@@ -38,7 +38,6 @@ export const HALAMAN_RENCANA = [
 
 // Tab BARU di halaman yg sudah ada. Key: pageId.
 export const TAB_RENCANA = {
-  kkm: [{ id: 'tp', label: 'Capaian & Tujuan Pembelajaran', status: 'progres' }],
   nilai: [{ id: 'tp', label: 'Nilai per Tujuan Pembelajaran', status: 'rencana' }],
   'rapor-sd': [{ id: 'tp', label: 'Ketercapaian TP per Anak', status: 'rencana' }],
 };

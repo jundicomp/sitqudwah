@@ -689,3 +689,31 @@ a.ph-tab:hover{border-color:#1C7A3C;background:#fff}
 .ph-tab.ph-rencana{border-style:dashed;background:#fff}
 .ph-catatan{display:flex;gap:6px;align-items:flex-start;font-size:12.5px;color:#4A5A50;margin:6px 0 0 28px}
 .ph-catatan .ph-cek{width:15px;height:15px;font-size:9px;margin-top:1px}
+
+/* ===== Capaian & Tujuan Pembelajaran (v1.52.0) ===== */
+.tp-ringkas{width:100%;border-collapse:collapse;font-size:13px}
+.tp-ringkas th,.tp-ringkas td{padding:5px 6px;border-bottom:1px solid #EEF1EC;text-align:center;white-space:nowrap}
+.tp-ringkas th:first-child,.tp-ringkas td:first-child{text-align:left}
+.tp-ringkas tr.on td:first-child{font-weight:800;color:#123D22}
+.tp-sel{position:relative;min-width:58px;border:1px solid #DCE3DD;background:#F6F8F5;border-radius:7px;padding:4px 8px;font:inherit;font-size:12.5px;color:#7A8680;cursor:pointer}
+.tp-sel.isi{background:#E3F1E7;border-color:#BFDCC8;color:#1C5A30;font-weight:700}
+.tp-sel.pilih{outline:2px solid #1C7A3C;outline-offset:1px}
+.tp-sel:disabled{cursor:not-allowed;opacity:.6}
+.tp-tanpa-cp{position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:#C0392B}
+.tp-cp{display:grid;grid-template-columns:200px 1fr auto;gap:8px;align-items:start;margin-bottom:8px}
+.tp-cp textarea,.tp-baris textarea,.tp-tempel textarea{width:100%;resize:vertical;font:inherit;font-size:13.5px}
+.tp-kelas{margin-bottom:18px}
+.tp-kelas h4{margin:0 0 8px;font-size:15px;color:#123D22}
+.tp-sem-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:1100px){.tp-sem-grid{grid-template-columns:1fr}.tp-cp{grid-template-columns:1fr auto}.tp-cp textarea{grid-column:1}}
+.tp-sem{background:#F8FAF7;border:1px solid #E3E8E2;border-radius:12px;padding:10px 12px}
+.tp-sem-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13.5px}
+.tp-sem-h span{font-size:12px;color:#5A6A60}
+.tp-baris{display:grid;grid-template-columns:auto 1fr auto;gap:6px;align-items:start;background:#fff;border:1px solid #E3E8E2;border-radius:10px;padding:6px;margin-bottom:6px}
+.tp-geser{display:flex;flex-direction:column}
+.tp-geser .btn-icon{padding:0 4px;font-size:10px}
+.tp-meta{display:flex;gap:6px;align-items:center;margin-bottom:4px}
+.tp-meta code{font-size:12px;font-weight:800;color:#1C7A3C;background:#E3F1E7;border-radius:6px;padding:2px 6px}
+.tp-meta select{flex:1;min-width:0;font-size:12.5px}
+.tp-jp{width:62px}
+.tp-tempel{display:flex;flex-direction:column;gap:6px}

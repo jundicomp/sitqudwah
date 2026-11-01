@@ -19,6 +19,7 @@ import { normalizeSheetPresensiGuru, normalizeSheetKinerja, normalizeSheetPelati
 import { setJenjang, normalizeSheetJenjang, jenjangDariSheets } from '../config/jenjang';
 import { setSkalaPredikat, getSkalaPredikat, normalizeSheetSkalaPredikat, setMapel, normalizeSheetMapel, SEMUA_MAPEL } from '../db/akademikFields';
 import { normalizeSheetAsesmenPaud, normalizeSheetRaporPaud, pengaturanPaudDariRows, lengkapiPengaturanPaud } from '../db/raporPaudFields';
+import { normalizeSheetCp, normalizeSheetTp } from '../db/kurikulumFields';
 import { normalizeSheetRaporSekolah, pengaturanSdDariRows, lengkapiPengaturanSd } from '../db/raporSdFields';
 import { normalizeSheetPerkembangan, normalizeSheetAspek, ASPEK_BAWAAN } from '../db/perkembanganFields';
 import { normalizeSheetAkreditasi, normalizeSheetSemester, normalizeSheetMutasi, normalizeSheetPengumuman, normalizeSheetSurat, setPeriodeSemester } from '../db/komunikasiFields';
@@ -36,7 +37,7 @@ import {
   fetchPresensiGuruFromSheet, fetchKinerjaFromSheet, fetchPelatihanFromSheet, fetchPengaturanPresensiFromSheet,
   fetchJenjangFromSheet,
   perkembanganApi, fetchAspekPerkembanganFromSheet, fetchSkalaPredikatFromSheet,
-  fetchAsesmenPaudFromSheet, fetchRaporPaudFromSheet, fetchPengaturanRaporPaudFromSheet, fetchMapelFromSheet,
+  fetchAsesmenPaudFromSheet, fetchRaporPaudFromSheet, fetchPengaturanRaporPaudFromSheet, fetchMapelFromSheet, fetchCpFromSheet, fetchTpFromSheet,
   fetchRaporSekolahFromSheet, fetchPengaturanRaporSdFromSheet,
   akreditasiApi, semesterApi, mutasiApi, pengumumanApi, suratApi,
   fetchBukuFromSheet, fetchSirkulasiFromSheet, fetchDendaPerpusFromSheet, fetchReservasiFromSheet, fetchPengaturanPerpusFromSheet,
@@ -184,6 +185,7 @@ const HAK_AKSES_TABS = {
   ],
   kkm: [
     { id: 'mapel', label: 'Mata Pelajaran' },
+    { id: 'tp', label: 'Capaian & Tujuan Pembelajaran' },
     { id: 'matriks', label: 'Atur KKM' },
     { id: 'tabel', label: 'Data KKM' },
     { id: 'predikat', label: 'Skala Predikat' },
@@ -585,6 +587,8 @@ export function AppProvider({ children }) {
   }, [isiPengaturanSd]);
   const pengaturanSd = useMemo(() => lengkapiPengaturanSd(pengaturanSdRaw), [pengaturanSdRaw]);
   const mapelRes = useSheetResource(fetchMapelFromSheet, normalizeSheetMapel, 'akademik', defer);
+  const cpRes = useSheetResource(fetchCpFromSheet, normalizeSheetCp, 'akademik', defer);
+  const tpRes = useSheetResource(fetchTpFromSheet, normalizeSheetTp, 'akademik', defer);
   const asesmenPaudRes = useSheetResource(fetchAsesmenPaudFromSheet, normalizeSheetAsesmenPaud, 'akademik', defer);
   const raporPaudRes = useSheetResource(fetchRaporPaudFromSheet, normalizeSheetRaporPaud, 'akademik', defer);
   const [pengaturanPaudRaw, setPengaturanPaudRaw] = useState(null);
@@ -714,6 +718,8 @@ export function AppProvider({ children }) {
       skalaPredikatRes.setFromBatch(semua.skalaPredikat || []);
       asesmenPaudRes.setFromBatch(semua.asesmenPaud || []);
       mapelRes.setFromBatch(semua.mapel || []);
+      cpRes.setFromBatch(semua.cp || []);
+      tpRes.setFromBatch(semua.tp || []);
       raporSekolahRes.setFromBatch(semua.raporSekolah || []);
       isiPengaturanSd(semua.pengaturanRaporSd || []);
       raporPaudRes.setFromBatch(semua.raporPaud || []);
@@ -727,7 +733,7 @@ export function AppProvider({ children }) {
       presensiGuruRes.refresh(); pengaturanPresensiRes.refresh(); kinerjaRes.refresh(); pelatihanRes.refresh();
       kkmRes.refresh(); agendaRes.refresh(); bankSoalRes.refresh(); ujianRes.refresh(); raporRes.refresh();
       skalaPredikatRes.refresh();
-      asesmenPaudRes.refresh(); raporPaudRes.refresh(); refreshPengaturanPaud(); mapelRes.refresh(); raporSekolahRes.refresh(); refreshPengaturanSd();
+      asesmenPaudRes.refresh(); raporPaudRes.refresh(); refreshPengaturanPaud(); mapelRes.refresh(); cpRes.refresh(); tpRes.refresh(); raporSekolahRes.refresh(); refreshPengaturanSd();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -885,6 +891,7 @@ export function AppProvider({ children }) {
     raporSekolah: raporSekolahRes.data, refreshRaporSekolah: raporSekolahRes.refresh,
     pengaturanSd, pengaturanSdTersimpan: !!pengaturanSdRaw, refreshPengaturanSd,
     mapelList, mapelDariSheets: mapelTersimpan.length > 0, refreshMapel: mapelRes.refresh,
+    cp: cpRes.data, refreshCp: cpRes.refresh, tp: tpRes.data, tpLoaded: tpRes.loaded, refreshTp: tpRes.refresh,
     asesmenPaud: asesmenPaudRes.data, refreshAsesmenPaud: asesmenPaudRes.refresh,
     raporPaud: raporPaudRes.data, raporPaudLoaded: raporPaudRes.loaded, refreshRaporPaud: raporPaudRes.refresh,
     pengaturanPaud, pengaturanPaudTersimpan: !!pengaturanPaudRaw, refreshPengaturanPaud,

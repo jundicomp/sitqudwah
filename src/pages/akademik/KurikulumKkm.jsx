@@ -10,12 +10,14 @@ import { mapelUntukJenjang } from '../../db/akademikFields';
 import { KKM_HEADERS, TINGKAT_LIST, kkmStandar } from '../../db/akademikLanjutanFields';
 import { JENJANG, namaTingkat, formatRaporBawaan } from '../../config/jenjang';
 import MapelTab from './MapelTab';
+import TujuanPembelajaranTab from './TujuanPembelajaranTab';
 import { fetchKkmFromSheet, updateKkmInSheet, deleteKkmFromSheet, upsertKkmToSheet, addLogEntry, isConfigured } from '../../services/googleSheets';
 import { exportToExcel } from '../../utils/exportTable';
 import SkalaPredikatTab from './SkalaPredikatTab';
 
 const TABS = [
   { id: 'mapel', label: 'MATA PELAJARAN' },
+  { id: 'tp', label: 'CAPAIAN & TUJUAN PEMBELAJARAN' },
   { id: 'matriks', label: 'ATUR KKM' },
   { id: 'tabel', label: 'DATA KKM' },
   { id: 'predikat', label: 'SKALA PREDIKAT' },
@@ -156,6 +158,7 @@ export default function KurikulumKkm() {
         <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />
         <div className="card-body" style={{ background: 'transparent', padding: 20 }}>
           {tab === 'mapel' && bolehTab('mapel') && <MapelTab />}
+          {tab === 'tp' && bolehTab('tp') && <TujuanPembelajaranTab />}
           {tab === 'matriks' && bolehTab('matriks') && <MatriksKkm />}
           {tab === 'predikat' && bolehTab('predikat') && <SkalaPredikatTab />}
           {tab === 'tabel' && bolehTab('tabel') && (

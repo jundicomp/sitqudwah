@@ -502,6 +502,12 @@ export async function perbaikiNomorSemua(target = 'master') {
 export const fetchMapelFromSheet = () => fetchFromSheet('mapel', 'akademik');
 export const simpanMapelKeSheet = (rows) => replaceAllInSheet('mapel', rows, 'akademik');
 
+// ---- Capaian & Tujuan Pembelajaran (v1.52.0) -- file Sheets Akademik ----
+export const fetchCpFromSheet = () => fetchFromSheet('cp', 'akademik');
+export const simpanCpKeSheet = (rows) => replaceAllInSheet('cp', rows, 'akademik');
+export const fetchTpFromSheet = () => fetchFromSheet('tp', 'akademik');
+export const simpanTpKeSheet = (rows) => replaceAllInSheet('tp', rows, 'akademik');
+
 // ---- Rapor SD / format Sekolah (v1.48.0) -- file Sheets Akademik ----
 export const fetchRaporSekolahFromSheet = () => fetchFromSheet('raporSekolah', 'akademik');
 export const upsertRaporSekolahToSheet = (rows) => bulkUpsertInSheet('raporSekolah', ['Tahun Ajaran', 'Semester', 'ID Siswa'], rows);
