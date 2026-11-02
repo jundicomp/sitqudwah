@@ -4,6 +4,18 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.61.2',
+    tanggal: '2026-11-02',
+    poin: ['Manajemen Hak Akses: judul kolom rata tengah dan kotak centang dibuat bulat'],
+  },
+  {
+    versi: '1.61.1',
+    tanggal: '2026-11-02',
+    poin: [
+      'Manajemen Hak Akses: judul kolom role dibuat lebih kecil dan boleh turun beberapa baris, sehingga tabel muat di layar tanpa geser ke kiri-kanan',
+    ],
+  },
+  {
     versi: '1.61.0',
     tanggal: '2026-11-02',
     poin: [

@@ -83,11 +83,12 @@ export default function ManajemenHakAkses() {
           </div>
         </div>
         <div className="card-body table-scroll">
-          <table>
+          <table className="ha-tabel">
+            <colgroup><col className="ha-col-menu" />{permissionRoles.map(r => <col key={r} />)}</colgroup>
             <thead>
               <tr>
                 <th style={{ textAlign: 'left' }}>Menu</th>
-                {permissionRoles.map(r => <th key={r} style={{ textAlign: 'center' }}>{r}</th>)}
+                {permissionRoles.map(r => <th key={r} className="ha-th-role" title={r}>{r}</th>)}
               </tr>
             </thead>
             <tbody>
