@@ -8,8 +8,10 @@ import { siswaDiRombel, badgeHadir } from '../../db/akademikFields';
 import { pegawaiAktif } from '../../db/kepegawaianFields';
 import { sekarangWIB } from '../../db/presensiBarcodeFields';
 import { formatRupiah, formatTanggal } from '../../db/helpers';
+import { pageIdPresensi, pathPresensi } from './jenisPresensi';
 
-export default function DashboardPresensi() {
+export default function DashboardPresensi({ jenis = 'siswa' }) {
+  const S = jenis === 'siswa';
   const { siswa, guru, presensi, presensiGuru, muatAkademik } = useAppData();
   const { rombelList } = useAkademikOptions();
   const [tanggal, setTanggal] = useState(sekarangWIB().tanggal);
@@ -30,20 +32,20 @@ export default function DashboardPresensi() {
       const c = (st) => rec.filter(x => x.status === st).length;
       return { ...r, jumlah: anggota.length, hadir: c('Hadir'), telat: rec.filter(x => x.status === 'Hadir' && x.menitTerlambat).length, sakit: c('Sakit'), izin: c('Izin'), alpha: c('Alpha'), belum: anggota.length - rec.length };
     });
-    const telatList = [...hadirS.map(p => ({ nama: p.nama, info: `Kelas ${p.tingkat} · ${p.rombel}`, ...p })), ...pg.filter(p => p.menitTerlambat).map(p => ({ ...p, info: p.kategori }))]
+    const telatList = (S ? hadirS.map(p => ({ ...p, info: `Kelas ${p.tingkat} · ${p.rombel}`, denda: 0 })) : hadirG.map(p => ({ ...p, info: p.kategori })))
       .filter(p => p.menitTerlambat).sort((a, b) => b.menitTerlambat - a.menitTerlambat);
     return {
       siswaAktif: siswaAktif.length, hadirS: hadirS.length, pegawai: pegawai.length, hadirG: hadirG.length,
-      terlambat: telatList.length, denda: [...ps, ...pg].reduce((a, p) => a + (p.denda || 0), 0),
-      scan: [...ps, ...pg].filter(p => p.metode === 'Barcode').length,
+      terlambat: telatList.length, denda: pg.reduce((a, p) => a + (p.denda || 0), 0), // siswa tidak didenda
+      scan: (S ? ps : pg).filter(p => p.metode === 'Barcode').length,
       perKelas, telatList, guruBelum: pegawai.filter(g => !byNama[g.nama]),
     };
-  }, [siswa, guru, presensi, presensiGuru, rombelList, tanggal]);
+  }, [siswa, guru, presensi, presensiGuru, rombelList, tanggal, S]);
 
   async function muatUlang() { setMemuat(true); try { await muatAkademik(true); } finally { setMemuat(false); } }
 
   return (
-    <Page pageId="dashboard-presensi" title="Dashboard Rekapitulasi" path="Presensi Barcode / Dashboard Rekapitulasi">
+    <Page pageId={pageIdPresensi('dashboard-presensi', jenis)} title={`Dashboard Presensi ${S ? 'Siswa' : 'Guru & Staff'}`} path={pathPresensi(jenis, 'Dashboard Rekapitulasi')}>
       <AkademikBelumTersambung />
       <div className="filter-bar">
         <Field label="Tanggal"><input type="date" value={tanggal} onChange={e => setTanggal(e.target.value)} /></Field>
@@ -51,13 +53,16 @@ export default function DashboardPresensi() {
         <span style={{ fontSize: 13, color: 'var(--muted)', alignSelf: 'center' }}>{formatTanggal(tanggal + 'T00:00:00')}</span>
       </div>
       <div className="info-grid" style={{ marginBottom: 16 }}>
-        <InfoCard value={`${d.hadirS}/${d.siswaAktif}`} label="Siswa hadir" color="c-green" />
-        <InfoCard value={`${d.hadirG}/${d.pegawai}`} label="Guru & staff hadir (termasuk dinas luar)" color="c-blue" />
-        <InfoCard value={d.terlambat} label="Terlambat" color="c-gold" />
-        <InfoCard value={formatRupiah(d.denda)} label={`Total denda · ${d.scan} lewat scan`} color="c-red" valueFontSize={20} />
+        {S
+          ? <InfoCard value={`${d.hadirS}/${d.siswaAktif}`} label="Siswa hadir" color="c-green" />
+          : <InfoCard value={`${d.hadirG}/${d.pegawai}`} label="Guru & staff hadir (termasuk dinas luar)" color="c-blue" />}
+        <InfoCard value={d.terlambat} label={S ? 'Siswa terlambat' : 'Guru & staff terlambat'} color="c-gold" />
+        {S
+          ? <InfoCard value={d.scan} label="Tercatat lewat scan" color="c-blue" />
+          : <InfoCard value={formatRupiah(d.denda)} label={`Total denda · ${d.scan} lewat scan`} color="c-red" valueFontSize={20} />}
       </div>
 
-      <div className="card">
+      {S && <div className="card">
         <div className="card-head"><div><h3>Kehadiran siswa per kelas</h3><p>"Belum tercatat" = belum scan dan belum diisi manual.</p></div></div>
         <div className="card-body table-scroll">
           {!d.perKelas.length ? <Kosong>Belum ada data kelas.</Kosong> : (
@@ -79,27 +84,27 @@ export default function DashboardPresensi() {
             </table>
           )}
         </div>
-      </div>
+      </div>}
 
       <div className="card">
-        <div className="card-head"><div><h3>Terlambat ({d.telatList.length})</h3><p>Siswa dan guru/staff, urut dari yang paling lama.</p></div></div>
+        <div className="card-head"><div><h3>Terlambat ({d.telatList.length})</h3><p>{S ? 'Siswa' : 'Guru & staff'}, urut dari yang paling lama.{S ? ' Siswa tidak dikenai denda.' : ''}</p></div></div>
         <div className="card-body table-scroll">
           {!d.telatList.length ? <Kosong>Tidak ada yang terlambat.</Kosong> : (
-            <table><thead><tr><th>Nama</th><th>Kelas / Kategori</th><th>Masuk</th><th>Terlambat</th><th>Denda</th></tr></thead>
-              <tbody>{d.telatList.map((p, i) => <tr key={p.nama + i}><td><b>{p.nama}</b></td><td>{p.info}</td><td>{p.jamMasuk}</td><td>{p.menitTerlambat} menit</td><td>{formatRupiah(p.denda)}</td></tr>)}</tbody>
+            <table><thead><tr><th>Nama</th><th>{S ? 'Kelas' : 'Kategori'}</th><th>Masuk</th><th>Terlambat</th>{!S && <th>Denda</th>}</tr></thead>
+              <tbody>{d.telatList.map((p, i) => <tr key={p.nama + i}><td><b>{p.nama}</b></td><td>{p.info}</td><td>{p.jamMasuk}</td><td>{p.menitTerlambat} menit</td>{!S && <td>{p.denda ? formatRupiah(p.denda) : '—'}</td>}</tr>)}</tbody>
             </table>
           )}
         </div>
       </div>
 
-      <div className="card">
+      {!S && <div className="card">
         <div className="card-head"><div><h3>Guru &amp; staff belum tercatat ({d.guruBelum.length})</h3></div></div>
         <div className="card-body">
           {!d.guruBelum.length ? <Kosong>Semua guru dan staff sudah tercatat.</Kosong> : (
             <div className="ringkas-bar">{d.guruBelum.map(g => <span key={g.nama} className="badge badge-muted">{g.nama}</span>)}</div>
           )}
         </div>
-      </div>
+      </div>}
     </Page>
   );
 }

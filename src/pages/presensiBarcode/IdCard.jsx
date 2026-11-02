@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import Page from '../../components/layout/Page';
-import useTabAccess from '../../hooks/useTabAccess';
+import { pageIdPresensi, pathPresensi } from './jenisPresensi';
 import useAkademikOptions from '../../hooks/useAkademikOptions';
 import Barcode from '../../components/common/Barcode';
-import { TabBar, Field, Select, Kosong } from '../../components/akademik/shared';
+import { Field, Select, Kosong } from '../../components/akademik/shared';
 import { useAppData } from '../../context/AppContext';
 import { siswaDiRombel, labelRombel } from '../../db/akademikFields';
 import { pegawaiAktif } from '../../db/kepegawaianFields';
@@ -12,10 +12,6 @@ import { formatTanggalTampil } from '../../db/helpers';
 import { printElementById } from '../../utils/exportTable';
 import { APP_NAME } from '../../config/appInfo';
 
-const TABS = [
-  { id: 'siswa', label: 'KARTU SISWA' },
-  { id: 'guru', label: 'KARTU GURU & STAFF' },
-];
 
 function Kepala({ profil, jenis }) {
   return (
@@ -74,10 +70,10 @@ async function unduhJpg(elementId, namaFile) {
   a.click();
 }
 
-export default function IdCard() {
+export default function IdCard({ jenis = 'siswa' }) {
   const { siswa, guru, profilSekolah, tahunAjaranAktif } = useAppData();
   const { rombelList } = useAkademikOptions();
-  const { tab, setTab, bolehTab } = useTabAccess('id-card', TABS.map(t => t.id));
+  const tab = jenis;
   const [rombelKey, setRombelKey] = useState('');
   const [cari, setCari] = useState('');
   useEffect(() => { if (!rombelKey && rombelList.length) setRombelKey(rombelList[0].key); }, [rombelList, rombelKey]);
@@ -94,9 +90,8 @@ export default function IdCard() {
   const tanpaKode = tab === 'siswa' ? orang.filter(o => !o.nisn).length : 0;
 
   return (
-    <Page pageId="id-card" title="Barcode & ID Card" path="Presensi Barcode / Barcode & ID Card">
+    <Page pageId={pageIdPresensi('id-card', jenis)} title={`Barcode & ID Card ${jenis === 'siswa' ? 'Siswa' : 'Guru & Staff'}`} path={pathPresensi(jenis, 'Barcode & ID Card')}>
       <div className="card">
-        <TabBar tabs={TABS} tab={tab} setTab={t => { setTab(t); setCari(''); }} bolehTab={bolehTab} />
         <div className="card-body">
           <div className="filter-bar">
             {tab === 'siswa' && <Field label="Kelas / Rombel" grow><Select value={rombelKey} onChange={setRombelKey} options={rombelList.map(r => ({ value: r.key, label: r.label }))} /></Field>}

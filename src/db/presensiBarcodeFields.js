@@ -29,11 +29,12 @@ export function sekarangWIB() {
 export const keMenit = (jam) => { const [h, m] = String(jam || '0:0').split(':').map(Number); return (h || 0) * 60 + (m || 0); };
 
 // Denda = ceil(menit terlambat / satuan) x nilai denda x pengali (linear, sama dgn HTML).
+// v1.62.0: denda HANYA utk guru & staff. Siswa tetap dicatat menit terlambatnya, tanpa denda.
 export function hitungKeterlambatan(jenis, jamMasuk, st) {
   const batas = jenis === 'siswa' ? st.batasMasukSiswa : st.batasMasukGuru;
   const menitTerlambat = Math.max(0, keMenit(jamMasuk) - keMenit(batas));
   const satuan = Math.max(1, Number(st.satuanMenitDenda) || 15);
-  const denda = menitTerlambat ? Math.ceil(menitTerlambat / satuan) * (Number(st.nilaiDenda) || 0) * (Number(st.perkalianDenda) || 0) : 0;
+  const denda = jenis !== 'siswa' && menitTerlambat ? Math.ceil(menitTerlambat / satuan) * (Number(st.nilaiDenda) || 0) * (Number(st.perkalianDenda) || 0) : 0;
   return { menitTerlambat, denda };
 }
 

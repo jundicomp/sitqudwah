@@ -4,6 +4,16 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.62.0',
+    tanggal: '2026-11-02',
+    poin: [
+      'Presensi Barcode dipecah jadi 2 sub-modul mandiri: Siswa dan Guru & Staff, masing-masing berisi Scan, Dashboard, Laporan, Barcode & ID Card, dan Pengaturan Jam',
+      'Hak akses tiap sub-modul bisa diatur terpisah di Manajemen Hak Akses; izin lama otomatis diwariskan',
+      'Denda keterlambatan sekarang hanya untuk guru & staff. Siswa yang terlambat tetap dicatat menitnya, tanpa denda',
+      'Tautan lama (mis. #/scan-presensi) otomatis diarahkan ke halaman baru',
+    ],
+  },
+  {
     versi: '1.61.4',
     tanggal: '2026-11-02',
     poin: [

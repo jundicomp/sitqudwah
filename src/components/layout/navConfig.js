@@ -50,12 +50,28 @@ export const NAV_STRUCTURE = [
   },
   {
     id: 'presensi-barcode', type: 'group', label: 'Presensi Barcode', mobileLabel: 'Scan', groupLabel: '📷 PRESENSI BARCODE', icon: '📷',
-    items: [
-      { to: '/scan-presensi', pageId: 'scan-presensi', label: 'Scan Presensi' },
-      { to: '/dashboard-presensi', pageId: 'dashboard-presensi', label: 'Dashboard Rekapitulasi' },
-      { to: '/laporan-presensi', pageId: 'laporan-presensi', label: 'Laporan Presensi' },
-      { to: '/id-card', pageId: 'id-card', label: 'Barcode & ID Card' },
-      { to: '/pengaturan-presensi', pageId: 'pengaturan-presensi', label: 'Pengaturan Presensi' },
+    // v1.62.0: 2 sub-modul mandiri (hak akses terpisah).
+    subgroups: [
+      {
+        id: 'pb-siswa', label: 'Siswa', groupLabel: '🎒 SISWA',
+        items: [
+          { to: '/scan-presensi-siswa', pageId: 'scan-presensi-siswa', label: 'Scan Presensi' },
+          { to: '/dashboard-presensi-siswa', pageId: 'dashboard-presensi-siswa', label: 'Dashboard Rekapitulasi' },
+          { to: '/laporan-presensi-siswa', pageId: 'laporan-presensi-siswa', label: 'Laporan Presensi' },
+          { to: '/id-card-siswa', pageId: 'id-card-siswa', label: 'Barcode & ID Card' },
+          { to: '/pengaturan-presensi-siswa', pageId: 'pengaturan-presensi-siswa', label: 'Pengaturan Jam' },
+        ],
+      },
+      {
+        id: 'pb-guru', label: 'Guru & Staff', groupLabel: '👩‍🏫 GURU & STAFF',
+        items: [
+          { to: '/scan-presensi-guru', pageId: 'scan-presensi-guru', label: 'Scan Presensi' },
+          { to: '/dashboard-presensi-guru', pageId: 'dashboard-presensi-guru', label: 'Dashboard Rekapitulasi' },
+          { to: '/laporan-presensi-guru', pageId: 'laporan-presensi-guru', label: 'Laporan Presensi' },
+          { to: '/id-card-guru', pageId: 'id-card-guru', label: 'Barcode & ID Card' },
+          { to: '/pengaturan-presensi-guru', pageId: 'pengaturan-presensi-guru', label: 'Pengaturan Jam & Denda' },
+        ],
+      },
     ],
   },
   {

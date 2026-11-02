@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Page from '../../components/layout/Page';
-import useTabAccess from '../../hooks/useTabAccess';
+import { pageIdPresensi, pathPresensi } from './jenisPresensi';
 import usePengaturanPresensi from '../../hooks/usePengaturanPresensi';
-import { TabBar, AkademikBelumTersambung, Kosong } from '../../components/akademik/shared';
+import { AkademikBelumTersambung, Kosong } from '../../components/akademik/shared';
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { labelRombel } from '../../db/akademikFields';
@@ -11,16 +11,12 @@ import { formatRupiah } from '../../db/helpers';
 import KameraScanner from './KameraScanner';
 import { upsertPresensiToSheet, upsertPresensiGuruToSheet, isConfigured } from '../../services/googleSheets';
 
-const TABS = [
-  { id: 'siswa', label: 'SCAN SISWA' },
-  { id: 'guru', label: 'SCAN GURU & STAFF' },
-];
 const JEDA_SCAN_GANDA_MENIT = 5; // scan ulang < 5 menit setelah masuk dianggap tidak sengaja
 
-export default function ScanPresensi() {
+export default function ScanPresensi({ jenis = 'siswa' }) {
   const { siswa, guru, presensi, presensiGuru, refreshPresensi, refreshPresensiGuru, toast } = useAppData();
   const { currentUser } = useAuth();
-  const { tab, setTab, bolehTab } = useTabAccess('scan-presensi', TABS.map(t => t.id));
+  const tab = jenis;
   const st = usePengaturanPresensi();
   const [kode, setKode] = useState('');
   const [hasil, setHasil] = useState(null); // { kelas, judul, detail }
@@ -130,10 +126,9 @@ export default function ScanPresensi() {
   }, [cari, tab, siswa, guru]);
 
   return (
-    <Page pageId="scan-presensi" title="Scan Presensi" path="Presensi Barcode / Scan Presensi">
+    <Page pageId={pageIdPresensi('scan-presensi', jenis)} title={`Scan Presensi ${jenis === 'siswa' ? 'Siswa' : 'Guru & Staff'}`} path={pathPresensi(jenis, 'Scan Presensi')}>
       <AkademikBelumTersambung />
       <div className="card">
-        <TabBar tabs={TABS} tab={tab} setTab={t => { setTab(t); setHasil(null); }} bolehTab={bolehTab} />
         <div className="card-body">
           <p style={{ margin: '0 0 12px', fontSize: 13.5, color: 'var(--muted)' }}>
             Arahkan scanner ke kartu, atau ketik kodenya lalu Enter. Scan pertama hari ini = <b>masuk</b>, scan berikutnya = <b>pulang</b>.

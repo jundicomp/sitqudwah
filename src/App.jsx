@@ -53,6 +53,7 @@ import DashboardPresensi from './pages/presensiBarcode/DashboardPresensi';
 import LaporanPresensi from './pages/presensiBarcode/LaporanPresensi';
 import IdCard from './pages/presensiBarcode/IdCard';
 import PengaturanPresensi from './pages/presensiBarcode/PengaturanPresensi';
+import RedirectPresensiLama from './pages/presensiBarcode/RedirectPresensiLama';
 import JadwalMengajar from './pages/kepegawaian/JadwalMengajar';
 import PresensiGuru from './pages/kepegawaian/PresensiGuru';
 import PenilaianKinerja from './pages/kepegawaian/PenilaianKinerja';
@@ -123,11 +124,21 @@ function Gate() {
         <Route path="/grafik-absensi" element={<GrafikAbsensi />} />
         <Route path="/grafik-keuangan" element={<GrafikKeuangan />} />
         <Route path="/export-laporan" element={<ExportLaporan />} />
-        <Route path="/scan-presensi" element={<ScanPresensi />} />
-        <Route path="/dashboard-presensi" element={<DashboardPresensi />} />
-        <Route path="/laporan-presensi" element={<LaporanPresensi />} />
-        <Route path="/id-card" element={<IdCard />} />
-        <Route path="/pengaturan-presensi" element={<PengaturanPresensi />} />
+        <Route path="/scan-presensi-siswa" element={<ScanPresensi key="siswa" jenis="siswa" />} />
+        <Route path="/scan-presensi-guru" element={<ScanPresensi key="guru" jenis="guru" />} />
+        <Route path="/scan-presensi" element={<RedirectPresensiLama halaman="scan-presensi" />} />
+        <Route path="/dashboard-presensi-siswa" element={<DashboardPresensi key="siswa" jenis="siswa" />} />
+        <Route path="/dashboard-presensi-guru" element={<DashboardPresensi key="guru" jenis="guru" />} />
+        <Route path="/dashboard-presensi" element={<RedirectPresensiLama halaman="dashboard-presensi" />} />
+        <Route path="/laporan-presensi-siswa" element={<LaporanPresensi key="siswa" jenis="siswa" />} />
+        <Route path="/laporan-presensi-guru" element={<LaporanPresensi key="guru" jenis="guru" />} />
+        <Route path="/laporan-presensi" element={<RedirectPresensiLama halaman="laporan-presensi" />} />
+        <Route path="/id-card-siswa" element={<IdCard key="siswa" jenis="siswa" />} />
+        <Route path="/id-card-guru" element={<IdCard key="guru" jenis="guru" />} />
+        <Route path="/id-card" element={<RedirectPresensiLama halaman="id-card" />} />
+        <Route path="/pengaturan-presensi-siswa" element={<PengaturanPresensi key="siswa" jenis="siswa" />} />
+        <Route path="/pengaturan-presensi-guru" element={<PengaturanPresensi key="guru" jenis="guru" />} />
+        <Route path="/pengaturan-presensi" element={<RedirectPresensiLama halaman="pengaturan-presensi" />} />
         <Route path="/jadwal-mengajar" element={<JadwalMengajar />} />
         <Route path="/presensi-guru" element={<PresensiGuru />} />
         <Route path="/kinerja" element={<PenilaianKinerja />} />

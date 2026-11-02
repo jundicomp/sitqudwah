@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import Page from '../../components/layout/Page';
-import useTabAccess from '../../hooks/useTabAccess';
+import { pageIdPresensi, pathPresensi } from './jenisPresensi';
 import useAkademikOptions from '../../hooks/useAkademikOptions';
 import DataTable from '../../components/common/DataTable';
-import { TabBar, AkademikBelumTersambung, Field, Select } from '../../components/akademik/shared';
+import { AkademikBelumTersambung, Field, Select } from '../../components/akademik/shared';
 import { useAppData } from '../../context/AppContext';
 import { siswaDiRombel, dalamRentang, labelRombel } from '../../db/akademikFields';
 import { pegawaiAktif } from '../../db/kepegawaianFields';
@@ -11,10 +11,6 @@ import { keMenit, sekarangWIB } from '../../db/presensiBarcodeFields';
 import { formatRupiah } from '../../db/helpers';
 import { exportToExcel } from '../../utils/exportTable';
 
-const TABS = [
-  { id: 'siswa', label: 'LAPORAN SISWA' },
-  { id: 'guru', label: 'LAPORAN GURU & STAFF' },
-];
 const rataJam = (arr) => {
   const m = arr.filter(Boolean).map(keMenit);
   if (!m.length) return '';
@@ -33,10 +29,10 @@ function rekap(records) {
   };
 }
 
-export default function LaporanPresensi() {
+export default function LaporanPresensi({ jenis = 'siswa' }) {
   const { siswa, guru, presensi, presensiGuru, tahunAjaranAktif } = useAppData();
   const { rombelList } = useAkademikOptions();
-  const { tab, setTab, bolehTab } = useTabAccess('laporan-presensi', TABS.map(t => t.id));
+  const tab = jenis;
   const [dari, setDari] = useState('');
   const [sampai, setSampai] = useState(sekarangWIB().tanggal);
   const [rombelKey, setRombelKey] = useState('');
@@ -63,22 +59,21 @@ export default function LaporanPresensi() {
     { key: 'rataMasuk', label: 'Rata-rata Masuk', sortable: true, render: r => r.rataMasuk || '—' },
     { key: 'telat', label: 'Terlambat (kali)', sortable: true, render: r => r.telat ? <span className="badge badge-gold">{r.telat}</span> : '0' },
     { key: 'menit', label: 'Total Menit Telat', sortable: true },
-    { key: 'denda', label: 'Total Denda', sortable: true, render: r => r.denda ? formatRupiah(r.denda) : '—' },
+    ...(tab === 'siswa' ? [] : [{ key: 'denda', label: 'Total Denda', sortable: true, render: r => r.denda ? formatRupiah(r.denda) : '—' }]),
     { key: 'tanpaPulang', label: 'Tanpa Scan Pulang', sortable: true, render: r => r.tanpaPulang || '—' },
     { key: 'scan', label: 'Via Scan', sortable: true },
   ];
 
   function exportData() {
-    const h = ['Nama', tab === 'siswa' ? 'NISN' : 'NIY', tab === 'siswa' ? 'Kelas' : 'Kategori', 'Hari Hadir', 'Tidak Hadir', 'Rata-rata Masuk', 'Terlambat (kali)', 'Total Menit Telat', 'Total Denda', 'Tanpa Scan Pulang', 'Via Scan'];
+    const h = ['Nama', tab === 'siswa' ? 'NISN' : 'NIY', tab === 'siswa' ? 'Kelas' : 'Kategori', 'Hari Hadir', 'Tidak Hadir', 'Rata-rata Masuk', 'Terlambat (kali)', 'Total Menit Telat', ...(tab === 'siswa' ? [] : ['Total Denda']), 'Tanpa Scan Pulang', 'Via Scan'];
     exportToExcel(h, rows.map(r => ({ Nama: r.nama, [h[1]]: r.sub, [h[2]]: r.grup, 'Hari Hadir': r.hadir, 'Tidak Hadir': r.tidakHadir, 'Rata-rata Masuk': r.rataMasuk, 'Terlambat (kali)': r.telat, 'Total Menit Telat': r.menit, 'Total Denda': r.denda, 'Tanpa Scan Pulang': r.tanpaPulang, 'Via Scan': r.scan })),
       `Laporan_Presensi_${tab}_${dari}_${sampai}`, `Laporan Presensi ${tab === 'siswa' ? 'Siswa' : 'Guru & Staff'} (${dari || 'awal'} s.d. ${sampai})`);
   }
 
   return (
-    <Page pageId="laporan-presensi" title="Laporan Presensi" path="Presensi Barcode / Laporan Presensi">
+    <Page pageId={pageIdPresensi('laporan-presensi', jenis)} title={`Laporan Presensi ${jenis === 'siswa' ? 'Siswa' : 'Guru & Staff'}`} path={pathPresensi(jenis, 'Laporan Presensi')}>
       <AkademikBelumTersambung />
       <div className="card">
-        <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />
         <div className="card-body">
           <div className="filter-bar">
             <Field label="Dari"><input type="date" value={dari} onChange={e => setDari(e.target.value)} /></Field>
@@ -88,7 +83,7 @@ export default function LaporanPresensi() {
           </div>
           <div className="ringkas-bar" style={{ marginBottom: 12 }}>
             <span className="badge badge-gold">{total.telat} kali terlambat</span>
-            <span className="badge badge-red">Total denda {formatRupiah(total.denda)}</span>
+            {tab !== 'siswa' && <span className="badge badge-red">Total denda {formatRupiah(total.denda)}</span>}
           </div>
           <DataTable columns={columns} data={rows} rowKey={r => r.id} defaultSortKey="nama" pageSize={20} pageSizeOptions={[20, 50, 100, 'Semua']}
             searchFn={(r, t) => `${r.nama} ${r.sub} ${r.grup}`.toLowerCase().includes(t)} emptyMessage="Tidak ada data." />

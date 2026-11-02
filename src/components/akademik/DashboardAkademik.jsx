@@ -35,7 +35,7 @@ export default function DashboardAkademik() {
   }, [siswa, guru, presensi, presensiGuru, nilai, prestasi, pelanggaran, agenda, pengumuman, tahunAjaranAktif, tanggal]);
 
   if (!isConfigured('akademik')) return null;
-  const tautan = [['grafik-nilai', '/grafik-nilai', 'Grafik nilai'], ['grafik-absensi', '/grafik-absensi', 'Grafik absensi'], ['dashboard-presensi', '/dashboard-presensi', 'Presensi hari ini'], ['export-laporan', '/export-laporan', 'Export laporan']].filter(([p]) => canAccess(p));
+  const tautan = [['grafik-nilai', '/grafik-nilai', 'Grafik nilai'], ['grafik-absensi', '/grafik-absensi', 'Grafik absensi'], ['dashboard-presensi-siswa', '/dashboard-presensi-siswa', 'Presensi hari ini'], ['export-laporan', '/export-laporan', 'Export laporan']].filter(([p]) => canAccess(p));
 
   return (
     <div className="card">

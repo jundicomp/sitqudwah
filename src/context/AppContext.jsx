@@ -77,11 +77,16 @@ const HAK_AKSES_PAGES = [
   { id: 'presensi-guru', label: 'Presensi Guru & Staff', grup: 'Kepegawaian' },
   { id: 'kinerja', label: 'Penilaian Kinerja', grup: 'Kepegawaian' },
   { id: 'pelatihan', label: 'Pelatihan & Sertifikasi', grup: 'Kepegawaian' },
-  { id: 'scan-presensi', label: 'Scan Presensi', grup: 'Presensi Barcode' },
-  { id: 'dashboard-presensi', label: 'Dashboard Rekapitulasi Presensi', grup: 'Presensi Barcode' },
-  { id: 'laporan-presensi', label: 'Laporan Presensi', grup: 'Presensi Barcode' },
-  { id: 'id-card', label: 'Generate Barcode & ID Card', grup: 'Presensi Barcode' },
-  { id: 'pengaturan-presensi', label: 'Pengaturan Presensi', grup: 'Presensi Barcode' },
+  { id: 'scan-presensi-siswa', label: 'Scan Presensi Siswa', grup: 'Presensi Siswa' },
+  { id: 'dashboard-presensi-siswa', label: 'Dashboard Rekapitulasi Presensi Siswa', grup: 'Presensi Siswa' },
+  { id: 'laporan-presensi-siswa', label: 'Laporan Presensi Siswa', grup: 'Presensi Siswa' },
+  { id: 'id-card-siswa', label: 'Generate Barcode & ID Card Siswa', grup: 'Presensi Siswa' },
+  { id: 'pengaturan-presensi-siswa', label: 'Pengaturan Jam Presensi Siswa', grup: 'Presensi Siswa' },
+  { id: 'scan-presensi-guru', label: 'Scan Presensi Guru & Staff', grup: 'Presensi Guru & Staff' },
+  { id: 'dashboard-presensi-guru', label: 'Dashboard Rekapitulasi Presensi Guru & Staff', grup: 'Presensi Guru & Staff' },
+  { id: 'laporan-presensi-guru', label: 'Laporan Presensi Guru & Staff', grup: 'Presensi Guru & Staff' },
+  { id: 'id-card-guru', label: 'Generate Barcode & ID Card Guru & Staff', grup: 'Presensi Guru & Staff' },
+  { id: 'pengaturan-presensi-guru', label: 'Pengaturan Jam Presensi & Denda Guru & Staff', grup: 'Presensi Guru & Staff' },
   { id: 'grafik-nilai', label: 'Grafik Nilai & Tren', grup: 'Laporan & Grafik' },
   { id: 'grafik-absensi', label: 'Grafik Absensi', grup: 'Laporan & Grafik' },
   { id: 'grafik-keuangan', label: 'Grafik Keuangan', grup: 'Laporan & Grafik' },
@@ -123,6 +128,15 @@ const WARISAN_IZIN = [
   ['rapor-paud.arsip', 'rapor.arsip'], ['rapor-sd.arsip', 'rapor.arsip'],
   ['rapor-paud.pengaturan', 'rapor.pengaturan-paud'], ['rapor-sd.pengaturan', 'rapor.pengaturan-sd'],
   ['rapor-paud.penandatangan', 'rapor-paud.pengaturan'], ['rapor-sd.penandatangan', 'rapor-sd.pengaturan'],
+  // v1.62.0: Presensi Barcode dipecah per jenis (siswa / guru & staff). Izin lama halaman
+  // + tab ikut diwariskan; bila salah satunya dulu ditutup, halaman baru ikut tertutup.
+  ...['siswa', 'guru'].flatMap(j => [
+    [`scan-presensi-${j}`, ['scan-presensi', `scan-presensi.${j}`]],
+    [`dashboard-presensi-${j}`, ['dashboard-presensi']],
+    [`laporan-presensi-${j}`, ['laporan-presensi', `laporan-presensi.${j}`]],
+    [`id-card-${j}`, ['id-card', `id-card.${j}`]],
+    [`pengaturan-presensi-${j}`, ['pengaturan-presensi']],
+  ]),
 ];
 
 // Daftar TAB di dalam tiap halaman yg punya sub-tab -- dipakai Manajemen Hak Akses
@@ -245,18 +259,6 @@ const HAK_AKSES_TABS = {
     { id: 'rekap', label: 'Rekap per Guru' },
     { id: 'tabel', label: 'Daftar Kegiatan' },
     { id: 'manual', label: 'Catat Kegiatan' },
-  ],
-  'scan-presensi': [
-    { id: 'siswa', label: 'Scan Siswa' },
-    { id: 'guru', label: 'Scan Guru & Staff' },
-  ],
-  'laporan-presensi': [
-    { id: 'siswa', label: 'Laporan Siswa' },
-    { id: 'guru', label: 'Laporan Guru & Staff' },
-  ],
-  'id-card': [
-    { id: 'siswa', label: 'Kartu Siswa' },
-    { id: 'guru', label: 'Kartu Guru & Staff' },
   ],
   'katalog-buku': [
     { id: 'katalog', label: 'Katalog' },
@@ -542,7 +544,11 @@ export function AppProvider({ children }) {
       // v1.49.0: menu "Rapor Digital" dipecah jadi Rapor PAUD & Rapor SD. Izin lama yg
       // pernah disimpan utk "rapor" diwariskan ke keduanya selama belum diatur ulang.
       const tersimpan = permissions[role] || {};
-      WARISAN_IZIN.forEach(([baru, lama]) => { if (tersimpan[baru] === undefined && tersimpan[lama] !== undefined) hasil[role][baru] = tersimpan[lama]; });
+      WARISAN_IZIN.forEach(([baru, lama]) => {
+        if (tersimpan[baru] !== undefined) return;
+        const nilai = [].concat(lama).map(k => tersimpan[k]).filter(v => v !== undefined);
+        if (nilai.length) hasil[role][baru] = nilai.length === 1 ? nilai[0] : !nilai.includes(false);
+      });
     });
     return hasil;
   }, [permissionRoles, permissions]);
