@@ -47,7 +47,7 @@ export default function Prestasi() {
   }, [prestasi, taAktif]);
 
   return (
-    <Page pageId="prestasi" title="Prestasi & Penghargaan" path="Kesiswaan / Prestasi & Penghargaan">
+    <Page pageId="prestasi" title="Prestasi & Penghargaan" path="Siswa / Pembinaan / Prestasi & Penghargaan">
       <AkademikBelumTersambung />
       <div className="info-grid" style={{ marginBottom: 16 }}>
         <InfoCard value={stat.taIni} label={`Prestasi ${taAktif || 'tahun ini'}`} color="c-green" />

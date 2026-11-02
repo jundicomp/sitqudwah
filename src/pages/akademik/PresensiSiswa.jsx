@@ -282,7 +282,7 @@ export default function PresensiSiswa() {
   const { refreshPresensi } = useAppData();
   const { tab, setTab, bolehTab } = useTabAccess('presensi', TABS.map(t => t.id));
   return (
-    <Page pageId="presensi" title="Presensi Siswa" path="Akademik / Presensi Siswa">
+    <Page pageId="presensi" title="Presensi Siswa" path="Siswa / Presensi / Presensi Harian">
       <AkademikBelumTersambung />
       <div className="card">
         <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />

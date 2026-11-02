@@ -62,7 +62,7 @@ export default function Pelanggaran() {
   }, [pelanggaran, taAktif]);
 
   return (
-    <Page pageId="pelanggaran" title="Pelanggaran & Konseling" path="Kesiswaan / Pelanggaran & Konseling">
+    <Page pageId="pelanggaran" title="Pelanggaran & Konseling" path="Siswa / Pembinaan / Pelanggaran & Konseling">
       <AkademikBelumTersambung />
       <div className="info-grid" style={{ marginBottom: 16 }}>
         <InfoCard value={stat.taIni} label={`Kasus ${taAktif || 'tahun ini'}`} color="c-blue" />

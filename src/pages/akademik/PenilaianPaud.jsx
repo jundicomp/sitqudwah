@@ -87,7 +87,7 @@ function CeklisKegiatan() {
     } catch (e) { toast(pesanGagal(e), 'error'); } finally { setMenyimpan(false); }
   }
 
-  if (!daftarRombel.length) return <Kosong>Belum ada kelas berformat PAUD. Atur di Pengaturan › Data Kelas &amp; Rombel › Jenjang &amp; Tingkat (kolom Format rapor = PAUD).</Kosong>;
+  if (!daftarRombel.length) return <Kosong>Belum ada kelas berformat PAUD. Atur di Akademik › Data Kelas &amp; Rombel › Jenjang &amp; Tingkat (kolom Format rapor = PAUD).</Kosong>;
   return (
     <div className="card">
       <div className="card-head"><div><h3>Ceklis satu kegiatan untuk satu kelas</h3><p>Mis. "Sholat dhuha" atau "Kunjungan masjid": pilih bidangnya, lalu klik capaian tiap anak. Foto kegiatan bersama ikut menempel ke semua anak yang dinilai.</p></div></div>

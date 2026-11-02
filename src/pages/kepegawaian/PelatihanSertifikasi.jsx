@@ -81,7 +81,7 @@ export default function PelatihanSertifikasi() {
   }, [pelatihan, namaPegawai, tahunIni]);
 
   return (
-    <Page pageId="pelatihan" title="Pelatihan & Sertifikasi" path="Kepegawaian / Pelatihan & Sertifikasi">
+    <Page pageId="pelatihan" title="Pelatihan & Sertifikasi" path="Guru & Staff / Pengembangan / Pelatihan & Sertifikasi">
       <AkademikBelumTersambung />
       <div className="info-grid" style={{ marginBottom: 16 }}>
         <InfoCard value={stat.kegiatan} label={`Kegiatan tahun ${tahunIni}`} color="c-green" />

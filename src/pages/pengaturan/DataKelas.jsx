@@ -26,7 +26,7 @@ export default function DataKelas() {
   }, [siswa]);
 
   return (
-    <Page pageId="kelas" title="Data Kelas & Rombel" path="Pengaturan / Modul / Data Kelas & Rombel">
+    <Page pageId="kelas" title="Data Kelas & Rombel" path="Akademik / Data Kelas & Rombel">
       {kelas.length > 0 && (
         <div className="card">
           <div className="card-body">

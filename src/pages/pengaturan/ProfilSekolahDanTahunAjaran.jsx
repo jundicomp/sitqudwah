@@ -12,7 +12,7 @@ export default function ProfilSekolahDanTahunAjaran() {
   const { tab, setTab, bolehTab } = useTabAccess('profil', ['profil', 'tahun', 'akreditasi', 'semester']);
 
   return (
-    <Page pageId="profil" title="Profil Sekolah & Tahun Ajaran" path="Pengaturan / Modul / Profil Sekolah">
+    <Page pageId="profil" title="Profil Sekolah & Tahun Ajaran" path="Pengaturan / Sekolah / Profil Sekolah">
       {!isConfigured() && (
         <div className="card"><div className="card-body" style={{ fontSize: 13, color: 'var(--muted)' }}>
           ℹ️ Belum tersambung ke Google Sheets. Minta <strong>Admin</strong> mengatur koneksi lewat menu Pengaturan Koneksi dulu.

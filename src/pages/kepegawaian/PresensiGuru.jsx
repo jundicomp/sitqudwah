@@ -188,7 +188,7 @@ export default function PresensiGuru() {
   const { refreshPresensiGuru } = useAppData();
   const { tab, setTab, bolehTab } = useTabAccess('presensi-guru', TABS.map(t => t.id));
   return (
-    <Page pageId="presensi-guru" title="Presensi Guru & Staff" path="Kepegawaian / Presensi Guru & Staff">
+    <Page pageId="presensi-guru" title="Presensi Guru & Staff" path="Guru & Staff / Presensi / Presensi Harian">
       <AkademikBelumTersambung />
       <div className="card">
         <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />

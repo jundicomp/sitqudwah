@@ -19,6 +19,7 @@ import LogHistori from './pages/pengaturan/LogHistori';
 import ProfilSaya from './pages/pengaturan/ProfilSaya';
 import ChangelogPage from './pages/pengaturan/ChangelogPage';
 import TagihanBiaya from './pages/keuangan/TagihanBiaya';
+import PengaturanKeuangan from './pages/keuangan/PengaturanKeuangan';
 import CekDataSistem from './pages/keuangan/CekDataSistem';
 import PemasukanPengeluaran from './pages/keuangan/PemasukanPengeluaran';
 import BeasiswaPage from './pages/keuangan/BeasiswaPage';
@@ -93,6 +94,7 @@ function Gate() {
         <Route path="/profil-saya" element={<ProfilSaya />} />
         <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="/tagihan" element={<TagihanBiaya />} />
+        <Route path="/pengaturan-keuangan" element={<PengaturanKeuangan />} />
         <Route path="/bersihkan-duplikat" element={<CekDataSistem />} />
         <Route path="/pembayaran" element={<Pembayaran />} />
         <Route path="/pemasukan-pengeluaran" element={<PemasukanPengeluaran />} />

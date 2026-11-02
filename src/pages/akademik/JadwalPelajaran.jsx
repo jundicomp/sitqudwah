@@ -102,7 +102,7 @@ function JadwalGrid() {
         )}
 
         {!jadwalLoaded ? <Kosong>Memuat jadwal…</Kosong>
-          : !rombelList.length ? <Kosong>Belum ada data kelas. Tambahkan dulu di Pengaturan › Data Kelas &amp; Rombel.</Kosong>
+          : !rombelList.length ? <Kosong>Belum ada data kelas. Tambahkan dulu di Akademik › Data Kelas &amp; Rombel.</Kosong>
           : !slots.length ? <Kosong>Belum ada jadwal untuk {rombelDipilih?.label} pada {ta} semester {semester}. Tambahkan lewat tab Tambah Jadwal.</Kosong>
           : (
             <div className="table-scroll">

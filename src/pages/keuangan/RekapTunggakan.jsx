@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import JedaPembayaranBanner from '../../components/common/JedaPembayaranBanner';
 import Page from '../../components/layout/Page';
 import DataTable from '../../components/common/DataTable';
 import { useAppData } from '../../context/AppContext';
@@ -88,6 +89,7 @@ export default function RekapTunggakan() {
 
   return (
     <Page pageId="tunggakan" title="Rekap Tunggakan" path="Keuangan / Rekap Tunggakan">
+      <JedaPembayaranBanner />
       {!isConfigured('keuangan') && (
         <div className="card"><div className="card-body" style={{ fontSize: 13, color: 'var(--muted)' }}>
           ℹ️ Belum tersambung ke Google Sheets Keuangan.

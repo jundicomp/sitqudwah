@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import JedaPembayaranBanner from '../../components/common/JedaPembayaranBanner';
 import Page from '../../components/layout/Page';
 import DataSiswaTab from './DataSiswaTab';
 import PembayaranTab from '../keuangan/PembayaranTab';
@@ -43,6 +44,7 @@ export default function Pembayaran() {
 
   return (
     <Page pageId="pembayaran" title="Pembayaran" path="SPP / Pembayaran">
+      <JedaPembayaranBanner />
       {!isConfigured('keuangan') && (
         <div className="card"><div className="card-body" style={{ fontSize: 13, color: 'var(--muted)' }}>
           ℹ️ Belum tersambung ke Google Sheets Keuangan. Minta <strong>Admin</strong> mengatur koneksi dulu.

@@ -2,7 +2,7 @@ import Page from '../../components/layout/Page';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { useAppData } from '../../context/AppContext';
 
-const GRUP_ORDER = ['Umum', 'SPP', 'Keuangan', 'Akademik', 'Kepegawaian', 'Presensi Siswa', 'Presensi Guru & Staff', 'Kesiswaan', 'Perpustakaan', 'Komunikasi', 'Laporan & Grafik', 'Sarpras', 'Pengaturan'];
+const GRUP_ORDER = ['Umum', 'SPP', 'Keuangan', 'Akademik', 'Siswa', 'Guru & Staff', 'Komunikasi', 'Perpustakaan', 'Laporan & Grafik', 'Sarpras', 'Pengaturan'];
 
 // Nilai EFEKTIF 1 izin (default "boleh" kalau belum pernah diatur -- konsisten dgn
 // canAccess() di AuthContext yg jg pakai aturan "!== false berarti boleh").

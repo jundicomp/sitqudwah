@@ -1,4 +1,6 @@
 import { tarifBerlakuUntuk, labelCakupanTarif } from '../../db/tarifFields';
+import { taBeku } from '../../db/sistemFields';
+import JedaPembayaranBanner from '../../components/common/JedaPembayaranBanner';
 import { useMemo, useState } from 'react';
 import { bulkAddToSheet, addLogEntry, fetchTagihanLainFromSheet, updateTagihanLainInSheet, deleteTagihanLainFromSheet } from '../../services/googleSheets';
 import { formatRupiah, todayWIB, parseTanggalFleksibel } from '../../db/helpers';
@@ -12,7 +14,8 @@ const UKURAN_KELOMPOK = 15;
 const TIPE_BISA_TERBITKAN = ['Sekali Masuk', 'Per Tahun'];
 
 export default function PenerbitanLainTab() {
-  const { tahunAjaranAktif, tarif, siswa, tagihanLain, tagihanLainLoading, tagihanLainLoaded, refreshTagihanLain, toast, beasiswaSiswa, beasiswaKategori } = useAppData();
+  const { tahunAjaranAktif, tarif, siswa, tagihanLain, tagihanLainLoading, tagihanLainLoaded, refreshTagihanLain, toast, beasiswaSiswa, beasiswaKategori, statusPembayaran } = useAppData();
+  const dijeda = taBeku(statusPembayaran, tahunAjaranAktif?.label);
   const { currentUser } = useAuth();
   const [issuing, setIssuing] = useState(null);
   const [progress, setProgress] = useState(null);
@@ -52,6 +55,7 @@ export default function PenerbitanLainTab() {
   }
 
   async function terbitkan(item) {
+    if (dijeda) { toast(`Sistem pembayaran dijeda sampai tahun ajaran ${statusPembayaran.mulaiTa}. Ubah di Keuangan › Pengaturan Keuangan.`, 'error'); return; }
     if (item.belumTertagih.length === 0) return;
     setIssuing(item.tarif.id);
     const total = item.belumTertagih.length;
@@ -111,6 +115,7 @@ export default function PenerbitanLainTab() {
 
   return (
     <>
+      <JedaPembayaranBanner />
       <div className="card">
         <div className="card-head">
           <div><h3>Penerbitan Tagihan Lain — {tahunAjaranAktif.label}</h3><p>Uang Pangkal, Seragam, dan biaya "Sekali Masuk"/"Per Tahun" lainnya. Tarif bertipe "Opsional" tidak muncul di sini.</p></div>
@@ -139,7 +144,7 @@ export default function PenerbitanLainTab() {
                       <td>{item.jumlahBelum} siswa</td>
                       <td>
                         {item.jumlahBelum > 0 ? (
-                          <button className="btn btn-sm btn-primary" onClick={() => terbitkan(item)} disabled={issuing === item.tarif.id}>
+                          <button className="btn btn-sm btn-primary" onClick={() => terbitkan(item)} disabled={dijeda || issuing === item.tarif.id}>
                             {issuing === item.tarif.id ? 'Menerbitkan...' : `Terbitkan ke ${item.jumlahBelum} Siswa`}
                           </button>
                         ) : (

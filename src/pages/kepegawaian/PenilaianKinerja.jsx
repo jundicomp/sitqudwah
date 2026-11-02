@@ -100,7 +100,7 @@ export default function PenilaianKinerja() {
   const updateFn = useCallback((r) => updateKinerjaInSheet(lengkapiKinerja(r)), []);
 
   return (
-    <Page pageId="kinerja" title="Penilaian Kinerja" path="Kepegawaian / Penilaian Kinerja">
+    <Page pageId="kinerja" title="Penilaian Kinerja" path="Guru & Staff / Pengembangan / Penilaian Kinerja">
       <AkademikBelumTersambung />
       <div className="card">
         <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />

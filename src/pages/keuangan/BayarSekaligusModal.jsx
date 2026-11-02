@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { taBeku } from '../../db/sistemFields';
 import Modal from '../../components/common/Modal';
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
@@ -35,8 +36,9 @@ const STATUS_INFO = {
 export default function BayarSekaligusModal({ siswa, onClose }) {
   const {
     tarif, tahunAjaranAktif, tagihanSpp, tagihanTerbayar, beasiswaSiswa, beasiswaKategori, akun,
-    refreshTagihanSpp, refreshPembayaran, toast,
+    refreshTagihanSpp, refreshPembayaran, toast, statusPembayaran,
   } = useAppData();
+  const dijeda = taBeku(statusPembayaran, tahunAjaranAktif?.label);
   const { currentUser } = useAuth();
 
   const [bulanTerpilih, setBulanTerpilih] = useState({});
@@ -202,12 +204,13 @@ export default function BayarSekaligusModal({ siswa, onClose }) {
         actions={
           <>
             <button type="button" className="btn" onClick={onClose} disabled={saving}>Batal</button>
-            <button type="button" className="btn btn-primary" onClick={simpan} disabled={saving || dipilih.length === 0}>
+            <button type="button" className="btn btn-primary" onClick={simpan} disabled={dijeda || saving || dipilih.length === 0}>
               {saving ? 'Menyimpan...' : `Simpan — ${dipilih.length} Bulan (${formatRupiah(totalNominal)})`}
             </button>
           </>
         }
       >
+        {dijeda && <div className="draf-banner"><span>💤 Sistem pembayaran siswa dijeda sampai tahun ajaran {statusPembayaran.mulaiTa}. Bayar sekaligus belum bisa dipakai.</span></div>}
         {!tarifSiswa && (
           <p style={{ fontSize: 12.5, color: 'var(--red)', marginBottom: 12 }}>
             ⚠️ Tarif SPP untuk Kelas {siswa.kelasTingkat} belum diatur — bulan yang "Belum Ditagih" tidak bisa dipilih sampai tarifnya dilengkapi di tab Tarif.

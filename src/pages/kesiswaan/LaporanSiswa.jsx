@@ -233,7 +233,7 @@ export default function LaporanSiswa() {
   const filter = { ta, setTa, semester, setSemester, rombelKey, setRombelKey, tahunAjaranOptions, rombelList };
 
   return (
-    <Page pageId="laporan-siswa" title="Laporan Siswa" path="Kesiswaan / Laporan Siswa">
+    <Page pageId="laporan-siswa" title="Laporan Siswa" path="Siswa / Pembinaan / Laporan Siswa">
       <AkademikBelumTersambung />
       <div className="card">
         <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />

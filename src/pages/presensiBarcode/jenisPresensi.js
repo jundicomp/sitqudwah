@@ -13,4 +13,4 @@ export const HALAMAN_PRESENSI = [
 ];
 export const pageIdPresensi = (halaman, jenis) => `${halaman}-${jenis}`;
 export const rutePresensi = (halaman, jenis) => `/${pageIdPresensi(halaman, jenis)}`;
-export const pathPresensi = (jenis, label) => `Presensi Barcode / ${JENIS_PRESENSI[jenis].label} / ${label}`;
+export const pathPresensi = (jenis, label) => `${JENIS_PRESENSI[jenis].label} / Presensi / ${label}`;

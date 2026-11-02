@@ -59,3 +59,17 @@ export function gabungKunciSistem(rows, kunci, nilai) {
     .map(r => ({ Kunci: String(r['Kunci']).trim(), Nilai: r['Nilai'] ?? '' }));
   return [...lain, { Kunci: kunci, Nilai: JSON.stringify(nilai) }].map((r, i) => ({ No: i + 1, ...r }));
 }
+
+// =====================================================================
+// JEDA SISTEM PEMBAYARAN SISWA (v1.63.0) -- Kunci = pembayaran.
+// Tagihan (SPP + biaya lain) dgn tahun ajaran SEBELUM `mulaiTa` dibekukan: tidak
+// dihitung, tidak tampil, & tidak bisa dibayar. Data di Sheets TIDAK dihapus.
+// =====================================================================
+export const PEMBAYARAN_BAWAAN = { jeda: false, mulaiTa: '', pesan: '', oleh: '', pada: '' };
+export const pembayaranDariRows = (rows) => nilaiKunci(rows, 'pembayaran', PEMBAYARAN_BAWAAN);
+// "2026/2027" < "2027/2028" -- label tahun ajaran bisa dibandingkan sebagai teks.
+export const taBeku = (st, ta) => !!(st?.jeda && st.mulaiTa && String(ta || '').trim() && String(ta).trim() < st.mulaiTa);
+export function taBerikut(label) {
+  const m = String(label || '').match(/^(\d{4})\/(\d{4})$/);
+  return m ? `${Number(m[1]) + 1}/${Number(m[2]) + 1}` : '';
+}

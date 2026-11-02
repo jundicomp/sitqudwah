@@ -4,6 +4,25 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.64.0',
+    tanggal: '2026-11-02',
+    poin: [
+      'Menu ditata ulang jadi 2 modul besar: SISWA (Data, Presensi, Pembinaan) dan GURU & STAFF (Data, Presensi, Pengembangan)',
+      'Kesiswaan, Kepegawaian, dan Presensi Barcode dilebur ke dua modul tersebut; Data Siswa dan Data Guru & Staff keluar dari menu Pengaturan',
+      'Data Kelas & Rombel pindah ke Akademik; Pengaturan kini berisi User, Sekolah (Profil & Tahun Ajaran), dan System',
+      'Hak akses, data, dan alamat halaman tidak berubah',
+    ],
+  },
+  {
+    versi: '1.63.0',
+    tanggal: '2026-11-02',
+    poin: [
+      'Menu baru Keuangan › Pengaturan Keuangan › Status Pembayaran Siswa: sistem pembayaran (SPP dan semua biaya lain) bisa dijeda sampai tahun ajaran tertentu',
+      'Selama jeda, tagihan tahun ajaran sebelumnya tidak dihitung di Dashboard SPP, Rekap Tunggakan, kartu siswa, invoice, dan laporan; data tidak dihapus dan bisa dikembalikan dengan tombol "Aktifkan sekarang"',
+      'Penerbitan SPP, penerbitan biaya lain, dan Bayar Sekaligus dikunci selama tahun ajaran aktif masih dijeda; pita kuning muncul di halaman SPP dan Tagihan',
+    ],
+  },
+  {
     versi: '1.62.0',
     tanggal: '2026-11-02',
     poin: [

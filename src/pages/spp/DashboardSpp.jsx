@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import JedaPembayaranBanner from '../../components/common/JedaPembayaranBanner';
 import Page from '../../components/layout/Page';
 import { useAppData } from '../../context/AppContext';
 import { statusTagihan } from '../../db/tagihanHelpers';
@@ -81,6 +82,7 @@ export default function DashboardSpp() {
 
   return (
     <Page pageId="dashboard-spp" title="Dashboard SPP" path="SPP / Dashboard SPP">
+      <JedaPembayaranBanner />
       {!taLabel && (
         <div className="card"><div className="card-body" style={{ fontSize: 13, color: 'var(--muted)' }}>
           ℹ️ Belum ada Tahun Ajaran yang diaktifkan. Atur dulu lewat menu <strong>Profil Sekolah &amp; Tahun Ajaran</strong>.

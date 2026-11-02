@@ -39,7 +39,7 @@ export default function DataGuru() {
   }, [filterKategori]);
 
   return (
-    <Page pageId="guru" title="Data Guru & Staff" path="Pengaturan / Modul / Data Guru & Staff">
+    <Page pageId="guru" title="Data Guru & Staff" path="Guru & Staff / Data / Data Guru & Staff">
       {guru.length > 0 && (
         <div className="info-grid" style={{ marginBottom: 20 }}>
           <InfoCard icon={IconGraduationCap} color="c-blue" value={jumlahGuru} label="Guru" />

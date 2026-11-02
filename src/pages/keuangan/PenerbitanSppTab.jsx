@@ -1,4 +1,6 @@
 import { bandingTingkat, namaTingkat } from '../../config/jenjang';
+import { taBeku } from '../../db/sistemFields';
+import JedaPembayaranBanner from '../../components/common/JedaPembayaranBanner';
 import { useMemo, useState } from 'react';
 import { BULAN_ID, parseTanggalFleksibel } from '../../db/helpers';
 import { cariTarifSppUntukKelas } from '../../db/tarifFields';
@@ -15,7 +17,8 @@ function formatRupiah(n) {
 }
 
 export default function PenerbitanSppTab() {
-  const { tahunAjaranAktif, tarif, siswa, tagihanSpp, tagihanSppLoading, tagihanSppLoaded, refreshTagihanSpp, toast, beasiswaSiswa, beasiswaKategori } = useAppData();
+  const { tahunAjaranAktif, tarif, siswa, tagihanSpp, tagihanSppLoading, tagihanSppLoaded, refreshTagihanSpp, toast, beasiswaSiswa, beasiswaKategori, statusPembayaran } = useAppData();
+  const dijeda = taBeku(statusPembayaran, tahunAjaranAktif?.label);
   const { currentUser } = useAuth();
   const [issuing, setIssuing] = useState(null); // index bulan yg sedang diproses
   const [progress, setProgress] = useState(null); // { current, total, label } | null
@@ -96,6 +99,7 @@ export default function PenerbitanSppTab() {
   }
 
   async function terbitkan(item) {
+    if (dijeda) { toast(`Sistem pembayaran dijeda sampai tahun ajaran ${statusPembayaran.mulaiTa}. Ubah di Keuangan › Pengaturan Keuangan.`, 'error'); return; }
     if (!semuaTingkatPunyaTarif) { toast('Ada kelas yang belum punya Tarif SPP. Lengkapi dulu di tab Tarif.', 'error'); return; }
     // HANYA siswa yg BELUM py tagihan bulan ini yg diproses -- siswa yg sudah (dari
     // penerbitan sebelumnya, atau dari bayar SPP di muka) dilewati begitu saja,
@@ -168,6 +172,7 @@ export default function PenerbitanSppTab() {
 
   return (
     <>
+      <JedaPembayaranBanner />
       {tingkatDipakai.length > 0 && (
         <div className="card">
           <div className="card-head"><div><h3>Cakupan Tarif SPP per Kelas — {tahunAjaranAktif.label}</h3><p>Tiap kelas yang punya siswa harus punya tarif SPP (spesifik kelas itu, atau tarif "Semua Kelas") sebelum bisa menerbitkan.</p></div></div>
@@ -208,7 +213,7 @@ export default function PenerbitanSppTab() {
                         <td>{belumWaktunya ? '-' : item.jumlahBelum}</td>
                         <td>
                           {item.jumlahBelum > 0 && !belumWaktunya && (
-                            <button className="btn btn-sm btn-primary" onClick={() => terbitkan(item)} disabled={issuing === item.monthIdx || !semuaTingkatPunyaTarif}>
+                            <button className="btn btn-sm btn-primary" onClick={() => terbitkan(item)} disabled={dijeda || issuing === item.monthIdx || !semuaTingkatPunyaTarif}>
                               {issuing === item.monthIdx ? 'Menerbitkan...' : (
                                 <>Terbitkan <span style={{ background: 'rgba(255,255,255,.25)', padding: '1px 8px', borderRadius: 999, marginLeft: 4, fontSize: 11.5 }}>{item.jumlahBelum}</span></>
                               )}

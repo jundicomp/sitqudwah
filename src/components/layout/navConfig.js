@@ -22,16 +22,17 @@ export const NAV_STRUCTURE = [
       { to: '/tunggakan', pageId: 'tunggakan', label: 'Rekap Tunggakan' },
       { to: '/beasiswa', pageId: 'beasiswa', label: 'Beasiswa' },
       { to: '/laporan-keuangan', pageId: 'laporan-keuangan', label: 'Laporan Keuangan' },
+      { to: '/pengaturan-keuangan', pageId: 'pengaturan-keuangan', label: 'Pengaturan Keuangan' },
     ],
   },
   {
     id: 'akademik', type: 'group', label: 'Akademik', groupLabel: '📘 AKADEMIK', icon: '📘',
     items: [
+      { to: '/kelas', pageId: 'kelas', label: 'Data Kelas & Rombel' },
       { to: '/jadwal', pageId: 'jadwal', label: 'Jadwal Pelajaran' },
       { to: '/kalender', pageId: 'kalender', label: 'Kalender Akademik' },
       { to: '/kkm', pageId: 'kkm', label: 'Kurikulum & KKM' },
       { to: '/modul-ajar', pageId: 'modul-ajar', label: 'Modul Ajar' },
-      { to: '/presensi', pageId: 'presensi', label: 'Presensi Siswa' },
       { to: '/nilai', pageId: 'nilai', label: 'Nilai Akademik' },
       { to: '/penilaian-paud', pageId: 'penilaian-paud', label: 'Penilaian PAUD' },
       { to: '/rapor-paud', pageId: 'rapor-paud', label: 'Rapor Digital PAUD' },
@@ -39,49 +40,68 @@ export const NAV_STRUCTURE = [
       { to: '/bank-soal', pageId: 'bank-soal', label: 'Bank Soal & Ujian' },
     ],
   },
+  // v1.64.0: 2 modul besar. Semua yg menyangkut SISWA di satu grup, begitu juga GURU & STAFF
+  // (dulu tersebar di Kesiswaan, Kepegawaian, Presensi Barcode & Pengaturan › Modul).
   {
-    id: 'kepegawaian', type: 'group', label: 'Kepegawaian', mobileLabel: 'Guru', groupLabel: '👩‍🏫 KEPEGAWAIAN', icon: '👩‍🏫',
-    items: [
-      { to: '/jadwal-mengajar', pageId: 'jadwal-mengajar', label: 'Jadwal Mengajar' },
-      { to: '/presensi-guru', pageId: 'presensi-guru', label: 'Presensi Guru & Staff' },
-      { to: '/kinerja', pageId: 'kinerja', label: 'Penilaian Kinerja' },
-      { to: '/pelatihan', pageId: 'pelatihan', label: 'Pelatihan & Sertifikasi' },
-    ],
-  },
-  {
-    id: 'presensi-barcode', type: 'group', label: 'Presensi Barcode', mobileLabel: 'Scan', groupLabel: '📷 PRESENSI BARCODE', icon: '📷',
-    // v1.62.0: 2 sub-modul mandiri (hak akses terpisah).
+    id: 'siswa', type: 'group', label: 'Siswa', mobileLabel: 'Siswa', groupLabel: '🎒 SISWA', icon: '🎒',
     subgroups: [
       {
-        id: 'pb-siswa', label: 'Siswa', groupLabel: '🎒 SISWA',
+        id: 'sw-data', label: 'Data', groupLabel: '📋 DATA',
         items: [
+          { to: '/siswa', pageId: 'siswa', label: 'Data Siswa' },
+          { to: '/mutasi', pageId: 'mutasi', label: 'Mutasi Siswa' },
+        ],
+      },
+      {
+        id: 'sw-presensi', label: 'Presensi', groupLabel: '📷 PRESENSI',
+        items: [
+          { to: '/presensi', pageId: 'presensi', label: 'Presensi Harian' },
           { to: '/scan-presensi-siswa', pageId: 'scan-presensi-siswa', label: 'Scan Presensi' },
-          { to: '/dashboard-presensi-siswa', pageId: 'dashboard-presensi-siswa', label: 'Dashboard Rekapitulasi' },
+          { to: '/dashboard-presensi-siswa', pageId: 'dashboard-presensi-siswa', label: 'Dashboard Presensi' },
           { to: '/laporan-presensi-siswa', pageId: 'laporan-presensi-siswa', label: 'Laporan Presensi' },
-          { to: '/id-card-siswa', pageId: 'id-card-siswa', label: 'Barcode & ID Card' },
+          { to: '/id-card-siswa', pageId: 'id-card-siswa', label: 'Kartu Pelajar & Barcode' },
           { to: '/pengaturan-presensi-siswa', pageId: 'pengaturan-presensi-siswa', label: 'Pengaturan Jam' },
         ],
       },
       {
-        id: 'pb-guru', label: 'Guru & Staff', groupLabel: '👩‍🏫 GURU & STAFF',
+        id: 'sw-pembinaan', label: 'Pembinaan', groupLabel: '🌱 PEMBINAAN',
         items: [
-          { to: '/scan-presensi-guru', pageId: 'scan-presensi-guru', label: 'Scan Presensi' },
-          { to: '/dashboard-presensi-guru', pageId: 'dashboard-presensi-guru', label: 'Dashboard Rekapitulasi' },
-          { to: '/laporan-presensi-guru', pageId: 'laporan-presensi-guru', label: 'Laporan Presensi' },
-          { to: '/id-card-guru', pageId: 'id-card-guru', label: 'Barcode & ID Card' },
-          { to: '/pengaturan-presensi-guru', pageId: 'pengaturan-presensi-guru', label: 'Pengaturan Jam & Denda' },
+          { to: '/perkembangan', pageId: 'perkembangan', label: 'Catatan Perkembangan' },
+          { to: '/prestasi', pageId: 'prestasi', label: 'Prestasi & Penghargaan' },
+          { to: '/pelanggaran', pageId: 'pelanggaran', label: 'Pelanggaran & Konseling' },
+          { to: '/laporan-siswa', pageId: 'laporan-siswa', label: 'Laporan Siswa' },
         ],
       },
     ],
   },
   {
-    id: 'kesiswaan', type: 'group', label: 'Kesiswaan', mobileLabel: 'Siswa', groupLabel: '🎒 KESISWAAN', icon: '🎒',
-    items: [
-      { to: '/perkembangan', pageId: 'perkembangan', label: 'Catatan Perkembangan' },
-      { to: '/prestasi', pageId: 'prestasi', label: 'Prestasi & Penghargaan' },
-      { to: '/pelanggaran', pageId: 'pelanggaran', label: 'Pelanggaran & Konseling' },
-      { to: '/mutasi', pageId: 'mutasi', label: 'Mutasi Siswa' },
-      { to: '/laporan-siswa', pageId: 'laporan-siswa', label: 'Laporan Siswa' },
+    id: 'guru-staff', type: 'group', label: 'Guru & Staff', mobileLabel: 'Guru', groupLabel: '👩‍🏫 GURU & STAFF', icon: '👩‍🏫',
+    subgroups: [
+      {
+        id: 'gs-data', label: 'Data', groupLabel: '📋 DATA',
+        items: [
+          { to: '/guru', pageId: 'guru', label: 'Data Guru & Staff' },
+          { to: '/jadwal-mengajar', pageId: 'jadwal-mengajar', label: 'Jadwal Mengajar' },
+        ],
+      },
+      {
+        id: 'gs-presensi', label: 'Presensi', groupLabel: '📷 PRESENSI',
+        items: [
+          { to: '/presensi-guru', pageId: 'presensi-guru', label: 'Presensi Harian' },
+          { to: '/scan-presensi-guru', pageId: 'scan-presensi-guru', label: 'Scan Presensi' },
+          { to: '/dashboard-presensi-guru', pageId: 'dashboard-presensi-guru', label: 'Dashboard Presensi' },
+          { to: '/laporan-presensi-guru', pageId: 'laporan-presensi-guru', label: 'Laporan Presensi' },
+          { to: '/id-card-guru', pageId: 'id-card-guru', label: 'ID Card & Barcode' },
+          { to: '/pengaturan-presensi-guru', pageId: 'pengaturan-presensi-guru', label: 'Pengaturan Jam & Denda' },
+        ],
+      },
+      {
+        id: 'gs-pengembangan', label: 'Pengembangan', groupLabel: '📈 PENGEMBANGAN',
+        items: [
+          { to: '/kinerja', pageId: 'kinerja', label: 'Penilaian Kinerja' },
+          { to: '/pelatihan', pageId: 'pelatihan', label: 'Pelatihan & Sertifikasi' },
+        ],
+      },
     ],
   },
   {
@@ -130,12 +150,9 @@ export const NAV_STRUCTURE = [
         ],
       },
       {
-        id: 'pgt-modul', label: 'Modul', groupLabel: '🧩 MODUL',
+        id: 'pgt-sekolah', label: 'Sekolah', groupLabel: '🏫 SEKOLAH',
         items: [
           { to: '/profil', pageId: 'profil', label: 'Profil Sekolah & Tahun Ajaran' },
-          { to: '/kelas', pageId: 'kelas', label: 'Data Kelas & Rombel' },
-          { to: '/guru', pageId: 'guru', label: 'Data Guru & Staff' },
-          { to: '/siswa', pageId: 'siswa', label: 'Data Siswa' },
         ],
       },
       {

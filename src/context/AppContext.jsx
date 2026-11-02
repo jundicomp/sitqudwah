@@ -21,7 +21,7 @@ import { setSkalaPredikat, getSkalaPredikat, normalizeSheetSkalaPredikat, setMap
 import { normalizeSheetAsesmenPaud, normalizeSheetRaporPaud, pengaturanPaudDariRows, lengkapiPengaturanPaud } from '../db/raporPaudFields';
 import { normalizeSheetCp, normalizeSheetTp } from '../db/kurikulumFields';
 import { normalizeSheetRencanaPaud } from '../db/rencanaPaudFields';
-import { pemeliharaanDariRows, aturanJpDariRows, gabungKunciSistem } from '../db/sistemFields';
+import { pemeliharaanDariRows, aturanJpDariRows, gabungKunciSistem, pembayaranDariRows, taBeku } from '../db/sistemFields';
 import { ttdDariRows } from '../db/penandatanganFields';
 import { normalizeSheetModul, pengaturanModulDariRows, lengkapiPengaturanModul } from '../db/modulAjarFields';
 import { normalizeSheetRaporSekolah, pengaturanSdDariRows, lengkapiPengaturanSd } from '../db/raporSdFields';
@@ -62,9 +62,9 @@ const HAK_AKSES_PAGES = [
   { id: 'pemasukan-pengeluaran', label: 'Pemasukan & Pengeluaran Lain', grup: 'Keuangan' },
   { id: 'tunggakan', label: 'Rekap Tunggakan', grup: 'Keuangan' },
   { id: 'beasiswa', label: 'Beasiswa', grup: 'Keuangan' },
+  { id: 'pengaturan-keuangan', label: 'Pengaturan Keuangan', grup: 'Keuangan' },
   { id: 'laporan-keuangan', label: 'Laporan Keuangan', grup: 'Keuangan' },
   { id: 'jadwal', label: 'Jadwal Pelajaran', grup: 'Akademik' },
-  { id: 'presensi', label: 'Presensi Siswa', grup: 'Akademik' },
   { id: 'nilai', label: 'Nilai Akademik', grup: 'Akademik' },
   { id: 'penilaian-paud', label: 'Penilaian PAUD', grup: 'Akademik' },
   { id: 'kalender', label: 'Kalender Akademik', grup: 'Akademik' },
@@ -73,20 +73,6 @@ const HAK_AKSES_PAGES = [
   { id: 'rapor-paud', label: 'Rapor Digital PAUD (KB/TK)', grup: 'Akademik' },
   { id: 'rapor-sd', label: 'Rapor Digital SD', grup: 'Akademik' },
   { id: 'bank-soal', label: 'Bank Soal & Ujian', grup: 'Akademik' },
-  { id: 'jadwal-mengajar', label: 'Jadwal Mengajar', grup: 'Kepegawaian' },
-  { id: 'presensi-guru', label: 'Presensi Guru & Staff', grup: 'Kepegawaian' },
-  { id: 'kinerja', label: 'Penilaian Kinerja', grup: 'Kepegawaian' },
-  { id: 'pelatihan', label: 'Pelatihan & Sertifikasi', grup: 'Kepegawaian' },
-  { id: 'scan-presensi-siswa', label: 'Scan Presensi Siswa', grup: 'Presensi Siswa' },
-  { id: 'dashboard-presensi-siswa', label: 'Dashboard Rekapitulasi Presensi Siswa', grup: 'Presensi Siswa' },
-  { id: 'laporan-presensi-siswa', label: 'Laporan Presensi Siswa', grup: 'Presensi Siswa' },
-  { id: 'id-card-siswa', label: 'Generate Barcode & ID Card Siswa', grup: 'Presensi Siswa' },
-  { id: 'pengaturan-presensi-siswa', label: 'Pengaturan Jam Presensi Siswa', grup: 'Presensi Siswa' },
-  { id: 'scan-presensi-guru', label: 'Scan Presensi Guru & Staff', grup: 'Presensi Guru & Staff' },
-  { id: 'dashboard-presensi-guru', label: 'Dashboard Rekapitulasi Presensi Guru & Staff', grup: 'Presensi Guru & Staff' },
-  { id: 'laporan-presensi-guru', label: 'Laporan Presensi Guru & Staff', grup: 'Presensi Guru & Staff' },
-  { id: 'id-card-guru', label: 'Generate Barcode & ID Card Guru & Staff', grup: 'Presensi Guru & Staff' },
-  { id: 'pengaturan-presensi-guru', label: 'Pengaturan Jam Presensi & Denda Guru & Staff', grup: 'Presensi Guru & Staff' },
   { id: 'grafik-nilai', label: 'Grafik Nilai & Tren', grup: 'Laporan & Grafik' },
   { id: 'grafik-absensi', label: 'Grafik Absensi', grup: 'Laporan & Grafik' },
   { id: 'grafik-keuangan', label: 'Grafik Keuangan', grup: 'Laporan & Grafik' },
@@ -96,28 +82,44 @@ const HAK_AKSES_PAGES = [
   { id: 'denda-perpus', label: 'Denda & Keterlambatan', grup: 'Perpustakaan' },
   { id: 'reservasi-buku', label: 'Reservasi Buku', grup: 'Perpustakaan' },
   { id: 'laporan-perpus', label: 'Laporan Sirkulasi', grup: 'Perpustakaan' },
-  { id: 'perkembangan', label: 'Catatan Perkembangan', grup: 'Kesiswaan' },
   { id: 'pengumuman', label: 'Pengumuman', grup: 'Komunikasi' },
   { id: 'surat', label: 'Surat Menyurat', grup: 'Komunikasi' },
-  { id: 'mutasi', label: 'Mutasi Siswa', grup: 'Kesiswaan' },
   { id: 'backup', label: 'Backup & Restore', grup: 'Pengaturan' },
-  { id: 'prestasi', label: 'Prestasi & Penghargaan', grup: 'Kesiswaan' },
-  { id: 'pelanggaran', label: 'Pelanggaran & Konseling', grup: 'Kesiswaan' },
-  { id: 'laporan-siswa', label: 'Laporan Siswa', grup: 'Kesiswaan' },
   { id: 'aset', label: 'Data Aset & Inventaris', grup: 'Sarpras' },
   { id: 'peminjaman-aset', label: 'Peminjaman Aset', grup: 'Sarpras' },
   { id: 'pemeliharaan-aset', label: 'Pemeliharaan Aset', grup: 'Sarpras' },
   { id: 'laporan-rekap-aset', label: 'Laporan Rekap Aset', grup: 'Sarpras' },
   { id: 'profil', label: 'Profil Sekolah & Tahun Ajaran', grup: 'Pengaturan' },
-  { id: 'kelas', label: 'Data Kelas & Rombel', grup: 'Pengaturan' },
-  { id: 'guru', label: 'Data Guru & Staff', grup: 'Pengaturan' },
-  { id: 'siswa', label: 'Data Siswa', grup: 'Pengaturan' },
+  { id: 'kelas', label: 'Data Kelas & Rombel', grup: 'Akademik' },
   { id: 'manajemen-user', label: 'Manajemen User', grup: 'Pengaturan' },
   { id: 'hakakses', label: 'Manajemen Hak Akses', grup: 'Pengaturan' },
   { id: 'koneksi-sheets', label: 'Pengaturan Koneksi Google Sheets', grup: 'Pengaturan' },
   { id: 'pengaturan-sistem', label: 'Pengaturan Sistem', grup: 'Pengaturan' },
   { id: 'log-histori', label: 'Log Histori', grup: 'Pengaturan' },
   { id: 'peta-halaman', label: 'Peta Halaman', grup: 'Pengaturan' },
+  // v1.64.0: 2 modul besar -- Siswa & Guru/Staff.
+  { id: 'siswa', label: 'Data Siswa', grup: 'Siswa' },
+  { id: 'mutasi', label: 'Mutasi Siswa', grup: 'Siswa' },
+  { id: 'presensi', label: 'Presensi Siswa', grup: 'Siswa' },
+  { id: 'scan-presensi-siswa', label: 'Scan Presensi Siswa', grup: 'Siswa' },
+  { id: 'dashboard-presensi-siswa', label: 'Dashboard Rekapitulasi Presensi Siswa', grup: 'Siswa' },
+  { id: 'laporan-presensi-siswa', label: 'Laporan Presensi Siswa', grup: 'Siswa' },
+  { id: 'id-card-siswa', label: 'Generate Barcode & ID Card Siswa', grup: 'Siswa' },
+  { id: 'pengaturan-presensi-siswa', label: 'Pengaturan Jam Presensi Siswa', grup: 'Siswa' },
+  { id: 'perkembangan', label: 'Catatan Perkembangan', grup: 'Siswa' },
+  { id: 'prestasi', label: 'Prestasi & Penghargaan', grup: 'Siswa' },
+  { id: 'pelanggaran', label: 'Pelanggaran & Konseling', grup: 'Siswa' },
+  { id: 'laporan-siswa', label: 'Laporan Siswa', grup: 'Siswa' },
+  { id: 'guru', label: 'Data Guru & Staff', grup: 'Guru & Staff' },
+  { id: 'jadwal-mengajar', label: 'Jadwal Mengajar', grup: 'Guru & Staff' },
+  { id: 'presensi-guru', label: 'Presensi Guru & Staff', grup: 'Guru & Staff' },
+  { id: 'scan-presensi-guru', label: 'Scan Presensi Guru & Staff', grup: 'Guru & Staff' },
+  { id: 'dashboard-presensi-guru', label: 'Dashboard Rekapitulasi Presensi Guru & Staff', grup: 'Guru & Staff' },
+  { id: 'laporan-presensi-guru', label: 'Laporan Presensi Guru & Staff', grup: 'Guru & Staff' },
+  { id: 'id-card-guru', label: 'Generate Barcode & ID Card Guru & Staff', grup: 'Guru & Staff' },
+  { id: 'pengaturan-presensi-guru', label: 'Pengaturan Jam Presensi & Denda Guru & Staff', grup: 'Guru & Staff' },
+  { id: 'kinerja', label: 'Penilaian Kinerja', grup: 'Guru & Staff' },
+  { id: 'pelatihan', label: 'Pelatihan & Sertifikasi', grup: 'Guru & Staff' },
 ];
 
 const ADMIN_ONLY_PAGES = ['koneksi-sheets', 'pengaturan-sistem'];
@@ -647,6 +649,11 @@ export function AppProvider({ children }) {
     return pemeliharaanDariRows([]);
   });
   const [sistemRows, setSistemRows] = useState([]);
+  // Diingat di perangkat supaya saat aplikasi dibuka tunggakan yg dijeda tidak sempat tampil.
+  const [statusPembayaran, setStatusPembayaran] = useState(() => {
+    try { const c = JSON.parse(localStorage.getItem('sq-status-pembayaran') || 'null'); if (c && typeof c === 'object') return pembayaranDariRows([{ Kunci: 'pembayaran', Nilai: JSON.stringify(c) }]); } catch { /* abaikan */ }
+    return pembayaranDariRows([]);
+  });
   const [aturanJp, setAturanJp] = useState(() => {
     try { const c = JSON.parse(localStorage.getItem('sq-aturan-jp') || 'null'); if (c && typeof c === 'object') return aturanJpDariRows([{ Kunci: 'jp', Nilai: JSON.stringify(c) }]); } catch { /* abaikan */ }
     return aturanJpDariRows([]);
@@ -654,6 +661,9 @@ export function AppProvider({ children }) {
   const isiSistem = useCallback((rows) => {
     if (!Array.isArray(rows)) return;
     setSistemRows(rows);
+    const sp = pembayaranDariRows(rows);
+    setStatusPembayaran(sp);
+    try { localStorage.setItem('sq-status-pembayaran', JSON.stringify(sp)); } catch { /* abaikan */ }
     const jp = aturanJpDariRows(rows);
     setAturanJp(jp);
     try { localStorage.setItem('sq-aturan-jp', JSON.stringify(jp)); } catch { /* abaikan */ }
@@ -912,7 +922,12 @@ export function AppProvider({ children }) {
 
   const siswaById = useCallback((id) => siswaRes.data.find(s => s.id === id), [siswaRes.data]);
 
-  const allTagihan = useMemo(() => [...tagihanSppRes.data, ...tagihanLainRes.data], [tagihanSppRes.data, tagihanLainRes.data]);
+  // v1.63.0: tagihan TA yg sedang "dijeda" (Pengaturan Keuangan) disaring di SATU tempat
+  // ini, jadi semua halaman (dashboard, rekap tunggakan, kartu siswa, invoice, bayar)
+  // otomatis menganggapnya tidak ada. Data di Sheets tetap utuh.
+  const tagihanSppAktif = useMemo(() => (statusPembayaran.jeda ? tagihanSppRes.data.filter(t => !taBeku(statusPembayaran, t.tahunAjaran)) : tagihanSppRes.data), [tagihanSppRes.data, statusPembayaran]);
+  const tagihanLainAktif = useMemo(() => (statusPembayaran.jeda ? tagihanLainRes.data.filter(t => !taBeku(statusPembayaran, t.tahunAjaran)) : tagihanLainRes.data), [tagihanLainRes.data, statusPembayaran]);
+  const allTagihan = useMemo(() => [...tagihanSppAktif, ...tagihanLainAktif], [tagihanSppAktif, tagihanLainAktif]);
   const tagihanTerbayar = useCallback((refType, refNo, nisn) => hitungTerbayar(pembayaranRes.data, refType, refNo, nisn), [pembayaranRes.data]);
 
   const setTahunAjaranAktif = useCallback(async (no) => {
@@ -929,8 +944,8 @@ export function AppProvider({ children }) {
     guru: guruRes.data, guruLoading: guruRes.loading, guruError: guruRes.error, guruLoaded: guruRes.loaded, refreshGuru: guruRes.refresh,
     aset: asetRes.data, asetLoading: asetRes.loading, asetError: asetRes.error, asetLoaded: asetRes.loaded, refreshAset: asetRes.refresh,
     tarif: tarifRes.data, tarifLoading: tarifRes.loading, tarifError: tarifRes.error, tarifLoaded: tarifRes.loaded, refreshTarif: tarifRes.refresh,
-    tagihanSpp: tagihanSppRes.data, tagihanSppLoading: tagihanSppRes.loading, tagihanSppLoaded: tagihanSppRes.loaded, refreshTagihanSpp: tagihanSppRes.refresh,
-    tagihanLain: tagihanLainRes.data, tagihanLainLoading: tagihanLainRes.loading, tagihanLainLoaded: tagihanLainRes.loaded, refreshTagihanLain: tagihanLainRes.refresh,
+    tagihanSpp: tagihanSppAktif, tagihanSppSemua: tagihanSppRes.data, tagihanSppLoading: tagihanSppRes.loading, tagihanSppLoaded: tagihanSppRes.loaded, refreshTagihanSpp: tagihanSppRes.refresh,
+    tagihanLain: tagihanLainAktif, tagihanLainSemua: tagihanLainRes.data, tagihanLainLoading: tagihanLainRes.loading, tagihanLainLoaded: tagihanLainRes.loaded, refreshTagihanLain: tagihanLainRes.refresh,
     pembayaran: pembayaranRes.data, pembayaranLoading: pembayaranRes.loading, pembayaranLoaded: pembayaranRes.loaded, refreshPembayaran: pembayaranRes.refresh,
     pengeluaran: pengeluaranRes.data, pengeluaranLoading: pengeluaranRes.loading, pengeluaranLoaded: pengeluaranRes.loaded, refreshPengeluaran: pengeluaranRes.refresh,
     pemasukanLain: pemasukanLainRes.data, pemasukanLainLoading: pemasukanLainRes.loading, pemasukanLainLoaded: pemasukanLainRes.loaded, refreshPemasukanLain: pemasukanLainRes.refresh,
@@ -968,7 +983,7 @@ export function AppProvider({ children }) {
     modulAjar: modulAjarRes.data, refreshModulAjar: modulAjarRes.refresh,
     pengaturanModul, pengaturanModulTersimpan: !!pengaturanModulRaw, refreshPengaturanModul,
     rencanaPaud: rencanaPaudRes.data, refreshRencanaPaud: rencanaPaudRes.refresh,
-    pemeliharaan, refreshSistem, aturanJp, simpanKunciSistem, penandatangan,
+    pemeliharaan, refreshSistem, aturanJp, simpanKunciSistem, penandatangan, statusPembayaran,
     asesmenPaud: asesmenPaudRes.data, refreshAsesmenPaud: asesmenPaudRes.refresh,
     raporPaud: raporPaudRes.data, raporPaudLoaded: raporPaudRes.loaded, refreshRaporPaud: raporPaudRes.refresh,
     pengaturanPaud, pengaturanPaudTersimpan: !!pengaturanPaudRaw, refreshPengaturanPaud,

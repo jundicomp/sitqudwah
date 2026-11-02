@@ -119,7 +119,7 @@ export default function MutasiSiswa() {
   const tahunIni = sekarangWIB().tanggal.slice(0, 4);
   const ringkas = JENIS_MUTASI.map(j => `${j}: ${mutasi.filter(m => m.jenis === j && m.tanggal.startsWith(tahunIni)).length}`).join(' · ');
   return (
-    <Page pageId="mutasi" title="Mutasi Siswa" path="Kesiswaan / Mutasi Siswa">
+    <Page pageId="mutasi" title="Mutasi Siswa" path="Siswa / Data / Mutasi Siswa">
       <AkademikBelumTersambung />
       <div className="card">
         <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />

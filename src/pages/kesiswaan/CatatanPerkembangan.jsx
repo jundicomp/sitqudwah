@@ -186,7 +186,7 @@ export default function CatatanPerkembangan() {
   const stat = { bulan: perkembangan.filter(p => p.tanggal.startsWith(bulanIni)).length, perhatian: perkembangan.filter(p => p.tanggal.startsWith(bulanIni) && p.arah === 'Perlu Perhatian').length };
 
   return (
-    <Page pageId="perkembangan" title="Catatan Perkembangan" path="Kesiswaan / Catatan Perkembangan">
+    <Page pageId="perkembangan" title="Catatan Perkembangan" path="Siswa / Pembinaan / Catatan Perkembangan">
       <AkademikBelumTersambung />
       <div className="card">
         <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />

@@ -28,7 +28,7 @@ export default function DataSiswaSheets() {
   const tingkatList = Object.keys(stats.perTingkat).sort(bandingTingkat);
 
   return (
-    <Page pageId="siswa" title="Data Siswa" path="Pengaturan / Modul / Data Siswa">
+    <Page pageId="siswa" title="Data Siswa" path="Siswa / Data / Data Siswa">
       <NotifikasiSiswaPerluTindakLanjut />
 
       {siswaLoaded && siswaAktif.length > 0 && (

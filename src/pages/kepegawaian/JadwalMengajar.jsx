@@ -202,7 +202,7 @@ function AturJpModal({ onClose }) {
 export default function JadwalMengajar() {
   const { tab, setTab, bolehTab } = useTabAccess('jadwal-mengajar', TABS.map(t => t.id));
   return (
-    <Page pageId="jadwal-mengajar" title="Jadwal Mengajar" path="Kepegawaian / Jadwal Mengajar">
+    <Page pageId="jadwal-mengajar" title="Jadwal Mengajar" path="Guru & Staff / Data / Jadwal Mengajar">
       <AkademikBelumTersambung />
       <div className="card">
         <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />
