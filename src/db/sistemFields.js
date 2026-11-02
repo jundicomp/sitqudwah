@@ -36,3 +36,26 @@ export function teksWaktu(iso) {
   return `${HARI[d.getDay()]}, ${d.getDate()}/${d.getMonth() + 1} pukul ${jam}`;
 }
 export const teksJam = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : `${String(d.getHours()).padStart(2, '0')}.${String(d.getMinutes()).padStart(2, '0')}`; };
+
+// =====================================================================
+// ATURAN JP (v1.59.0) -- disimpan di sheet yg sama (Kunci = jp), bisa diubah Admin/Kepsek
+// dari Kepegawaian › Jadwal Mengajar › Beban Mengajar.
+// =====================================================================
+export const JP_BAWAAN = { menitPerJp: 35, targetJpMinggu: 24, maksJpMinggu: 0, oleh: '', pada: '' };
+export function nilaiKunci(rows, kunci, bawaan) {
+  const r = (rows || []).find(x => String(x['Kunci'] ?? '').trim() === kunci);
+  if (!r) return { ...bawaan };
+  try { return { ...bawaan, ...(JSON.parse(r['Nilai'] || '{}') || {}) }; } catch { return { ...bawaan }; }
+}
+export function aturanJpDariRows(rows) {
+  const a = nilaiKunci(rows, 'jp', JP_BAWAAN);
+  const m = Number(a.menitPerJp), t = Number(a.targetJpMinggu), x = Number(a.maksJpMinggu);
+  return { ...a, menitPerJp: m > 0 ? m : 35, targetJpMinggu: t >= 0 ? t : 24, maksJpMinggu: x > 0 ? x : 0 };
+}
+// Gabungkan satu kunci ke baris lain yg sudah ada (sheet disimpan dgn replaceAll,
+// jadi baris kunci lain WAJIB ikut terkirim agar tidak terhapus).
+export function gabungKunciSistem(rows, kunci, nilai) {
+  const lain = (rows || []).filter(r => String(r['Kunci'] ?? '').trim() && String(r['Kunci']).trim() !== kunci)
+    .map(r => ({ Kunci: String(r['Kunci']).trim(), Nilai: r['Nilai'] ?? '' }));
+  return [...lain, { Kunci: kunci, Nilai: JSON.stringify(nilai) }].map((r, i) => ({ No: i + 1, ...r }));
+}

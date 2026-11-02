@@ -8,7 +8,7 @@ export const JENIS_KEGIATAN_GURU = ['Pelatihan', 'Workshop', 'Seminar', 'Diklat'
 export const TINGKAT_KEGIATAN = TINGKAT_LOMBA_OPTIONS;
 export const ASPEK_KINERJA = ['Perencanaan', 'Pelaksanaan', 'Penilaian', 'Kedisiplinan', 'Komunikasi'];
 
-// 1 JP di SD = 35 menit. Target beban mengajar guru bersertifikat = 24 JP/minggu.
+// Nilai BAWAAN. Sejak v1.59.0 bisa diubah (Kunci 'jp' di Pengaturan Sistem) -> lihat aturanJp di AppContext.
 export const MENIT_PER_JP = 35;
 export const TARGET_JP_MINGGU = 24;
 
@@ -45,7 +45,13 @@ export function menitAntara(mulai, selesai) {
   if ([h1, m1, h2, m2].some(Number.isNaN)) return 0;
   return Math.max(0, h2 * 60 + m2 - (h1 * 60 + m1));
 }
-export const jpDariMenit = (menit) => Math.round((menit / MENIT_PER_JP) * 10) / 10;
+export const jpDariMenit = (menit, menitPerJp = MENIT_PER_JP) => Math.round((menit / (Number(menitPerJp) > 0 ? Number(menitPerJp) : MENIT_PER_JP)) * 10) / 10;
+// Warna badge JP: hijau = memenuhi target, merah = melewati batas maks (bila diisi).
+export function badgeJp(jp, aturan) {
+  if (aturan?.maksJpMinggu > 0 && jp > aturan.maksJpMinggu) return 'badge-red';
+  if (jp >= (aturan?.targetJpMinggu ?? TARGET_JP_MINGGU) && jp > 0) return 'badge-green';
+  return jp > 0 ? 'badge-gold' : 'badge-muted';
+}
 
 export function normalizeSheetPresensiGuru(r, i) {
   return {

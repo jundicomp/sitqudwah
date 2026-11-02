@@ -21,7 +21,7 @@ import { setSkalaPredikat, getSkalaPredikat, normalizeSheetSkalaPredikat, setMap
 import { normalizeSheetAsesmenPaud, normalizeSheetRaporPaud, pengaturanPaudDariRows, lengkapiPengaturanPaud } from '../db/raporPaudFields';
 import { normalizeSheetCp, normalizeSheetTp } from '../db/kurikulumFields';
 import { normalizeSheetRencanaPaud } from '../db/rencanaPaudFields';
-import { pemeliharaanDariRows } from '../db/sistemFields';
+import { pemeliharaanDariRows, aturanJpDariRows, gabungKunciSistem } from '../db/sistemFields';
 import { normalizeSheetModul, pengaturanModulDariRows, lengkapiPengaturanModul } from '../db/modulAjarFields';
 import { normalizeSheetRaporSekolah, pengaturanSdDariRows, lengkapiPengaturanSd } from '../db/raporSdFields';
 import { normalizeSheetPerkembangan, normalizeSheetAspek, ASPEK_BAWAAN } from '../db/perkembanganFields';
@@ -40,7 +40,7 @@ import {
   fetchPresensiGuruFromSheet, fetchKinerjaFromSheet, fetchPelatihanFromSheet, fetchPengaturanPresensiFromSheet,
   fetchJenjangFromSheet,
   perkembanganApi, fetchAspekPerkembanganFromSheet, fetchSkalaPredikatFromSheet,
-  fetchAsesmenPaudFromSheet, fetchRaporPaudFromSheet, fetchPengaturanRaporPaudFromSheet, fetchMapelFromSheet, fetchCpFromSheet, fetchTpFromSheet, fetchModulAjarFromSheet, fetchPengaturanModulFromSheet, fetchRencanaPaudFromSheet, fetchSistemFromSheet,
+  fetchAsesmenPaudFromSheet, fetchRaporPaudFromSheet, fetchPengaturanRaporPaudFromSheet, fetchMapelFromSheet, fetchCpFromSheet, fetchTpFromSheet, fetchModulAjarFromSheet, fetchPengaturanModulFromSheet, fetchRencanaPaudFromSheet, fetchSistemFromSheet, simpanSistemKeSheet,
   fetchRaporSekolahFromSheet, fetchPengaturanRaporSdFromSheet,
   akreditasiApi, semesterApi, mutasiApi, pengumumanApi, suratApi,
   fetchBukuFromSheet, fetchSirkulasiFromSheet, fetchDendaPerpusFromSheet, fetchReservasiFromSheet, fetchPengaturanPerpusFromSheet,
@@ -633,8 +633,17 @@ export function AppProvider({ children }) {
     try { const c = JSON.parse(localStorage.getItem('sq-pemeliharaan') || 'null'); if (c && typeof c === 'object') return { ...pemeliharaanDariRows([]), ...c }; } catch { /* abaikan */ }
     return pemeliharaanDariRows([]);
   });
+  const [sistemRows, setSistemRows] = useState([]);
+  const [aturanJp, setAturanJp] = useState(() => {
+    try { const c = JSON.parse(localStorage.getItem('sq-aturan-jp') || 'null'); if (c && typeof c === 'object') return aturanJpDariRows([{ Kunci: 'jp', Nilai: JSON.stringify(c) }]); } catch { /* abaikan */ }
+    return aturanJpDariRows([]);
+  });
   const isiSistem = useCallback((rows) => {
     if (!Array.isArray(rows)) return;
+    setSistemRows(rows);
+    const jp = aturanJpDariRows(rows);
+    setAturanJp(jp);
+    try { localStorage.setItem('sq-aturan-jp', JSON.stringify(jp)); } catch { /* abaikan */ }
     const p = pemeliharaanDariRows(rows);
     setPemeliharaan(p);
     try { localStorage.setItem('sq-pemeliharaan', JSON.stringify(p)); } catch { /* abaikan */ }
@@ -643,6 +652,13 @@ export function AppProvider({ children }) {
     if (!isConfigured('master')) return;
     try { isiSistem(await fetchSistemFromSheet()); } catch { /* sheet belum ada -> anggap tidak ada pemeliharaan */ }
   }, [isiSistem]);
+  // Simpan satu kunci di sheet Pengaturan Sistem tanpa menghapus kunci lain.
+  const simpanKunciSistem = useCallback(async (kunci, nilai) => {
+    let rows = sistemRows;
+    try { rows = await fetchSistemFromSheet(); } catch { /* pakai yg ada */ }
+    await simpanSistemKeSheet(gabungKunciSistem(rows, kunci, nilai));
+    isiSistem(await fetchSistemFromSheet());
+  }, [sistemRows, isiSistem]);
   const isiProfilDariRows = useCallback((rows) => {
     if (rows.length > 0) {
       setProfilSekolahRaw(normalizeSheetProfil(rows[0]));
@@ -938,7 +954,7 @@ export function AppProvider({ children }) {
     modulAjar: modulAjarRes.data, refreshModulAjar: modulAjarRes.refresh,
     pengaturanModul, pengaturanModulTersimpan: !!pengaturanModulRaw, refreshPengaturanModul,
     rencanaPaud: rencanaPaudRes.data, refreshRencanaPaud: rencanaPaudRes.refresh,
-    pemeliharaan, refreshSistem,
+    pemeliharaan, refreshSistem, aturanJp, simpanKunciSistem,
     asesmenPaud: asesmenPaudRes.data, refreshAsesmenPaud: asesmenPaudRes.refresh,
     raporPaud: raporPaudRes.data, raporPaudLoaded: raporPaudRes.loaded, refreshRaporPaud: raporPaudRes.refresh,
     pengaturanPaud, pengaturanPaudTersimpan: !!pengaturanPaudRaw, refreshPengaturanPaud,

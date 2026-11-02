@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { statusPemeliharaan, teksWaktu, teksJam } from '../../db/sistemFields';
-import { simpanSistemKeSheet, addLogEntry, isConfigured } from '../../services/googleSheets';
+import { addLogEntry, isConfigured } from '../../services/googleSheets';
 
 // "2026-11-01T21:00" (input datetime-local, waktu lokal) <-> ISO
 const keInput = (iso) => { if (!iso) return ''; const d = new Date(iso); if (Number.isNaN(d.getTime())) return ''; const z = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`; };
@@ -10,7 +10,7 @@ const dariInput = (v) => (v ? new Date(v).toISOString() : '');
 
 // Pengaturan Sistem › Mode pemeliharaan (v1.58.0).
 export default function PemeliharaanCard() {
-  const { pemeliharaan, refreshSistem, toast } = useAppData();
+  const { pemeliharaan, refreshSistem, simpanKunciSistem, toast } = useAppData();
   const { currentUser } = useAuth();
   const [d, setD] = useState(pemeliharaan);
   const [menyimpan, setMenyimpan] = useState(false);
@@ -24,7 +24,7 @@ export default function PemeliharaanCard() {
     if (baru.jadwalMulai && baru.jadwalSelesai && baru.jadwalSelesai <= baru.jadwalMulai) { toast('Jam selesai jadwal harus setelah jam mulai.', 'error'); return; }
     setMenyimpan(true);
     try {
-      await simpanSistemKeSheet([{ No: 1, Kunci: 'pemeliharaan', Nilai: JSON.stringify(baru) }]);
+      await simpanKunciSistem('pemeliharaan', baru);
       await addLogEntry({ username: currentUser.username, namaUser: currentUser.nama, aksi: 'Ubah Mode Pemeliharaan', modul: 'Pengaturan Sistem', detail: baru.aktif ? 'Pemeliharaan DINYALAKAN' : (baru.jadwalMulai ? `Jadwal ${teksWaktu(baru.jadwalMulai)}–${teksJam(baru.jadwalSelesai)}` : 'Pemeliharaan dimatikan') });
       await refreshSistem();
       toast(pesanOk);

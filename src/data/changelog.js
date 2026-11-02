@@ -4,6 +4,14 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.59.0',
+    tanggal: '2026-11-02',
+    poin: [
+      'Jadwal Mengajar › Beban Mengajar: tombol "Atur JP" untuk Admin dan Kepala Sekolah. Menit per 1 JP, target JP per minggu, dan batas maksimal JP bisa ditambah atau dikurangi',
+      'Guru yang melewati batas maksimal JP ditandai merah',
+    ],
+  },
+  {
     versi: '1.58.2',
     tanggal: '2026-11-02',
     poin: [
