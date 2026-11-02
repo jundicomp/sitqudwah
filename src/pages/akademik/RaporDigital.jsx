@@ -13,6 +13,7 @@ import ArsipRaporPaud from './raporPaud/ArsipRaporPaud';
 import PengaturanRaporPaud from './raporPaud/PengaturanRaporPaud';
 import RaporSdKelas from './raporSd/RaporSdKelas';
 import PengaturanRaporSd from './raporSd/PengaturanRaporSd';
+import PenandatanganTab from './raporPaud/PenandatanganTab';
 
 // v1.49.0: Rapor Digital dipecah jadi 2 menu (PAUD & SD) supaya hak aksesnya bisa
 // diatur terpisah, mis. role "Guru TK" hanya Rapor PAUD, role "Guru SD" hanya Rapor SD.
@@ -30,6 +31,7 @@ const TABS = (jenis) => [
   { id: 'kelas', label: 'RAPOR PER KELAS' },
   { id: 'arsip', label: `ARSIP RAPOR ${jenis}` },
   { id: 'pengaturan', label: `PENGATURAN RAPOR ${jenis}` },
+  { id: 'penandatangan', label: 'PENANDATANGAN' },
 ];
 const cocokJenis = (tingkat, jenis) => (formatRaporTingkat(tingkat) === 'PAUD') === (jenis === 'PAUD');
 
@@ -79,7 +81,7 @@ export default function RaporDigital({ jenis }) {
   const akses = useTabAccess(info.pageId, tabs.map(t => t.id));
   const { tab, setTab } = akses;
   // Tab pengaturan hanya utk Kepala Sekolah & Admin (selain izin tab di Hak Akses).
-  const bolehTab = (id) => akses.bolehTab(id) && (id !== 'pengaturan' || bolehMenerbitkan(currentUser));
+  const bolehTab = (id) => akses.bolehTab(id) && (!['pengaturan', 'penandatangan'].includes(id) || bolehMenerbitkan(currentUser));
   return (
     <Page pageId={info.pageId} title={info.judul} path={`Akademik / ${info.judul}`}>
       <AkademikBelumTersambung />
@@ -89,6 +91,7 @@ export default function RaporDigital({ jenis }) {
           {tab === 'kelas' && bolehTab('kelas') && <RaporPerKelas jenis={jenis} />}
           {tab === 'arsip' && bolehTab('arsip') && <ArsipRaporPaud jenis={jenis} />}
           {tab === 'pengaturan' && bolehTab('pengaturan') && (jenis === 'PAUD' ? <PengaturanRaporPaud /> : <PengaturanRaporSd />)}
+          {tab === 'penandatangan' && bolehTab('penandatangan') && <PenandatanganTab key={jenis} jenis={jenis} />}
         </div>
       </div>
     </Page>

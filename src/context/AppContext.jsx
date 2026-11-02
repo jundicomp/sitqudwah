@@ -22,6 +22,7 @@ import { normalizeSheetAsesmenPaud, normalizeSheetRaporPaud, pengaturanPaudDariR
 import { normalizeSheetCp, normalizeSheetTp } from '../db/kurikulumFields';
 import { normalizeSheetRencanaPaud } from '../db/rencanaPaudFields';
 import { pemeliharaanDariRows, aturanJpDariRows, gabungKunciSistem } from '../db/sistemFields';
+import { ttdDariRows } from '../db/penandatanganFields';
 import { normalizeSheetModul, pengaturanModulDariRows, lengkapiPengaturanModul } from '../db/modulAjarFields';
 import { normalizeSheetRaporSekolah, pengaturanSdDariRows, lengkapiPengaturanSd } from '../db/raporSdFields';
 import { normalizeSheetPerkembangan, normalizeSheetAspek, ASPEK_BAWAAN } from '../db/perkembanganFields';
@@ -121,6 +122,7 @@ const WARISAN_IZIN = [
   ['rapor-paud.kelas', 'rapor.kelas'], ['rapor-sd.kelas', 'rapor.kelas'],
   ['rapor-paud.arsip', 'rapor.arsip'], ['rapor-sd.arsip', 'rapor.arsip'],
   ['rapor-paud.pengaturan', 'rapor.pengaturan-paud'], ['rapor-sd.pengaturan', 'rapor.pengaturan-sd'],
+  ['rapor-paud.penandatangan', 'rapor-paud.pengaturan'], ['rapor-sd.penandatangan', 'rapor-sd.pengaturan'],
 ];
 
 // Daftar TAB di dalam tiap halaman yg punya sub-tab -- dipakai Manajemen Hak Akses
@@ -206,11 +208,13 @@ const HAK_AKSES_TABS = {
     { id: 'kelas', label: 'Rapor per Kelas' },
     { id: 'arsip', label: 'Arsip Rapor PAUD' },
     { id: 'pengaturan', label: 'Pengaturan Rapor PAUD' },
+    { id: 'penandatangan', label: 'Penandatangan' },
   ],
   'rapor-sd': [
     { id: 'kelas', label: 'Rapor per Kelas' },
     { id: 'arsip', label: 'Arsip Rapor SD' },
     { id: 'pengaturan', label: 'Pengaturan Rapor SD' },
+    { id: 'penandatangan', label: 'Penandatangan' },
   ],
   'penilaian-paud': [
     { id: 'kegiatan', label: 'Ceklis per Kegiatan' },
@@ -653,6 +657,7 @@ export function AppProvider({ children }) {
     try { isiSistem(await fetchSistemFromSheet()); } catch { /* sheet belum ada -> anggap tidak ada pemeliharaan */ }
   }, [isiSistem]);
   // Simpan satu kunci di sheet Pengaturan Sistem tanpa menghapus kunci lain.
+  const penandatangan = useMemo(() => ({ PAUD: ttdDariRows(sistemRows, 'PAUD'), SD: ttdDariRows(sistemRows, 'SD') }), [sistemRows]);
   const simpanKunciSistem = useCallback(async (kunci, nilai) => {
     let rows = sistemRows;
     try { rows = await fetchSistemFromSheet(); } catch { /* pakai yg ada */ }
@@ -954,7 +959,7 @@ export function AppProvider({ children }) {
     modulAjar: modulAjarRes.data, refreshModulAjar: modulAjarRes.refresh,
     pengaturanModul, pengaturanModulTersimpan: !!pengaturanModulRaw, refreshPengaturanModul,
     rencanaPaud: rencanaPaudRes.data, refreshRencanaPaud: rencanaPaudRes.refresh,
-    pemeliharaan, refreshSistem, aturanJp, simpanKunciSistem,
+    pemeliharaan, refreshSistem, aturanJp, simpanKunciSistem, penandatangan,
     asesmenPaud: asesmenPaudRes.data, refreshAsesmenPaud: asesmenPaudRes.refresh,
     raporPaud: raporPaudRes.data, raporPaudLoaded: raporPaudRes.loaded, refreshRaporPaud: raporPaudRes.refresh,
     pengaturanPaud, pengaturanPaudTersimpan: !!pengaturanPaudRaw, refreshPengaturanPaud,

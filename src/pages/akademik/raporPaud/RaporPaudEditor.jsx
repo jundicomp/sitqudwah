@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { terapkanTtd, ortuDariSiswa } from '../../../db/penandatanganFields';
 import Modal from '../../../components/common/Modal';
 import FotoDriveField, { TombolUnggahFoto } from '../../../components/common/FotoDrive';
 import { CapaianPills, GaleriFoto } from '../../../components/paud/shared';
@@ -45,7 +46,8 @@ function gabungIsian(awal, simpan) {
 }
 
 export default function RaporPaudEditor({ siswa, rombel, ta, semester, record, onClose }) {
-  const { pengaturanPaud: p, asesmenPaud, presensi, perkembangan, tahunAjaran, profilSekolah, refreshRaporPaud, refreshSiswa, toast } = useAppData();
+  const { pengaturanPaud: p, asesmenPaud, presensi, perkembangan, tahunAjaran, profilSekolah, refreshRaporPaud, refreshSiswa, toast, penandatangan, guru } = useAppData();
+  const pasangTtd = (d) => terapkanTtd(d, penandatangan.PAUD, { guru, ortu: ortuDariSiswa(siswaKini) });
   const { currentUser } = useAuth();
   const penerbit = bolehMenerbitkan(currentUser);
   const [tab, setTab] = useState('perkembangan');
@@ -80,7 +82,7 @@ export default function RaporPaudEditor({ siswa, rombel, ta, semester, record, o
   const siswaKini = { ...siswa, ...identitas, foto };
   const dokumen = record?.status === 'Terbit' && record?.arsip && status === 'Terbit'
     ? record.arsip
-    : susunDokumenPaud({ p, siswa: siswaKini, isian, rombel, ta, semester, profil: profilSekolah, presensiOtomatis, tanggal: record?.tanggalTerbit || todayWIB() });
+    : pasangTtd(susunDokumenPaud({ p, siswa: siswaKini, isian, rombel, ta, semester, profil: profilSekolah, presensiOtomatis, tanggal: record?.tanggalTerbit || todayWIB() }));
   const kurang = cekKelengkapan(p, isian);
 
   async function simpan(statusBaru) {
@@ -100,7 +102,7 @@ export default function RaporPaudEditor({ siswa, rombel, ta, semester, record, o
       // 2) Rapor
       const tanggalTerbit = statusBaru === 'Terbit' ? (isian.tanggal || todayWIB()) : '';
       const arsip = statusBaru === 'Terbit'
-        ? susunDokumenPaud({ p, siswa: siswaKini, isian, rombel, ta, semester, profil: profilSekolah, presensiOtomatis, tanggal: tanggalTerbit })
+        ? pasangTtd(susunDokumenPaud({ p, siswa: siswaKini, isian, rombel, ta, semester, profil: profilSekolah, presensiOtomatis, tanggal: tanggalTerbit }))
         : null;
       await upsertRaporPaudToSheet([{
         'Tahun Ajaran': ta, Semester: semester, 'ID Siswa': siswa.idSiswa, NISN: siswa.nisn, 'Nama Siswa': siswa.nama,

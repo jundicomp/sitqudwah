@@ -159,8 +159,8 @@ export function SatuRaporPaud({ d }) {
           </table>
           <div className="rp-ttd">
             <div className="baris">
-              <div className="sel"><span style={{ marginTop: '9mm' }}>Wali Kelas</span><span>{d.wali || '................................'}</span></div>
-              <div className="sel"><span>{tanggalTtd}<br /><br />Orang Tua / Wali Murid</span><span>................................</span></div>
+              <div className="sel"><span style={{ marginTop: '9mm' }}>Wali Kelas</span><span>{d.wali ? <b><u>{d.wali}</u></b> : '................................'}{d.waliNiy ? <><br />NIY {d.waliNiy}</> : null}</span></div>
+              <div className="sel"><span>{tanggalTtd}<br /><br />Orang Tua / Wali Murid</span><span>{d.ortuTtd ? <b><u>{d.ortuTtd}</u></b> : '................................'}</span></div>
             </div>
             <div className="bawah"><span>Mengetahui,<br />{d.jabatanKepala}</span><b>{d.kepala || '................................'}{d.kepalaNiy ? <><br /><span style={{ fontWeight: 400 }}>NIY {d.kepalaNiy}</span></> : null}</b></div>
           </div>

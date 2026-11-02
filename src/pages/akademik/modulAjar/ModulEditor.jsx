@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { terapkanTtd } from '../../../db/penandatanganFields';
 import Modal from '../../../components/common/Modal';
 import { useAppData } from '../../../context/AppContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -79,7 +80,7 @@ function BagianTambahan({ b, nilai, onChange }) {
 // modul: objek modul (normalizeSheetModul) atau draft baru (idModul '').
 // pasanganList: pasangan mapel+tingkat yg boleh dipilih saat membuat modul baru.
 export default function ModulEditor({ modul, pasanganList, onClose, mulaiPratinjau = false, onSelesaiPeriksa }) {
-  const { tp, cp, siswa, nilai, refreshModulAjar, profilSekolah, pengaturanSd, pengaturanModul, toast } = useAppData();
+  const { tp, cp, siswa, nilai, refreshModulAjar, profilSekolah, pengaturanSd, pengaturanModul, toast, penandatangan } = useAppData();
   const { currentUser } = useAuth();
   const semua = bolehLihatSemuaKelas(currentUser);
   const penerbit = bolehMenerbitkan(currentUser);
@@ -121,11 +122,11 @@ export default function ModulEditor({ modul, pasanganList, onClose, mulaiPratinj
 
   const kurang = cekKelengkapanModul(m);
   const p = pengaturanSd || {};
-  const dokumenHidup = susunDokumenModul({
+  const dokumenHidup = terapkanTtd(susunDokumenModul({
     m, tpList: tp, cpList: cp, namaTingkat, jenjang: jenjangDariTingkat(m.tingkat),
     sekolah: [p.namaSingkat, p.desa].filter(Boolean).join(' ') || p.namaSekolah || profilSekolah?.nama || '',
     kepala: p.namaKepala || profilSekolah?.kepalaSekolah || '', kepalaNiy: p.niyKepala || '', tempat: p.tempat || '',
-  });
+  }), penandatangan.SD);
   // Modul yg sudah disetujui dicetak dari ARSIP (salinan saat disetujui), bukan data terkini.
   const dokumen = m.status === 'Disetujui' && m.arsip ? m.arsip : dokumenHidup;
 

@@ -121,7 +121,7 @@ export function SatuRaporSd({ d }) {
         )}
 
         <div className="rs-ttd">
-          <div>Mengetahui<br />Orang tua/wali<div className="rs-garis">{titik}</div></div>
+          <div>Mengetahui<br />Orang tua/wali<div className="rs-garis">{d.ortuTtd ? <b><u>{d.ortuTtd}</u></b> : titik}</div></div>
           <div>{d.tempat}, {tgl(d.tanggal)}<br />{d.sebutanWali}<div className="rs-garis"><b><u>{d.wali || titik}</u></b>{d.waliNiy ? <><br />NIY {d.waliNiy}</> : null}</div></div>
         </div>
         <div className="rs-ttd" style={{ justifyContent: 'center' }}>

@@ -4,6 +4,17 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.60.0',
+    tanggal: '2026-11-02',
+    poin: [
+      'Rapor Digital PAUD dan Rapor Digital SD punya tab baru "Penandatangan", masing-masing terpisah',
+      'Nama dan NIY kepala disimpan sebagai riwayat jabatan. Kalau kepala berganti cukup tambah kepala baru, dan rapor otomatis memakai kepala yang menjabat pada tanggal rapor',
+      'NIY wali kelas ikut tercetak dari Data Guru, dan nama orang tua bisa diisi otomatis (Ayah, Ibu, Wali, atau dikosongkan untuk tulis tangan)',
+      'Arsip Rapor: tombol "Perbarui penandatangan" untuk memperbaiki tanda tangan rapor yang sudah terbit tanpa mengubah nilai dan isinya',
+      'Modul Ajar memakai kepala SD dan Rencana Tema PAUD memakai kepala PAUD dari pengaturan yang sama',
+    ],
+  },
+  {
     versi: '1.59.0',
     tanggal: '2026-11-02',
     poin: [

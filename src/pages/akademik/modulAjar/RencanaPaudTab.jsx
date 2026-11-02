@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { terapkanTtd } from '../../../db/penandatanganFields';
 import Modal from '../../../components/common/Modal';
 import DataTable from '../../../components/common/DataTable';
 import { useAppData } from '../../../context/AppContext';
@@ -23,7 +24,7 @@ const tgl = (iso) => (iso ? formatTanggalAngka(iso) : '');
 
 // Editor rencana mingguan PAUD (dipakai juga dari tab Persetujuan).
 export function RencanaPaudEditor({ rencana, rombelBoleh, onClose, mulaiPratinjau = false, onSelesaiPeriksa }) {
-  const { pengaturanPaud, refreshRencanaPaud, toast } = useAppData();
+  const { pengaturanPaud, refreshRencanaPaud, toast, penandatangan } = useAppData();
   const { currentUser } = useAuth();
   const semua = bolehLihatSemuaKelas(currentUser);
   const penerbit = bolehMenerbitkan(currentUser);
@@ -44,7 +45,7 @@ export function RencanaPaudEditor({ rencana, rombelBoleh, onClose, mulaiPratinja
   const elemenList = (pengaturanPaud?.elemen || []).map(e => e.nama).filter(Boolean);
   const kurang = cekKelengkapanRencana(r);
   const p = pengaturanPaud || {};
-  const dokumenHidup = susunDokumenRencana({ r, satuan: p.namaSatuan, kepala: p.namaKepala, kepalaNiy: p.niyKepala, jabatanKepala: p.jabatanKepala, tempat: p.tempat, namaTingkat });
+  const dokumenHidup = terapkanTtd(susunDokumenRencana({ r, satuan: p.namaSatuan, kepala: p.namaKepala, kepalaNiy: p.niyKepala, jabatanKepala: p.jabatanKepala, tempat: p.tempat, namaTingkat }), penandatangan.PAUD);
   const dokumen = r.status === 'Disetujui' && r.arsip ? r.arsip : dokumenHidup;
 
   function pilihRombel(key) {

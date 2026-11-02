@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { terapkanTtd, ortuDariSiswa } from '../../../db/penandatanganFields';
 import Modal from '../../../components/common/Modal';
 import FotoDriveField from '../../../components/common/FotoDrive';
 import { useAppData } from '../../../context/AppContext';
@@ -45,7 +46,7 @@ function gabungIsian(awal, simpan) {
 }
 
 export default function RaporSdEditor({ siswa, rombel, ta, semester, record, raporLama, onClose }) {
-  const { pengaturanSd: p, nilai, kkm, presensi, guru, tahunAjaran, refreshRaporSekolah, refreshSiswa, toast, mapelList } = useAppData();
+  const { pengaturanSd: p, nilai, kkm, presensi, guru, tahunAjaran, refreshRaporSekolah, refreshSiswa, toast, mapelList, penandatangan } = useAppData();
   const { currentUser } = useAuth();
   const penerbit = bolehMenerbitkan(currentUser);
   const [tab, setTab] = useState('pengetahuan');
@@ -84,7 +85,7 @@ export default function RaporSdEditor({ siswa, rombel, ta, semester, record, rap
   const siswaKini = { ...siswa, ...identitas, foto };
   const nilaiAkhir = (m) => { const o = isian.mapel[m]?.nilai; return o !== undefined && o !== '' && o !== null ? Number(o) : (nilaiPerMapel[m]?.nilai ?? null); };
 
-  const susun = (tanggal) => susunDokumenSd({ p, siswa: siswaKini, isian, rombel, ta, semester, presensiOtomatis, nilaiPerMapel, daftarMapel, kkmOf, waliNiy, tanggal, tingkatBerikut });
+  const susun = (tanggal) => terapkanTtd(susunDokumenSd({ p, siswa: siswaKini, isian, rombel, ta, semester, presensiOtomatis, nilaiPerMapel, daftarMapel, kkmOf, waliNiy, tanggal, tingkatBerikut }), penandatangan.SD, { guru, ortu: ortuDariSiswa(siswaKini) });
   const dokumen = record?.status === 'Terbit' && record?.arsip && status === 'Terbit' ? record.arsip : susun(record?.tanggalTerbit || todayWIB());
   const kurang = cekKelengkapanSd(isian, semuaMapel, nilaiPerMapel);
 

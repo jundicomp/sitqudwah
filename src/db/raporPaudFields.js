@@ -172,7 +172,7 @@ export function susunDokumenPaud({ p, siswa, isian, rombel, ta, semester, profil
     },
     keluarga: {
       ayah: siswa.namaAyah, pekerjaanAyah: siswa.pekerjaanAyah, hpAyah: siswa.hpAyah,
-      ibu: siswa.namaIbu, pekerjaanIbu: siswa.pekerjaanIbu, hpIbu: siswa.hpIbu, alamat: siswa.alamat,
+      ibu: siswa.namaIbu, pekerjaanIbu: siswa.pekerjaanIbu, hpIbu: siswa.hpIbu, alamat: siswa.alamat, wali: siswa.namaWali,
     },
     petunjuk: String(p.petunjuk || '').split(/\n+/).map(x => x.trim()).filter(Boolean),
     elemen: p.elemen.map((e, i) => {
