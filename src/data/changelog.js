@@ -4,6 +4,16 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.61.3',
+    tanggal: '2026-11-02',
+    poin: [
+      'Scan Presensi: tombol "Scan pakai kamera" sekarang muncul dan berfungsi di semua browser modern, termasuk Chrome di laptop',
+      'Kamera tidak lagi mati-hidup sendiri saat halaman diperbarui, sehingga kartu bisa terbaca',
+      'Ada kotak bidik, bunyi bip dan bingkai hijau saat kartu terbaca, serta pilihan kamera depan/belakang',
+      'Pesan yang jelas bila izin kamera ditolak atau kamera sedang dipakai aplikasi lain',
+    ],
+  },
+  {
     versi: '1.61.2',
     tanggal: '2026-11-02',
     poin: ['Manajemen Hak Akses: judul kolom rata tengah dan kotak centang dibuat bulat'],

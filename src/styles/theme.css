@@ -473,7 +473,14 @@ tr:hover td{background:var(--row-hover);}
 .scan-hasil.telat{background:var(--gold-soft);border-color:var(--gold);}
 .scan-hasil.gagal{background:var(--red-soft);border-color:var(--red);}
 .scan-hasil b{font-size:17px;}
-.scan-video{width:100%;max-width:420px;border-radius:10px;background:#000;margin-top:12px;display:block;}
+.kamera-scan{margin-top:12px;}
+.scan-video-wrap{position:relative;width:100%;max-width:460px;margin-top:10px;border-radius:12px;overflow:hidden;background:#000;border:3px solid transparent;transition:border-color .2s;}
+.scan-video-wrap.ok{border-color:#22c55e;}
+.scan-video{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;background:#000;}
+.scan-bidik{position:absolute;left:10%;right:10%;top:32%;bottom:32%;border:2px solid rgba(255,255,255,.85);border-radius:10px;box-shadow:0 0 0 999px rgba(0,0,0,.28);pointer-events:none;}
+.scan-bidik::after{content:"";position:absolute;left:6%;right:6%;top:50%;height:2px;background:#ef4444;box-shadow:0 0 6px #ef4444;animation:scanGaris 1.6s ease-in-out infinite;}
+@keyframes scanGaris{0%,100%{transform:translateY(-18px);}50%{transform:translateY(18px);}}
+.scan-kilat{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:#16a34a;color:#fff;font-weight:700;font-size:13px;padding:4px 12px;border-radius:99px;white-space:nowrap;}
 .idcard-sheet{display:flex;flex-wrap:wrap;gap:14px;}
 .idcard{width:323px;height:204px;border-radius:12px;overflow:hidden;position:relative;background:#fff;border:1px solid var(--border);box-shadow:0 1px 3px rgba(18,61,34,.12);font-family:Arial,Helvetica,sans-serif;color:#13261a;flex-shrink:0;break-inside:avoid;}
 .idcard-top{background:var(--green-dark);color:#fff;padding:9px 12px;display:flex;gap:9px;align-items:center;}

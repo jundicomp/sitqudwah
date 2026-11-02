@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { labelRombel } from '../../db/akademikFields';
 import { cariDariKode, sekarangWIB, hitungKeterlambatan, keMenit, kodeSiswa, kodeGuru, guruAktifUntukScan } from '../../db/presensiBarcodeFields';
 import { formatRupiah } from '../../db/helpers';
+import KameraScanner from './KameraScanner';
 import { upsertPresensiToSheet, upsertPresensiGuruToSheet, isConfigured } from '../../services/googleSheets';
 
 const TABS = [
@@ -15,47 +16,6 @@ const TABS = [
   { id: 'guru', label: 'SCAN GURU & STAFF' },
 ];
 const JEDA_SCAN_GANDA_MENIT = 5; // scan ulang < 5 menit setelah masuk dianggap tidak sengaja
-
-// Kamera HP/laptop sbg scanner -- hanya kalau browser punya BarcodeDetector (Chrome Android, dst).
-function KameraScanner({ onKode }) {
-  const videoRef = useRef(null);
-  const [aktif, setAktif] = useState(false);
-  const [error, setError] = useState('');
-  const tersedia = typeof window !== 'undefined' && 'BarcodeDetector' in window;
-
-  useEffect(() => {
-    if (!aktif) return undefined;
-    let stream; let timer; let batal = false; const terakhir = { kode: '', waktu: 0 };
-    (async () => {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        if (batal) return;
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        const detector = new window.BarcodeDetector({ formats: ['code_128', 'qr_code'] });
-        timer = setInterval(async () => {
-          try {
-            const hasil = await detector.detect(videoRef.current);
-            const kode = hasil[0]?.rawValue;
-            if (kode && (kode !== terakhir.kode || Date.now() - terakhir.waktu > 3000)) {
-              terakhir.kode = kode; terakhir.waktu = Date.now(); onKode(kode);
-            }
-          } catch { /* frame belum siap */ }
-        }, 350);
-      } catch (e) { setError('Kamera tidak bisa dibuka: ' + e.message); setAktif(false); }
-    })();
-    return () => { batal = true; clearInterval(timer); stream?.getTracks().forEach(t => t.stop()); };
-  }, [aktif, onKode]);
-
-  if (!tersedia) return null;
-  return (
-    <div style={{ marginTop: 12 }}>
-      <button className="btn btn-sm" onClick={() => setAktif(a => !a)}>{aktif ? 'Matikan kamera' : '📷 Scan pakai kamera'}</button>
-      {error && <p style={{ color: 'var(--red)', fontSize: 13 }}>{error}</p>}
-      {aktif && <video ref={videoRef} className="scan-video" muted playsInline />}
-    </div>
-  );
-}
 
 export default function ScanPresensi() {
   const { siswa, guru, presensi, presensiGuru, refreshPresensi, refreshPresensiGuru, toast } = useAppData();
