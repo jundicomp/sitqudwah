@@ -4,6 +4,13 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.58.2',
+    tanggal: '2026-11-02',
+    poin: [
+      'Pesan yang lebih jelas saat unggah foto gagal karena Apps Script belum diberi izin Google Drive, lengkap dengan langkah perbaikannya',
+    ],
+  },
+  {
     versi: '1.58.1',
     tanggal: '2026-11-02',
     poin: [

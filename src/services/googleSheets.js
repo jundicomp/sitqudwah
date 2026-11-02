@@ -492,6 +492,7 @@ export async function uploadFotoKeDrive(dataUrl, { nama, subfolder } = {}) {
   const json = await postToSheet({ action: 'uploadFoto', sheet: '_foto', base64, mimeType, nama, subfolder }, 'akademik');
   if (!json.ok) {
     if (/tidak dikenal/i.test(json.error || '')) throw new Error('Apps Script Akademik belum diperbarui untuk unggah foto. Tempel ulang Code-Akademik.gs terbaru lalu Deploy → New version (izinkan akses Google Drive).');
+    if (/DriveApp|auth\/drive|izin untuk memanggil|permission/i.test(json.error || '')) throw new Error('Unggah foto belum diizinkan mengakses Google Drive. Admin perlu membuka Apps Script Akademik, menjalankan fungsi "izinkanAksesDrive" sekali dan menyetujui izinnya, lalu Deploy → New version.');
     throw new Error(json.error || 'Gagal mengunggah foto.');
   }
   return { id: json.id, url: json.url };
