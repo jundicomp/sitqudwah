@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import useDrafLokal from '../../../hooks/useDrafLokal';
+import DrafBanner from '../../../components/common/DrafBanner';
 import { terapkanTtd } from '../../../db/penandatanganFields';
 import Modal from '../../../components/common/Modal';
 import DataTable from '../../../components/common/DataTable';
@@ -40,6 +42,8 @@ export function RencanaPaudEditor({ rencana, rombelBoleh, onClose, mulaiPratinja
   const terkunci = !bolehUbah || r.status === 'Diajukan' || r.status === 'Disetujui';
   const periksa = penerbit && r.status === 'Diajukan';
   const set = (patch) => { setR(x => ({ ...x, ...patch })); setBerubah(true); };
+  const draf = useDrafLokal(`rencana:${rencana.idRencana || 'baru:' + (currentUser?.username || '')}`, r, { aktif: !terkunci });
+  const pulihkanDraf = () => { const v = draf.pulihkan(); if (v) { setR(v); setBerubah(true); } };
   const setIsi = (patch) => { setR(x => ({ ...x, isi: { ...x.isi, ...(typeof patch === 'function' ? patch(x.isi) : patch) } })); setBerubah(true); };
   const ubahHari = (k, patch) => setIsi(x => ({ hari: x.hari.map((h, j) => (j === k ? { ...h, ...patch } : h)) }));
   const elemenList = (pengaturanPaud?.elemen || []).map(e => e.nama).filter(Boolean);
@@ -71,6 +75,7 @@ export function RencanaPaudEditor({ rencana, rombelBoleh, onClose, mulaiPratinja
       const LOG = { simpan: baru ? 'Buat Rencana PAUD' : 'Ubah Rencana PAUD', ajukan: 'Ajukan Rencana PAUD', tarik: 'Tarik Pengajuan Rencana PAUD', setujui: 'Setujui Rencana PAUD', kembalikan: 'Kembalikan Rencana PAUD', buka: 'Buka Kembali Rencana PAUD' };
       await addLogEntry({ username: currentUser.username, namaUser: currentUser.nama, aksi: LOG[aksiStatus], modul: 'Modul Ajar', detail: `${r.tema}${r.subtema ? ' / ' + r.subtema : ''} — ${namaTingkat(r.tingkat)} ${r.rombel} (${r.guru})` });
       setR(x => ({ ...x, ...patch }));
+      draf.tersimpan({ ...r, ...patch });
       setBerubah(false);
       await refreshRencanaPaud();
       toast({ simpan: 'Rencana tersimpan.', ajukan: 'Rencana diajukan ke kepala sekolah.', tarik: 'Pengajuan ditarik.', setujui: 'Rencana disetujui dan diarsipkan.', kembalikan: 'Rencana dikembalikan ke guru.', buka: 'Rencana dibuka kembali menjadi draft.' }[aksiStatus]);
@@ -111,6 +116,7 @@ export function RencanaPaudEditor({ rencana, rombelBoleh, onClose, mulaiPratinja
         </div>
       ) : (
         <>
+          <DrafBanner draf={draf.draf} onPulihkan={pulihkanDraf} onBuang={draf.buang} />
           <div className="ringkas-bar" style={{ marginBottom: 12 }}>
             <span className={`badge ${BADGE_STATUS_MODUL[r.status] || 'badge-muted'}`}>{r.status || 'Draft'}</span>
             {r.guru && <span className="badge badge-muted">Guru: {r.guru}</span>}

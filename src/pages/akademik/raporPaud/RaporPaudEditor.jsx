@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import useDrafLokal from '../../../hooks/useDrafLokal';
+import DrafBanner from '../../../components/common/DrafBanner';
 import { terapkanTtd, ortuDariSiswa } from '../../../db/penandatanganFields';
 import Modal from '../../../components/common/Modal';
 import FotoDriveField, { TombolUnggahFoto } from '../../../components/common/FotoDrive';
@@ -75,6 +77,9 @@ export default function RaporPaudEditor({ siswa, rombel, ta, semester, record, o
   ));
   const [identitas, setIdentitas] = useState(() => Object.fromEntries(IDENTITAS_SEKALI.map(([k]) => [k, siswa[k] || ''])));
   const [foto, setFoto] = useState(siswa.foto || '');
+  // v1.61.4: isian belum tersimpan disimpan di perangkat -> bisa dipulihkan bila ter-refresh.
+  const draf = useDrafLokal(`rapor-PAUD:${siswa.idSiswa || siswa.nisn || siswa.nama}:${ta}:${semester}`, { isian, identitas, foto }, { aktif: !terkunci });
+  function pulihkanDraf() { const v = draf.pulihkan(); if (!v) return; if (v.isian) setIsian(v.isian); if (v.identitas) setIdentitas(v.identitas); if (v.foto !== undefined) setFoto(v.foto); }
   const ubahElemen = (id, patch) => setIsian(x => ({ ...x, elemen: { ...x.elemen, [id]: { ...x.elemen[id], ...patch } } }));
   const ubah = (bagian, key, v) => setIsian(x => ({ ...x, [bagian]: { ...x[bagian], [key]: v } }));
 
@@ -113,6 +118,7 @@ export default function RaporPaudEditor({ siswa, rombel, ta, semester, record, o
       await addLogEntry({ username: currentUser.username, namaUser: currentUser.nama, aksi: `Rapor PAUD: ${statusBaru}`, modul: 'Rapor Digital', detail: `${siswa.nama}, ${ta} ${semester}` });
       await refreshRaporPaud();
       setStatus(statusBaru);
+      draf.tersimpan();
       toast({ Draft: 'Rapor tersimpan sebagai draft.', Diajukan: 'Rapor diajukan ke kepala sekolah.', Terbit: 'Rapor diterbitkan dan diarsipkan.' }[statusBaru] || 'Tersimpan.');
     } catch (e) {
       toast(/tidak dikenal/i.test(e.message) ? 'Apps Script Akademik belum diperbarui (tab "raporPaud" belum dikenal). Tempel ulang Code-Akademik.gs terbaru lalu Deploy → New version.' : e.message, 'error');
@@ -149,6 +155,7 @@ export default function RaporPaudEditor({ siswa, rombel, ta, semester, record, o
         </div>
       ) : (
         <>
+          <DrafBanner draf={draf.draf} onPulihkan={pulihkanDraf} onBuang={draf.buang} />
           <div className="ringkas-bar" style={{ marginBottom: 12 }}>
             <span className={`badge ${BADGE_STATUS_PAUD[status]}`}>{status}{record?.tanggalTerbit && status === 'Terbit' ? ` · ${record.tanggalTerbit}` : ''}</span>
             <span className="badge badge-muted">{milik.length} catatan penilaian semester ini</span>

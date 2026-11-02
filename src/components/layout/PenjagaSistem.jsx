@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { isAdmin } from '../../db/akses';
 import { statusPemeliharaan, teksWaktu, teksJam } from '../../db/sistemFields';
 import { setBlokirTulis } from '../../services/googleSheets';
+import { adaIsianBelumTersimpan } from '../../hooks/useDrafLokal';
 import pkg from '../../../package.json';
 
 // v1.58.0 -- dua penjaga saat deploy:
@@ -17,6 +18,7 @@ const CEK_VERSI_MS = 3 * 60 * 1000;
 const JEDA_KETIK_MS = 3 * 60 * 1000;
 
 function sedangMengisi(lastInput, lastSukses) {
+  if (adaIsianBelumTersimpan()) return true;
   if (document.querySelector('.modal-overlay')) return true;
   const el = document.activeElement;
   if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) && !el.readOnly) return true;
@@ -90,6 +92,14 @@ export default function PenjagaSistem() {
   }, []);
   const tadiAktif = useRef(st.aktif);
   useEffect(() => { if (tadiAktif.current && !st.aktif) cekVersi.current(); tadiAktif.current = st.aktif; }, [st.aktif]);
+
+  // v1.61.4: tanya dulu sebelum halaman ditutup / di-refresh (termasuk tarik layar ke bawah
+  // di HP) selama ada isian rapor/modul yg belum disimpan.
+  useEffect(() => {
+    const cegah = (e) => { if (adaIsianBelumTersimpan()) { e.preventDefault(); e.returnValue = ''; } };
+    window.addEventListener('beforeunload', cegah);
+    return () => window.removeEventListener('beforeunload', cegah);
+  }, []);
 
   // Penghalang tulis global.
   const usangWajib = !!versiBaru?.wajib;

@@ -896,3 +896,8 @@ a.ph-tab:hover{border-color:#1C7A3C;background:#fff}
 .ha-tabel input[type=checkbox]:hover:not(:disabled){border-color:var(--green-dark);}
 .ha-tabel input[type=checkbox]:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 .ha-tabel input[type=checkbox]:disabled{cursor:not-allowed;opacity:.45;}
+
+/* v1.61.4: cegah "tarik untuk refresh" di HP/tablet yg menghapus isian */
+html,body{overscroll-behavior-y:none;}
+.draf-banner{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff8e6;border:1px solid #f1dfa8;color:#6b5a1f;border-radius:10px;padding:10px 12px;margin:0 0 12px;font-size:13px;}
+.modal-overlay,.modal-card{overscroll-behavior:contain;}

@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import useDrafLokal from '../../../hooks/useDrafLokal';
+import DrafBanner from '../../../components/common/DrafBanner';
 import { terapkanTtd, ortuDariSiswa } from '../../../db/penandatanganFields';
 import Modal from '../../../components/common/Modal';
 import FotoDriveField from '../../../components/common/FotoDrive';
@@ -80,6 +82,9 @@ export default function RaporSdEditor({ siswa, rombel, ta, semester, record, rap
   });
   const [identitas, setIdentitas] = useState(() => Object.fromEntries(IDENTITAS_SEKALI.map(([k]) => [k, siswa[k] || ''])));
   const [foto, setFoto] = useState(siswa.foto || '');
+  // v1.61.4: isian belum tersimpan disimpan di perangkat -> bisa dipulihkan bila ter-refresh.
+  const draf = useDrafLokal(`rapor-SD:${siswa.idSiswa || siswa.nisn || siswa.nama}:${ta}:${semester}`, { isian, identitas, foto }, { aktif: !terkunci });
+  function pulihkanDraf() { const v = draf.pulihkan(); if (!v) return; if (v.isian) setIsian(v.isian); if (v.identitas) setIdentitas(v.identitas); if (v.foto !== undefined) setFoto(v.foto); }
   const ubahMapel = (m, patch) => setIsian(x => ({ ...x, mapel: { ...x.mapel, [m]: { ...(x.mapel[m] || {}), ...patch } } }));
   const panggilan = identitas.panggilan || siswa.nama.split(' ')[0];
   const siswaKini = { ...siswa, ...identitas, foto };
@@ -132,6 +137,7 @@ export default function RaporSdEditor({ siswa, rombel, ta, semester, record, rap
       await addLogEntry({ username: currentUser.username, namaUser: currentUser.nama, aksi: `Rapor SD: ${statusBaru}`, modul: 'Rapor Digital', detail: `${siswa.nama}, ${ta} ${semester}` });
       await refreshRaporSekolah();
       setStatus(statusBaru);
+      draf.tersimpan();
       toast({ Draft: 'Rapor tersimpan sebagai draft.', Diajukan: 'Rapor diajukan ke kepala sekolah.', Terbit: 'Rapor diterbitkan dan diarsipkan.' }[statusBaru] || 'Tersimpan.');
     } catch (e) {
       toast(/tidak dikenal/i.test(e.message) ? 'Apps Script Akademik belum diperbarui (tab "raporSekolah" belum dikenal). Tempel ulang Code-Akademik.gs terbaru lalu Deploy → New version.' : e.message, 'error');
@@ -185,6 +191,7 @@ export default function RaporSdEditor({ siswa, rombel, ta, semester, record, rap
         </div>
       ) : (
         <>
+          <DrafBanner draf={draf.draf} onPulihkan={pulihkanDraf} onBuang={draf.buang} />
           <div className="ringkas-bar" style={{ marginBottom: 12 }}>
             <span className={`badge ${BADGE_STATUS_SD[status]}`}>{status}{record?.tanggalTerbit && status === 'Terbit' ? ` · ${record.tanggalTerbit}` : ''}</span>
             <span className="badge badge-muted">{Object.keys(nilaiPerMapel).length} mapel bernilai</span>

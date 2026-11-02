@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import useDrafLokal from '../../../hooks/useDrafLokal';
+import DrafBanner from '../../../components/common/DrafBanner';
 import { terapkanTtd } from '../../../db/penandatanganFields';
 import Modal from '../../../components/common/Modal';
 import { useAppData } from '../../../context/AppContext';
@@ -98,6 +100,9 @@ export default function ModulEditor({ modul, pasanganList, onClose, mulaiPratinj
   const isi = m.isi;
 
   const set = (patch) => { setM(x => ({ ...x, ...patch })); setBerubah(true); };
+  // v1.61.4: isian belum tersimpan disimpan di perangkat -> bisa dipulihkan bila ter-refresh.
+  const draf = useDrafLokal(`modul:${modul.idModul || 'baru:' + (currentUser?.username || '')}`, m, { aktif: !terkunci });
+  const pulihkanDraf = () => { const v = draf.pulihkan(); if (v) { setM(v); setBerubah(true); } };
   const setIsi = (patch) => { setM(x => ({ ...x, isi: { ...x.isi, ...(typeof patch === 'function' ? patch(x.isi) : patch) } })); setBerubah(true); };
   const toggle = (n) => setBuka(b => (b === n ? 0 : n));
 
@@ -173,6 +178,7 @@ export default function ModulEditor({ modul, pasanganList, onClose, mulaiPratinj
       const LOG = { simpan: baru ? 'Buat Modul Ajar' : 'Ubah Modul Ajar', ajukan: 'Ajukan Modul Ajar', tarik: 'Tarik Pengajuan Modul Ajar', setujui: 'Setujui Modul Ajar', kembalikan: 'Kembalikan Modul Ajar', buka: 'Buka Kembali Modul Ajar' };
       await addLogEntry({ username: currentUser.username, namaUser: currentUser.nama, aksi: LOG[aksiStatus], modul: 'Modul Ajar', detail: `${m.judul.trim()} — ${m.mapel} ${namaTingkat(m.tingkat)} (${m.guru})` });
       setM(x => ({ ...x, ...patch }));
+      draf.tersimpan({ ...m, ...patch });
       setBerubah(false);
       await refreshModulAjar();
       toast({ simpan: 'Modul ajar tersimpan.', ajukan: 'Modul diajukan ke kepala sekolah.', tarik: 'Pengajuan ditarik, modul kembali menjadi draft.', setujui: 'Modul disetujui dan diarsipkan.', kembalikan: 'Modul dikembalikan ke guru dengan catatan.', buka: 'Modul dibuka kembali menjadi draft.' }[aksiStatus]);
@@ -452,6 +458,7 @@ export default function ModulEditor({ modul, pasanganList, onClose, mulaiPratinj
         </div>
       ) : (
         <>
+          <DrafBanner draf={draf.draf} onPulihkan={pulihkanDraf} onBuang={draf.buang} />
           <div className="ringkas-bar" style={{ marginBottom: 12 }}>
             <span className={`badge ${BADGE_STATUS_MODUL[m.status] || 'badge-muted'}`}>{m.status || 'Draft'}</span>
             {m.guru && <span className="badge badge-muted">Penyusun: {m.guru}</span>}

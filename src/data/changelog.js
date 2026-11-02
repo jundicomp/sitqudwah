@@ -4,6 +4,16 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.61.4',
+    tanggal: '2026-11-02',
+    poin: [
+      'Di HP dan tablet, menarik layar ke bawah tidak lagi me-refresh halaman sehingga isian tidak hilang',
+      'Isian Rapor PAUD, Rapor SD, Modul Ajar, dan Rencana Tema yang belum disimpan otomatis tersimpan di perangkat. Kalau halaman sempat ter-refresh atau tertutup, muncul tombol "Pulihkan isian" saat dibuka lagi',
+      'Browser menanyakan dulu sebelum menutup atau me-refresh halaman selama masih ada isian yang belum disimpan',
+      'Pembaruan aplikasi otomatis menunggu sampai isian disimpan',
+    ],
+  },
+  {
     versi: '1.61.3',
     tanggal: '2026-11-02',
     poin: [
