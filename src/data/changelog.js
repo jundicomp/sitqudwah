@@ -4,6 +4,16 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.61.0',
+    tanggal: '2026-11-02',
+    poin: [
+      'Satu akun bisa punya beberapa role sekaligus untuk guru yang rangkap jabatan, misalnya Guru TK dan Bendahara',
+      'Menu yang terbuka adalah gabungan dari semua role akun tersebut. Kalau salah satu role mengizinkan, menu terbuka',
+      'Form Tambah/Edit User memakai label role yang bisa ditambah dan dilepas; akun lama dengan satu role tetap berjalan seperti biasa',
+      'Ganti nama kategori role otomatis ikut memperbarui akun yang memakai beberapa role',
+    ],
+  },
+  {
     versi: '1.60.0',
     tanggal: '2026-11-02',
     poin: [

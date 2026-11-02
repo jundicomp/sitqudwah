@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { daftarRole } from '../../db/akses';
 import { useAuth } from '../../context/AuthContext';
 import { fetchLogFromSheet, fetchUsersFromSheet, isConfigured } from '../../services/googleSheets';
 
@@ -28,7 +29,7 @@ function formatJamSaja(waktuMentah) {
 
 export default function UserAktifPanel() {
   const { currentUser } = useAuth();
-  const bolehLihat = !!currentUser && ROLE_BOLEH_LIHAT.includes(currentUser.role);
+  const bolehLihat = !!currentUser && (currentUser.isMasterAdmin || daftarRole(currentUser).some(r => ROLE_BOLEH_LIHAT.includes(r)));
 
   const [boxes, setBoxes] = useState([]);
   const lastNoRef = useRef(null); // null = baseline blm diambil -- jgn tampilkan histori lama sbg "baru"

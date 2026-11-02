@@ -7,6 +7,8 @@ import StoredUsersTable from './StoredUsersTable';
 import SaveProgressModal from '../../components/common/SaveProgressModal';
 import KelolaRoleModal from './KelolaRoleModal';
 import useTabAccess from '../../hooks/useTabAccess';
+import RoleChips from '../../components/common/RoleChips';
+import { gabungRole } from '../../db/akses';
 
 export const OPSI_TAMBAH = '__tambah_kategori__';
 export const OPSI_KELOLA = '__kelola_kategori__';
@@ -34,14 +36,9 @@ function TambahUserForm({ onSaved }) {
 
   // Opsi Role dibangun DINAMIS dari daftar kategori user (bisa ditambah/diubah/dihapus).
   const namaGuru = useMemo(() => guru.map(g => g.nama).filter(Boolean).sort((a, b) => a.localeCompare(b, 'id')), [guru]);
-  const fieldsDenganRole = useMemo(() => USER_FIELDS.map(f => f.key === 'Role' ? { ...f, options: permissionRoles } : f.key === 'Guru' ? { ...f, options: namaGuru } : f), [permissionRoles, namaGuru]);
+  const fieldsDenganRole = useMemo(() => USER_FIELDS.map(f => f.key === 'Role' ? { ...f, label: 'Role (boleh lebih dari satu)', options: permissionRoles } : f.key === 'Guru' ? { ...f, options: namaGuru } : f), [permissionRoles, namaGuru]);
 
   function setField(key, value) { setForm(f => ({ ...f, [key]: value })); }
-  function pilihRole(v) {
-    if (v === OPSI_TAMBAH) setKelolaRole({ tambahBaru: true });
-    else if (v === OPSI_KELOLA) setKelolaRole({ tambahBaru: false });
-    else setField('Role', v);
-  }
 
   async function submit(e) {
     e.preventDefault();
@@ -79,7 +76,8 @@ function TambahUserForm({ onSaved }) {
                   )}
                 </label>
                 {f.key === 'Role' ? (
-                  <RoleSelect value={form[f.key]} options={f.options} onChange={pilihRole} />
+                  <RoleChips value={form[f.key]} options={f.options} onChange={v => setField('Role', v)}
+                    onTambahKategori={() => setKelolaRole({ tambahBaru: true })} onKelola={() => setKelolaRole({ tambahBaru: false })} />
                 ) : f.type === 'select' ? (
                   <select value={form[f.key]} onChange={e => setField(f.key, e.target.value)}>
                     <option value="">— pilih —</option>
@@ -100,7 +98,7 @@ function TambahUserForm({ onSaved }) {
       {phase && <SaveProgressModal phase={phase} />}
       {kelolaRole && (
         <KelolaRoleModal tambahBaru={kelolaRole.tambahBaru} onClose={() => setKelolaRole(null)}
-          onSelesai={(baru, ganti) => setForm(fm => ({ ...fm, Role: baru || ganti[fm.Role] || fm.Role }))} />
+          onSelesai={(baru, ganti) => setForm(fm => ({ ...fm, Role: gabungRole([...String(fm.Role || '').split(',').map(x => ganti[x.trim()] || x.trim()), baru].filter(Boolean)) }))} />
       )}
     </div>
   );

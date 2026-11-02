@@ -465,6 +465,7 @@ export function AppProvider({ children }) {
     const nama = new Set();
     for (const d of bersih) {
       if (!d.nama) throw new Error('Nama kategori tidak boleh kosong.');
+      if (d.nama.includes(',')) throw new Error(`Nama kategori "${d.nama}" tidak boleh memakai tanda koma.`);
       if (nama.has(d.nama.toLowerCase())) throw new Error(`Kategori "${d.nama}" ada dua kali.`);
       nama.add(d.nama.toLowerCase());
     }
@@ -474,13 +475,15 @@ export function AppProvider({ children }) {
     const dihapus = permissionRoles.filter(r => !bersih.some(d => d.namaAwal === r));
 
     const users = await fetchUsersFromSheet();
-    const pemakai = (r) => users.filter(u => String(u['Role'] ?? '').trim() === r);
+    // Kolom Role bisa berisi beberapa role dipisah koma (v1.61.0).
+    const pecah = (u) => String(u['Role'] ?? '').split(',').map(x => x.trim()).filter(Boolean);
+    const pemakai = (r) => users.filter(u => pecah(u).includes(r));
     const masihDipakai = dihapus.filter(r => pemakai(r).length);
     if (masihDipakai.length) {
       throw new Error(`Kategori ${masihDipakai.map(r => `"${r}" (${pemakai(r).length} user)`).join(', ')} masih dipakai. Pindahkan user-nya ke kategori lain dulu sebelum menghapus.`);
     }
     for (const [lama, baru] of Object.entries(ganti)) {
-      for (const u of pemakai(lama)) await updateUserInSheet({ ...u, Role: baru });
+      for (const u of pemakai(lama)) await updateUserInSheet({ ...u, Role: pecah(u).map(x => (x === lama ? baru : x)).join(', ') });
     }
     if (Object.keys(ganti).length || dihapus.length) {
       const hak = await fetchHakAksesFromSheet();

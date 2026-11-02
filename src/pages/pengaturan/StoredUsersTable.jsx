@@ -5,6 +5,8 @@ import { USER_FIELDS, USER_HEADERS } from '../../db/userFields';
 import { fetchUsersFromSheet, updateUserInSheet, deleteUserFromSheet, addLogEntry } from '../../services/googleSheets';
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
+import RoleChips, { warnaRole } from '../../components/common/RoleChips';
+import { daftarRole } from '../../db/akses';
 
 export default function StoredUsersTable({ refreshKey }) {
   const { toast, permissionRoles, guru } = useAppData();
@@ -12,11 +14,9 @@ export default function StoredUsersTable({ refreshKey }) {
   // Opsi Role ikut daftar kategori user + 2 opsi aksi di bawahnya.
   const namaGuru = useMemo(() => guru.map(g => g.nama).filter(Boolean).sort((a, b) => a.localeCompare(b, 'id')), [guru]);
   const fields = useMemo(() => USER_FIELDS.map(f => f.key === 'Guru' ? { ...f, options: namaGuru } : f.key !== 'Role' ? f : {
-    ...f, options: permissionRoles,
-    extraOptions: [
-      { value: '__tambah_kategori__', label: '+ Tambah kategori…', onPick: isi => setKelolaRole({ tambahBaru: true, isi }) },
-      { value: '__kelola_kategori__', label: '✎ Edit / hapus kategori…', onPick: isi => setKelolaRole({ tambahBaru: false, isi }) },
-    ],
+    ...f, label: 'Role (boleh lebih dari satu)', options: permissionRoles,
+    renderInput: (v, set) => <RoleChips value={v} options={permissionRoles} onChange={set}
+      onTambahKategori={isi => setKelolaRole({ tambahBaru: true, isi })} onKelola={() => setKelolaRole({ tambahBaru: false, isi: () => {} })} />,
   }), [permissionRoles, namaGuru]);
   const { currentUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
@@ -71,6 +71,7 @@ export default function StoredUsersTable({ refreshKey }) {
       refreshSignal={`${refreshKey}-${bump}`}
       columnRenderers={{
         Password: (r) => (showPassword ? r['Password'] : '••••••••'),
+        Role: (r) => <span className="role-tampil">{daftarRole(String(r['Role'] ?? '')).map(x => <span key={x} style={warnaRole(x, permissionRoles)}>{x}</span>)}</span>,
         Status: (r) => (
           <span className={`badge ${statusEfektif(r) === 'Aktif' ? 'badge-green' : 'badge-muted'}`}>
             {statusEfektif(r) === 'Aktif' ? '✓ Aktif' : '🚫 Nonaktif'}
@@ -93,7 +94,7 @@ export default function StoredUsersTable({ refreshKey }) {
     />
     {kelolaRole && (
       <KelolaRoleModal tambahBaru={kelolaRole.tambahBaru} onClose={() => setKelolaRole(null)}
-        onSelesai={(baru, ganti) => { if (baru) kelolaRole.isi(baru); if (Object.keys(ganti || {}).length) setBump(b => b + 1); }} />
+        onSelesai={(baru, ganti) => { if (baru) kelolaRole.isi?.(baru); if (Object.keys(ganti || {}).length) setBump(b => b + 1); }} />
     )}
     </>
   );

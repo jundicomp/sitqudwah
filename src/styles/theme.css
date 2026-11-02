@@ -854,3 +854,20 @@ a.ph-tab:hover{border-color:#1C7A3C;background:#fff}
 .pj-panduan ol{margin:8px 0 0 18px;line-height:1.55}
 .pj-link{margin-top:14px;background:none;border:0;color:#8A968F;font:inherit;font-size:12px;text-decoration:underline;cursor:pointer}
 .pj-link:hover{color:#1C7A3C}
+
+/* v1.61.0 multi-role */
+.role-chips{position:relative;}
+.role-chips-box{display:flex;flex-wrap:wrap;gap:6px;align-items:center;border:1px solid var(--border);border-radius:8px;padding:6px 8px;background:#fff;min-height:38px;}
+.role-chip{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:3px 6px 3px 10px;font-size:13px;font-weight:600;}
+.role-chip button{background:none;border:0;cursor:pointer;color:inherit;opacity:.65;font-size:11px;padding:2px 4px;}
+.role-chip button:hover{opacity:1;}
+.role-chips-kosong{color:var(--muted);font-size:13px;}
+.role-chips-tambah{background:none;border:0;color:var(--green-dark);font-weight:700;font-size:13px;cursor:pointer;padding:3px 4px;}
+.role-chips-menu{position:absolute;z-index:30;left:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:6px;min-width:240px;max-height:280px;overflow:auto;}
+.role-chips-menu button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;padding:7px 10px;border-radius:6px;font-size:13px;cursor:pointer;}
+.role-chips-menu button:hover{background:var(--green-soft, #eef5f1);}
+.role-chips-menu i{width:10px;height:10px;border-radius:50%;display:inline-block;}
+.role-chips-menu hr{border:0;border-top:1px solid var(--border);margin:4px 0;}
+.role-chips-info{font-size:11.5px;color:var(--muted);margin-top:4px;padding:2px 4px;}
+.role-tampil{display:inline-flex;flex-wrap:wrap;gap:4px;}
+.role-tampil span{border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600;white-space:nowrap;}

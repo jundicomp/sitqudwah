@@ -75,7 +75,7 @@ export default function ManajemenHakAkses() {
     <Page pageId="hakakses" title="Manajemen Hak Akses" path="Pengaturan / User / Manajemen Hak Akses">
       <div className="card">
         <div className="card-head" style={{ alignItems: 'center' }}>
-          <div><h3>🔐 Manajemen Hak Akses</h3><p>Centang menu yang boleh diakses tiap role. Klik ▸ di samping menu utk atur sampai level tab di dalamnya. Perubahan BELUM tersimpan sampai klik "Terapkan".</p></div>
+          <div><h3>🔐 Manajemen Hak Akses</h3><p>Centang menu yang boleh diakses tiap role. Klik ▸ di samping menu utk atur sampai level tab di dalamnya. Perubahan BELUM tersimpan sampai klik "Terapkan". Akun yang punya beberapa role (rangkap jabatan) mendapat gabungan menu dari semua role-nya.</p></div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             {adaPerubahan && <span style={{ fontSize: 12, color: 'var(--gold)', fontWeight: 700 }}>{daftarPerubahan.length} perubahan belum diterapkan</span>}
             {adaPerubahan && <button className="btn btn-sm" onClick={batalkan} disabled={menerapkan}>Batalkan</button>}

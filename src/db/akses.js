@@ -4,8 +4,18 @@
 // (Manajemen User › Terhubung ke Guru).
 export const ROLE_LIHAT_SEMUA_KELAS = ['Admin', 'Kepala Sekolah'];
 
+// v1.61.0: 1 akun boleh punya BEBERAPA role (guru rangkap jabatan). Disimpan di kolom
+// Role yg sama, dipisah koma: "Guru TK, Bendahara". Akun lama (1 role) tetap jalan.
+export function daftarRole(x) {
+  const v = typeof x === 'string' ? x : (x?.role ?? '');
+  const seen = new Set();
+  return String(v).split(',').map(r => r.trim()).filter(r => r && !seen.has(r.toLowerCase()) && seen.add(r.toLowerCase()));
+}
+export const gabungRole = (list) => daftarRole((list || []).join(',')).join(', ');
+export const punyaRole = (user, ...nama) => daftarRole(user).some(r => nama.includes(r));
+
 export function bolehLihatSemuaKelas(user) {
-  return !!user && (user.isMasterAdmin || ROLE_LIHAT_SEMUA_KELAS.includes(user.role));
+  return !!user && (user.isMasterAdmin || punyaRole(user, ...ROLE_LIHAT_SEMUA_KELAS));
 }
 
 export function rombelUntukUser(rombelList, user) {
@@ -16,4 +26,4 @@ export function rombelUntukUser(rombelList, user) {
 
 // Menerbitkan / mengembalikan rapor = Kepala Sekolah & Admin.
 export const bolehMenerbitkan = (user) => bolehLihatSemuaKelas(user);
-export const isAdmin = (user) => !!user && (user.isMasterAdmin || user.role === 'Admin');
+export const isAdmin = (user) => !!user && (user.isMasterAdmin || punyaRole(user, 'Admin'));

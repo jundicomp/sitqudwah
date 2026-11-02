@@ -4,6 +4,7 @@ import KwitansiModal from '../keuangan/KwitansiModal';
 import GenericEditModal from '../../components/sheetCrud/GenericEditModal';
 import PasswordConfirmModal from '../../components/common/PasswordConfirmModal';
 import { useAppData } from '../../context/AppContext';
+import { isAdmin as cekAdmin } from '../../db/akses';
 import { useAuth } from '../../context/AuthContext';
 import { buildPembayaranEditFields } from '../../db/pembayaranFields';
 import { akunAktivaOptions } from '../../db/akunBukuBesarFields';
@@ -46,7 +47,7 @@ export default function RiwayatPembayaranCard() {
   const { pembayaran, pembayaranLoading, pembayaranLoaded, refreshPembayaran, profilSekolah, akun, toast } = useAppData();
   const { currentUser } = useAuth();
   // MASTER_ADMIN ikut ke-cover krn role-nya juga literal 'Admin' (lihat masterAdmin.js).
-  const isAdmin = currentUser?.role === 'Admin';
+  const isAdmin = cekAdmin(currentUser);
   const [lihatKwitansi, setLihatKwitansi] = useState(null);
   const [editRow, setEditRow] = useState(null);
   const [deleteRow, setDeleteRow] = useState(null);

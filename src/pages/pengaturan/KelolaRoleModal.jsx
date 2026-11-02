@@ -27,7 +27,7 @@ export default function KelolaRoleModal({ onClose, onSelesai, tambahBaru = false
       .then(rows => {
         if (batal) return;
         const m = {};
-        rows.forEach(u => { const r = String(u['Role'] ?? '').trim(); if (r) m[r] = (m[r] || 0) + 1; });
+        rows.forEach(u => { String(u['Role'] ?? '').split(',').map(x => x.trim()).filter(Boolean).forEach(r => { m[r] = (m[r] || 0) + 1; }); });
         setPakai(m);
       })
       .catch(() => !batal && setPakai({}));

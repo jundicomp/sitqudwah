@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback } from 'react';
 import { useAppData } from './AppContext';
 import { isConfigured, fetchUsersFromSheet, updateUserInSheet } from '../services/googleSheets';
 import { MASTER_ADMIN } from '../config/masterAdmin';
+import { daftarRole } from '../db/akses';
 
 const AuthContext = createContext(null);
 const SESSION_KEY = 'currentUser_v1';
@@ -132,11 +133,16 @@ export function AuthProvider({ children }) {
   // mundur -- role lama yg belum pernah atur level tab tidak tiba2 kehilangan akses).
   const canAccess = useCallback((pageId, tabId) => {
     if (!currentUser) return false;
-    const roleperm = permissions[currentUser.role];
-    if (!roleperm) return true;
-    if (roleperm[pageId] === false) return false;
-    if (tabId) return roleperm[`${pageId}.${tabId}`] !== false;
-    return true;
+    // v1.61.0: akun dgn beberapa role -> terbuka bila SALAH SATU role mengizinkan.
+    const boleh = (role) => {
+      const roleperm = permissions[role];
+      if (!roleperm) return true;
+      if (roleperm[pageId] === false) return false;
+      if (tabId) return roleperm[`${pageId}.${tabId}`] !== false;
+      return true;
+    };
+    const roles = daftarRole(currentUser);
+    return roles.length ? roles.some(boleh) : boleh(currentUser.role);
   }, [currentUser, permissions]);
 
   return (

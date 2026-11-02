@@ -85,7 +85,7 @@ export default function GenericEditModal({ row, fields, updateFn, moduleLabel, l
           {fields.map(f => (
             <div key={f.key} className={`field${f.type === 'textarea' ? ' span2' : ''}`}>
               <label>{f.label}{f.required && <span style={{ color: 'var(--red)' }}> *</span>}</label>
-              {f.type === 'select' ? (
+              {f.renderInput ? f.renderInput(form[f.key], v => setField(f.key, v)) : f.type === 'select' ? (
                 <select value={form[f.key]} onChange={e => {
                   // Opsi aksi (mis. "+ Tambah kategori…") tidak mengisi nilai, cuma menjalankan aksinya.
                   const aksi = f.extraOptions?.find(x => x.value === e.target.value);
