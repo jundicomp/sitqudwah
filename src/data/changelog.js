@@ -4,6 +4,16 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.65.0',
+    tanggal: '2026-11-05',
+    poin: [
+      'Nilai Akademik: tab baru "Per Mapel". Pilih kelas dan mapel, lalu semua nilai tampil dalam satu tabel: siswa ke bawah, setiap kali input (tanggal + jenis) jadi satu kolom ke kanan',
+      'Tabel Per Mapel menampilkan predikat, rata-rata tiap siswa, rata-rata kelas, dan jumlah siswa di bawah KKM; angka di bawah KKM berwarna merah',
+      'Tombol Edit di bawah tiap kolom membuka penilaian itu di tab Input Nilai yang sudah terisi',
+      'Nama guru tampil di setiap kolom (siapa yang menginput penilaian itu) dan di ringkasan (guru pengampu mapel menurut Jadwal Pelajaran)',
+    ],
+  },
+  {
     versi: '1.64.0',
     tanggal: '2026-11-02',
     poin: [

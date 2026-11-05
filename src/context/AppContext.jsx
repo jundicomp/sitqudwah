@@ -191,6 +191,7 @@ const HAK_AKSES_TABS = {
     { id: 'input', label: 'Input Nilai' },
     { id: 'rekap', label: 'Rekap Nilai' },
     { id: 'tabel', label: 'Data Nilai' },
+    { id: 'mapel', label: 'Per Mapel' },
   ],
   prestasi: [
     { id: 'tabel', label: 'Daftar Prestasi' },

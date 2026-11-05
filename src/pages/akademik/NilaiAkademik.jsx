@@ -16,11 +16,13 @@ import {
   upsertNilaiToSheet, fetchNilaiFromSheet, updateNilaiInSheet, deleteNilaiFromSheet, addLogEntry, isConfigured,
 } from '../../services/googleSheets';
 import { exportToExcel } from '../../utils/exportTable';
+import { buatLookupKkm } from '../../db/akademikLanjutanFields';
 
 const TABS = [
   { id: 'input', label: 'INPUT NILAI' },
   { id: 'rekap', label: 'REKAP NILAI' },
   { id: 'tabel', label: 'DATA NILAI' },
+  { id: 'mapel', label: 'PER MAPEL' },
 ];
 const EDIT_FIELDS = [
   { key: 'Nilai', label: 'Nilai (0–100)', type: 'number', required: true },
@@ -30,13 +32,13 @@ const EDIT_FIELDS = [
 const nilaiValid = (v) => v === '' || (Number.isFinite(Number(v)) && Number(v) >= 0 && Number(v) <= 100);
 const rata = (arr) => arr.length ? Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 10) / 10 : null;
 
-function useFilterPeriode() {
+function useFilterPeriode(preset) {
   const { tahunAjaranOptions, taAktif, rombelList: semuaRombel } = useAkademikOptions();
   // Kelas berformat PAUD dinilai lewat menu Penilaian PAUD, bukan nilai angka per mapel.
   const rombelList = useMemo(() => semuaRombel.filter(r => formatRaporTingkat(r.tingkat) !== 'PAUD'), [semuaRombel]);
-  const [ta, setTa] = useState('');
-  const [semester, setSemester] = useState(semesterDariTanggal());
-  const [rombelKey, setRombelKey] = useState('');
+  const [ta, setTa] = useState(preset?.ta || '');
+  const [semester, setSemester] = useState(preset?.semester || semesterDariTanggal());
+  const [rombelKey, setRombelKey] = useState(preset?.rombelKey || '');
   useEffect(() => { if (!ta && taAktif) setTa(taAktif); }, [taAktif, ta]);
   useEffect(() => { if (!rombelKey && rombelList.length) setRombelKey(rombelList[0].key); }, [rombelList, rombelKey]);
   const rombel = rombelList.find(r => r.key === rombelKey);
@@ -44,17 +46,17 @@ function useFilterPeriode() {
 }
 
 // ---------------------------------------------------------------------------
-function InputNilai() {
+function InputNilai({ preset }) {
   const { siswa, nilai, nilaiLoaded, jadwal, refreshNilai, toast, mapelList } = useAppData();
   const { currentUser } = useAuth();
   const { guruOptions } = useAkademikOptions();
-  const f = useFilterPeriode();
-  const [mapel, setMapel] = useState(MAPEL_OPTIONS[0]);
+  const f = useFilterPeriode(preset);
+  const [mapel, setMapel] = useState(preset?.mapel || MAPEL_OPTIONS[0]);
   // Pilihan mapel mengikuti jenjang kelas yg dipilih (Kurikulum & KKM › Mata Pelajaran).
   const mapelKelas = useMemo(() => (f.rombel ? mapelUntukTingkat(f.rombel.tingkat) : MAPEL_OPTIONS), [f.rombel, mapelList]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (mapelKelas.length && !mapelKelas.includes(mapel)) setMapel(mapelKelas[0]); }, [mapelKelas, mapel]);
-  const [jenis, setJenis] = useState('Harian');
-  const [tanggal, setTanggal] = useState(todayWIB());
+  const [jenis, setJenis] = useState(preset?.jenis || 'Harian');
+  const [tanggal, setTanggal] = useState(preset?.tanggal || todayWIB());
   const [guru, setGuru] = useState('');
   const [isian, setIsian] = useState({});
   const [berubah, setBerubah] = useState(false);
@@ -280,9 +282,164 @@ function RekapNilai() {
 }
 
 // ---------------------------------------------------------------------------
+// v1.65.0: nilai satu mapel dalam satu tabel. Siswa ke bawah, setiap kali input
+// (tanggal + jenis) jadi satu kolom ke kanan. Hanya untuk dilihat; edit lewat Input Nilai.
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtTgl = (iso) => { const d = new Date(iso + 'T00:00:00'); return Number.isNaN(d.getTime()) ? { hari: '', tgl: iso || '—' } : { hari: HARI[d.getDay()], tgl: `${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}` }; };
+const koma = (v) => (v === null || v === undefined ? '—' : String(v).replace('.', ','));
+const KELAS_JENIS = { Harian: 'kH', Tugas: 'kT', UTS: 'kU', UAS: 'kA' };
+
+function NilaiPerMapel({ onEdit }) {
+  const { siswa, nilai, nilaiLoaded, kkm, mapelList, jadwal } = useAppData();
+  const f = useFilterPeriode();
+  const mapelKelas = useMemo(() => (f.rombel ? mapelUntukTingkat(f.rombel.tingkat) : MAPEL_OPTIONS), [f.rombel, mapelList]); // eslint-disable-line react-hooks/exhaustive-deps
+  const daftar = useMemo(() => (f.rombel ? siswaDiRombel(siswa, f.rombel.tingkat, f.rombel.rombel) : []), [siswa, f.rombel]);
+  const nisnKelas = useMemo(() => new Set(daftar.map(s => s.nisn).filter(Boolean)), [daftar]);
+  // Semua nilai kelas ini di periode terpilih (termasuk siswa yg sudah pindah kelas: dicocokkan
+  // juga lewat Tingkat+Rombel yg tercatat di baris nilai).
+  const nilaiKelas = useMemo(() => (f.rombel ? nilai.filter(n => n.tahunAjaran === f.ta && n.semester === f.semester && n.nilai !== null
+    && (nisnKelas.has(n.nisn) || (n.tingkat === f.rombel.tingkat && n.rombel === f.rombel.rombel))) : []), [nilai, f.ta, f.semester, f.rombel, nisnKelas]);
+  const jumlahPerMapel = useMemo(() => {
+    const m = {};
+    nilaiKelas.forEach(n => { (m[n.mapel] ||= new Set()).add(`${n.tanggal}|${n.jenis}`); });
+    return m;
+  }, [nilaiKelas]);
+  const daftarMapel = useMemo(() => [...mapelKelas, ...Object.keys(jumlahPerMapel).filter(m => !mapelKelas.includes(m))], [mapelKelas, jumlahPerMapel]);
+  const [mapel, setMapel] = useState('');
+  // Ganti kelas/periode -> pilih otomatis mapel pertama yang sudah punya nilai.
+  useEffect(() => { setMapel(''); }, [f.rombelKey, f.ta, f.semester]);
+  useEffect(() => {
+    if (!mapel || !daftarMapel.includes(mapel)) setMapel(daftarMapel.find(m => jumlahPerMapel[m]?.size) || daftarMapel[0] || '');
+  }, [daftarMapel, mapel, jumlahPerMapel]);
+
+  const lookupKkm = useMemo(() => buatLookupKkm(kkm), [kkm]);
+  const batas = f.rombel ? lookupKkm(f.ta, f.rombel.tingkat, mapel) : null;
+  const rendah = (v) => v !== null && v !== undefined && batas !== null && v < batas;
+
+  const data = useMemo(() => {
+    const rows = nilaiKelas.filter(n => n.mapel === mapel);
+    // Guru tiap kolom = nama guru yg tercatat di baris nilai penilaian itu (yg paling banyak).
+    const peta = new Map();
+    rows.forEach(n => {
+      const k = `${n.tanggal}|${n.jenis}`;
+      if (!peta.has(k)) peta.set(k, { kunci: k, tanggal: n.tanggal, jenis: n.jenis, hitung: {} });
+      if (n.guru) peta.get(k).hitung[n.guru] = (peta.get(k).hitung[n.guru] || 0) + 1;
+    });
+    const kolom = [...peta.values()].map(k => ({ ...k, guru: Object.entries(k.hitung).sort((a, b) => b[1] - a[1])[0]?.[0] || '' }))
+      .sort((a, b) => a.tanggal.localeCompare(b.tanggal) || a.jenis.localeCompare(b.jenis));
+    const sel = {};
+    rows.forEach(n => { sel[`${n.nisn}|${n.tanggal}|${n.jenis}`] = n.nilai; });
+    // Siswa di kelas sekarang + siswa lain yg punya nilai di kelas ini (mis. sudah pindah).
+    const lain = [...new Map(rows.filter(n => !nisnKelas.has(n.nisn)).map(n => [n.nisn, { id: 'X' + n.nisn, nisn: n.nisn, nama: n.nama, keluar: true }])).values()];
+    const siswaTabel = [...daftar, ...lain];
+    const baris = siswaTabel.map(s => {
+      const v = kolom.map(k => sel[`${s.nisn}|${k.kunci}`] ?? null);
+      return { s, v, rata: rata(v.filter(x => x !== null)) };
+    });
+    const rataKolom = kolom.map((_, i) => rata(baris.map(b => b.v[i]).filter(x => x !== null)));
+    const rataSiswa = baris.map(b => b.rata).filter(x => x !== null);
+    return { kolom, baris, rataKolom, rataKelas: rata(rataSiswa) };
+  }, [nilaiKelas, mapel, daftar, nisnKelas]);
+
+  // Guru pengampu menurut Jadwal Pelajaran + semua guru yg pernah menginput nilai mapel ini.
+  const pengampu = useMemo(() => (f.rombel ? [...new Set(jadwal.filter(j => j.tahunAjaran === f.ta && j.semester === f.semester && j.tingkat === f.rombel.tingkat && j.rombel === f.rombel.rombel && j.mapel === mapel && j.guru).map(j => j.guru))] : []), [jadwal, f.ta, f.semester, f.rombel, mapel]);
+  const penginput = [...new Set(data.kolom.map(k => k.guru).filter(Boolean))];
+  const bawahKolom = data.kolom.map((_, i) => data.baris.filter(b => rendah(b.v[i])).length);
+  const bawahSiswa = data.baris.filter(b => rendah(b.rata)).length;
+
+  function exportData() {
+    const head = data.kolom.map((k, i) => `${i + 1}. ${k.jenis} ${k.tanggal}`);
+    const headGuru = data.kolom.map((k, i) => `${head[i]} (${k.guru || '-'})`);
+    head.splice(0, head.length, ...headGuru);
+    exportToExcel(['No', 'Nama Siswa', 'NISN', ...head, 'Rata-rata', 'Predikat'], data.baris.map((b, i) => ({
+      No: i + 1, 'Nama Siswa': b.s.nama, NISN: b.s.nisn, ...Object.fromEntries(head.map((h, k) => [h, b.v[k] ?? ''])),
+      'Rata-rata': b.rata ?? '', Predikat: predikatNilai(b.rata),
+    })), `Nilai_${mapel}_${f.rombel?.label}_${f.ta}_${f.semester}`.replace(/[^\w-]+/g, '_'), `Nilai ${mapel} — ${f.rombel?.label} — ${f.ta} ${f.semester}`);
+  }
+
+  const Pd = ({ v }) => { const p = predikatNilai(v); return p ? <span className={`badge pm-pd ${badgePredikat(p)}`}>{p}</span> : null; };
+
+  return (
+    <div className="card">
+      <div className="card-head">
+        <div><h3>Nilai per mata pelajaran</h3><p>Siswa ke bawah, setiap kali input nilai jadi satu kolom ke kanan. Kolom paling kanan = rata-rata tiap siswa.</p></div>
+        <button className="btn btn-sm" onClick={exportData} disabled={!data.kolom.length}>📊 Excel</button>
+      </div>
+      <div className="card-body">
+        <div className="filter-bar">
+          <Field label="Tahun Ajaran"><Select value={f.ta} onChange={f.setTa} options={f.tahunAjaranOptions} /></Field>
+          <Field label="Semester"><Select value={f.semester} onChange={f.setSemester} options={SEMESTER_OPTIONS} /></Field>
+          <Field label="Kelas / Rombel" grow><Select value={f.rombelKey} onChange={f.setRombelKey} options={f.rombelList.map(r => ({ value: r.key, label: r.label }))} /></Field>
+        </div>
+        <div className="pm-mapel" role="tablist" aria-label="Mata pelajaran">
+          {daftarMapel.map(m => (
+            <button key={m} type="button" role="tab" aria-selected={m === mapel} className={m === mapel ? 'on' : ''} onClick={() => setMapel(m)}>
+              {m} <small>{jumlahPerMapel[m]?.size || 0}×</small>
+            </button>
+          ))}
+        </div>
+        {!nilaiLoaded ? <Kosong>Memuat nilai…</Kosong> : !f.rombel ? <Kosong>Belum ada kelas.</Kosong> : !data.kolom.length ? (
+          <Kosong>Belum ada nilai {mapel} untuk {f.rombel.label} di {f.ta} semester {f.semester}. <button className="btn btn-sm" style={{ marginLeft: 8 }} onClick={() => onEdit({ ta: f.ta, semester: f.semester, rombelKey: f.rombelKey, mapel })}>＋ Input nilai</button></Kosong>
+        ) : (
+          <>
+            <div className="ringkas-bar" style={{ margin: '4px 0 12px' }}>
+              <span className="badge badge-blue">👤 {pengampu.length ? `Guru pengampu: ${pengampu.join(', ')}` : penginput.length ? `Diinput oleh: ${penginput.join(', ')}` : 'Guru belum tercatat'}</span>
+              {pengampu.length > 0 && penginput.some(g => !pengampu.includes(g)) && <span className="badge badge-muted">Juga diinput oleh: {penginput.filter(g => !pengampu.includes(g)).join(', ')}</span>}
+              <span className="badge badge-muted">{data.kolom.length} kali input</span>
+              {batas !== null && <span className="badge badge-muted">KKM {batas}</span>}
+              <span className="badge badge-green">Rata-rata kelas {koma(data.rataKelas)}</span>
+              {batas !== null && (bawahSiswa ? <span className="badge badge-red">{bawahSiswa} siswa rata-rata di bawah KKM</span> : <span className="badge badge-green">Semua rata-rata tuntas</span>)}
+              <button className="btn btn-sm" style={{ marginLeft: 'auto' }} onClick={() => onEdit({ ta: f.ta, semester: f.semester, rombelKey: f.rombelKey, mapel })}>＋ Input nilai {mapel}</button>
+            </div>
+            <div className="table-scroll">
+              <table className="pm-tabel">
+                <thead>
+                  <tr>
+                    <th>#</th><th className="pm-nama">Nama Siswa</th>
+                    {data.kolom.map((k, i) => { const t = fmtTgl(k.tanggal); return (
+                      <th key={k.kunci} className="pm-kol" title={k.guru ? `Guru: ${k.guru}` : undefined}>
+                        <div className="pm-no">Input ke-{i + 1}</div><div className="pm-hari">{t.hari}</div><div className="pm-tgl">{t.tgl}</div>
+                        <span className={`pm-kat ${KELAS_JENIS[k.jenis] || ''}`}>{k.jenis}</span>
+                        <div className="pm-guru">{k.guru || 'guru tidak tercatat'}</div>
+                      </th>
+                    ); })}
+                    <th className="pm-rata">Rata-rata<br />siswa</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.baris.map((b, i) => (
+                    <tr key={b.s.id || b.s.nisn}>
+                      <td className="pm-i">{i + 1}</td>
+                      <td className="pm-nama"><b>{b.s.nama}</b>{b.s.keluar && <small> · sudah tidak di kelas ini</small>}</td>
+                      {b.v.map((v, k) => (
+                        <td key={k} className={`pm-v ${rendah(v) ? 'lo' : ''}`}>{v === null ? <span className="pm-kos">belum<br />dinilai</span> : <>{v}<Pd v={v} /></>}</td>
+                      ))}
+                      <td className={`pm-v pm-av ${rendah(b.rata) ? 'lo' : ''}`}>{b.rata === null ? '—' : <>{koma(b.rata)}<Pd v={b.rata} /></>}</td>
+                    </tr>
+                  ))}
+                  <tr className="pm-ft"><td /><td className="pm-nama">Rata-rata kelas</td>{data.rataKolom.map((r, i) => <td key={i} className="pm-v">{koma(r)}</td>)}<td className="pm-v pm-av">{koma(data.rataKelas)}</td></tr>
+                  {batas !== null && <tr className="pm-ft"><td /><td className="pm-nama">Di bawah KKM</td>{bawahKolom.map((n, i) => <td key={i} className={`pm-v ${n ? 'lo' : ''}`}>{n} siswa</td>)}<td className={`pm-v pm-av ${bawahSiswa ? 'lo' : ''}`}>{bawahSiswa} siswa</td></tr>}
+                  <tr className="pm-aksi"><td /><td />{data.kolom.map(k => (
+                    <td key={k.kunci}><button type="button" className="btn btn-sm" onClick={() => onEdit({ ta: f.ta, semester: f.semester, rombelKey: f.rombelKey, mapel, jenis: k.jenis, tanggal: k.tanggal })} aria-label={`Edit ${k.jenis} ${k.tanggal}`}>✏️ Edit</button></td>
+                  ))}<td /></tr>
+                </tbody>
+              </table>
+            </div>
+            <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '10px 0 0' }}>Angka merah = di bawah KKM. Huruf kecil = predikat. "Belum dinilai" tidak ikut dihitung ke rata-rata. ✏️ Edit membuka penilaian itu di tab Input Nilai.</p>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 export default function NilaiAkademik() {
   const { refreshNilai } = useAppData();
   const { tab, setTab, bolehTab } = useTabAccess('nilai', TABS.map(t => t.id));
+  const [preset, setPreset] = useState(null); // dari tombol Edit / Input di tab Per Mapel
+  const bukaInput = (p) => { setPreset({ ...p, n: Date.now() }); setTab('input'); };
   const updateFn = (row) => {
     if (!nilaiValid(row.Nilai) || row.Nilai === '') throw new Error('Nilai harus angka 0–100.');
     return updateNilaiInSheet({ ...row, Nilai: Number(row.Nilai) });
@@ -293,8 +450,9 @@ export default function NilaiAkademik() {
       <div className="card">
         <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />
         <div className="card-body" style={{ background: 'transparent', padding: 20 }}>
-          {tab === 'input' && bolehTab('input') && <InputNilai />}
+          {tab === 'input' && bolehTab('input') && <InputNilai key={preset?.n || 0} preset={preset} />}
           {tab === 'rekap' && bolehTab('rekap') && <RekapNilai />}
+          {tab === 'mapel' && bolehTab('mapel') && <NilaiPerMapel onEdit={bukaInput} />}
           {tab === 'tabel' && bolehTab('tabel') && (
             <GenericStoredTable
               title="Data nilai"
