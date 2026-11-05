@@ -590,9 +590,9 @@ td{white-space:nowrap;}
 .rp-hlm{margin-top:auto;text-align:center;font-size:10pt;padding-top:4mm;}
 .rp-ttd{border:1px solid #333;margin-top:8mm;}
 .rp-ttd .baris{display:grid;grid-template-columns:1fr 1fr;}
-.rp-ttd .sel{padding:3mm;text-align:center;min-height:42mm;display:flex;flex-direction:column;justify-content:space-between;}
+.rp-ttd .sel{padding:3mm;text-align:center;display:flex;flex-direction:column;}
 .rp-ttd .sel + .sel{border-left:1px solid #333;}
-.rp-ttd .bawah{border-top:1px solid #333;padding:3mm;text-align:center;min-height:38mm;display:flex;flex-direction:column;justify-content:space-between;}
+.rp-ttd .bawah{border-top:1px solid #333;padding:3mm;text-align:center;display:flex;flex-direction:column;}
 .rp-pasfoto{width:30mm;height:40mm;border:1px solid #888;object-fit:cover;}
 .rp-pasfoto.kosong{display:flex;align-items:center;justify-content:center;font-size:9pt;color:#666;background:#f2f2f2;}
 #rp-print-root{position:absolute;left:-10000px;top:0;}
@@ -600,7 +600,8 @@ td{white-space:nowrap;}
   body.rp-printing > *:not(#rp-print-root){display:none !important;}
   body.rp-printing{background:#fff !important;}
   body.rp-printing #rp-print-root{position:static;left:auto;}
-  body.rp-printing .rp-hal{box-shadow:none;margin:0;break-after:page;page-break-after:always;min-height:0;height:266mm;overflow:hidden;padding:0 2mm;width:auto;}
+  body.rp-printing .rp-hal{box-shadow:none;margin:0;break-after:page;page-break-after:always;min-height:266mm;height:auto;overflow:visible;padding:0 2mm;width:auto;}
+  /* v1.66.1: dulu height:266mm + overflow:hidden -> isi yg lebih panjang (alamat, deskripsi) terpotong. */
   body.rp-printing .rp-hal:last-child{break-after:auto;page-break-after:auto;}
   body.rp-printing *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
 }
@@ -969,3 +970,14 @@ th.kolom-aksi{background:var(--green-dark);}
 .ifn-akt small{display:block;color:var(--muted);}
 .ifn-warn{background:#fdecec;color:#b3261e;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:600;margin-top:6px;}
 .ifn-kosong{font-size:13px;color:var(--muted);margin:4px 0 0;}
+/* v1.66.1 Rapor SD: identitas lebih rapat supaya muat 1 halaman A4 walau alamat panjang */
+.rs-idt.rapat td{padding:0.8mm 0;font-size:11pt;line-height:1.35;}
+@media print {
+  /* halaman SD tetap mulai di lembar baru walau tingginya mengikuti isi */
+  body.rp-printing .rp-hal.rs.rp-flow{break-after:page;page-break-after:always;}
+  body.rp-printing .rp-hal.rs.rp-flow:last-child{break-after:auto;page-break-after:auto;}
+}
+/* v1.66.3 posisi pas foto & tanda tangan kepala (PAUD & SD sama) */
+.rp-foto-ttd{display:flex;justify-content:flex-end;align-items:flex-end;gap:3mm;break-inside:avoid;page-break-inside:avoid;}
+.rp-ttd-kepsek{text-align:center;min-width:75mm;}
+.rp-ruang-ttd{height:20mm;flex:none;}

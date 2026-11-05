@@ -8,11 +8,27 @@ import { SatuRencanaPaud } from '../modulAjar/DokumenRencanaPaud';
 // Cetak rapor (PAUD atau SD -- dilihat dari d.jenis; 1 anak atau banyak) lewat jendela cetak browser.
 // Dokumen dipasang langsung di <body> (bukan di dalam modal) supaya terpotong rapi
 // per halaman A4, lalu dibersihkan lagi setelah dialog cetak ditutup.
+// v1.66.2: rapor PAUD & SD dicetak di kertas F4 (215 x 330 mm). Modul ajar & RPPM tetap A4.
+const UKURAN_F4 = '215mm 330mm';
+export const kertasDokumen = (list) => (list.every(d => !d?.jenis || d.jenis === 'SD' || d.jenis === 'PAUD') ? 'F4' : 'A4');
+
 export default function CetakRaporPaud({ dokumen, onSelesai }) {
+  const list0 = Array.isArray(dokumen) ? dokumen : [dokumen];
+  const f4 = kertasDokumen(list0) === 'F4';
   useEffect(() => {
     let selesai = false;
+    // @page tidak bisa dibedakan per class body, jadi aturan ukuran kertas F4 dipasang
+    // sementara selama mencetak lalu dilepas lagi.
+    let gaya = null;
+    if (f4) {
+      gaya = document.createElement('style');
+      gaya.id = 'rp-kertas-f4';
+      gaya.textContent = `@media print { @page { size: ${UKURAN_F4}; margin: 14mm 12mm; } body.rp-printing .rp-hal { min-height: 298mm; } }`;
+      document.head.appendChild(gaya);
+    }
     const bersih = () => {
       if (selesai) return; selesai = true;
+      gaya?.remove();
       document.body.classList.remove('rp-printing');
       window.removeEventListener('afterprint', bersih);
       onSelesai && onSelesai();
@@ -26,7 +42,7 @@ export default function CetakRaporPaud({ dokumen, onSelesai }) {
       new Promise(r => setTimeout(r, 6000)),
     ]);
     tunggu.then(() => { if (!selesai) { window.print(); setTimeout(bersih, 1000); } });
-    return () => { document.body.classList.remove('rp-printing'); window.removeEventListener('afterprint', bersih); };
+    return () => { gaya?.remove(); document.body.classList.remove('rp-printing'); window.removeEventListener('afterprint', bersih); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const list = Array.isArray(dokumen) ? dokumen : [dokumen];

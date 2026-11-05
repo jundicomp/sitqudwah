@@ -89,9 +89,10 @@ export function SatuRaporPaud({ d }) {
           <span>6.</span><span>Alamat Lengkap</span><span>: {titik(k.alamat)}</span>
           <span>7.</span><span>Nomor Telp</span><span>: {titik(k.hpIbu)}</span>
         </div>
-        <div style={{ marginTop: '10mm', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '8mm' }}>
+        {/* v1.66.3: pas foto menempel di kiri tanda tangan supaya ikut terkena cap (sama dgn rapor SD) */}
+        <div className="rp-foto-ttd" style={{ marginTop: '10mm' }}>
           {a.foto ? <img className="rp-pasfoto" src={a.foto} alt="Pas foto" /> : <div className="rp-pasfoto kosong">Pas foto</div>}
-          <div style={{ textAlign: 'center', minWidth: '75mm' }}>
+          <div className="rp-ttd-kepsek">
             {tanggalTtd}<br />{d.jabatanKepala.replace(/^Kepala Satuan /, 'Kepala ')}
             <div style={{ height: '20mm' }} />
             <b><u>{d.kepala || '................................'}</u></b>{d.kepalaNiy ? <><br />NIY {d.kepalaNiy}</> : null}
@@ -159,10 +160,11 @@ export function SatuRaporPaud({ d }) {
           </table>
           <div className="rp-ttd">
             <div className="baris">
-              <div className="sel"><span style={{ marginTop: '9mm' }}>Wali Kelas</span><span>{d.wali ? <b><u>{d.wali}</u></b> : '................................'}{d.waliNiy ? <><br />NIY {d.waliNiy}</> : null}</span></div>
-              <div className="sel"><span>{tanggalTtd}<br /><br />Orang Tua / Wali Murid</span><span>{d.ortuTtd ? <b><u>{d.ortuTtd}</u></b> : '................................'}</span></div>
+              {/* v1.66.3: ruang tanda tangan dibuat tetap 20 mm (dulu terlalu sempit) */}
+              <div className="sel"><span><span style={{ visibility: 'hidden' }}>{tanggalTtd}</span><br />Wali Kelas</span><div className="rp-ruang-ttd" /><span>{d.wali ? <b><u>{d.wali}</u></b> : '................................'}{d.waliNiy ? <><br />NIY {d.waliNiy}</> : null}</span></div>
+              <div className="sel"><span>{tanggalTtd}<br />Orang Tua / Wali Murid</span><div className="rp-ruang-ttd" /><span>{d.ortuTtd ? <b><u>{d.ortuTtd}</u></b> : '................................'}</span></div>
             </div>
-            <div className="bawah"><span>Mengetahui,<br />{d.jabatanKepala}</span><b>{d.kepala || '................................'}{d.kepalaNiy ? <><br /><span style={{ fontWeight: 400 }}>NIY {d.kepalaNiy}</span></> : null}</b></div>
+            <div className="bawah"><span>Mengetahui,<br />{d.jabatanKepala}</span><div className="rp-ruang-ttd" /><b><u>{d.kepala || '................................'}</u>{d.kepalaNiy ? <><br /><span style={{ fontWeight: 400 }}>NIY {d.kepalaNiy}</span></> : null}</b></div>
           </div>
         </Hal>
       ); })()}

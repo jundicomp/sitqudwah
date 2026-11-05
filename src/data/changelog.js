@@ -4,6 +4,27 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.66.3',
+    tanggal: '2026-11-05',
+    poin: [
+      'Rapor PAUD & SD: pas foto kini menempel di samping kiri tanda tangan Kepala Sekolah (posisi sama di kedua rapor) supaya ikut terkena cap',
+      'Rapor PAUD: ruang tanda tangan Wali Kelas, Orang Tua, dan Kepala Satuan dibuat 20 mm sehingga tidak terlalu rapat',
+    ],
+  },
+  {
+    versi: '1.66.2',
+    tanggal: '2026-11-05',
+    poin: ['Cetak Rapor PAUD dan Rapor SD memakai kertas F4 / Folio (215 x 330 mm) dengan margin 14 mm di semua sisi; Modul Ajar dan Rencana Tema tetap A4'],
+  },
+  {
+    versi: '1.66.1',
+    tanggal: '2026-11-05',
+    poin: [
+      'Cetak Rapor SD: halaman Identitas Peserta Didik tidak lagi terpotong di bawah saat alamat panjang; barisnya dibuat lebih rapat dan tanda tangan Kepala Sekolah tidak terpisah',
+      'Cetak rapor (PAUD & SD): halaman yang isinya lebih panjang dari 1 lembar tidak lagi terpotong, sisanya otomatis lanjut ke lembar berikutnya',
+    ],
+  },
+  {
     versi: '1.66.0',
     tanggal: '2026-11-05',
     poin: [

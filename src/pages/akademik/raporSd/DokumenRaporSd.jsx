@@ -6,9 +6,9 @@ const tgl = (iso) => (iso ? formatTanggal(String(iso).slice(0, 10) + 'T00:00:00'
 const t = (v) => (v ? v : '');
 const titik = '...........................................';
 
-function Idt({ rows, lebar = '58mm' }) {
+function Idt({ rows, lebar = '58mm', rapat = false }) {
   return (
-    <table className="rs-idt"><tbody>
+    <table className={`rs-idt${rapat ? ' rapat' : ''}`}><tbody>
       {rows.map(([label, value, indent], i) => (
         <tr key={i}><td style={{ width: lebar, paddingLeft: indent ? '8mm' : 0 }}>{label}</td><td style={{ width: '4mm' }}>{value === null ? '' : ':'}</td><td>{value === null ? '' : t(value)}</td></tr>
       ))}
@@ -25,7 +25,9 @@ export function SatuRaporSd({ d }) {
   let no = 0;
   return (
     <>
-      <section className="rp-hal rs">
+      {/* v1.66.1: semua halaman SD tingginya mengikuti isi (rp-flow) -- dulu tinggi tetap
+          266 mm + overflow hidden, jadi identitas dgn alamat panjang terpotong di bawah. */}
+      <section className="rp-hal rs rp-flow">
         <h1 style={{ marginBottom: '2mm' }}>RAPOR PESERTA DIDIK</h1>
         <h1 style={{ marginTop: 0 }}>{sk.judulJenjang}</h1>
         <div style={{ marginTop: '14mm' }}>
@@ -38,9 +40,9 @@ export function SatuRaporSd({ d }) {
         </div>
       </section>
 
-      <section className="rp-hal rs">
+      <section className="rp-hal rs rp-flow">
         <h1>IDENTITAS PESERTA DIDIK</h1>
-        <Idt rows={[
+        <Idt rapat rows={[
           ['Nama Peserta Didik', a.nama], ['NISN/NIS', nisnNis], ['Tempat, Tanggal Lahir', ttl], ['Jenis Kelamin', a.jk], ['Agama', a.agama],
           ['Alamat Peserta Didik', alamatLengkap],
           ['Nama Orang Tua', null], ['Ayah', d.ortu.ayah, 1], ['Ibu', d.ortu.ibu, 1],
@@ -48,9 +50,10 @@ export function SatuRaporSd({ d }) {
           ['Alamat Orang Tua', null], ['Jalan', a.alamat, 1], ['Kelurahan/Desa', a.desa, 1], ['Kecamatan', a.kecamatan, 1], ['Kabupaten/Kota', a.kabupaten, 1], ['Provinsi', a.provinsi, 1],
           ['Wali Peserta Didik', null], ['Nama', d.walimurid.nama, 1], ['Pekerjaan', d.walimurid.pekerjaan, 1], ['Alamat', d.walimurid.alamat, 1],
         ]} />
-        <div style={{ marginTop: '8mm', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '14mm' }}>
+        {/* v1.66.3: posisi pas foto sama dgn rapor PAUD -- menempel di kiri tanda tangan, ikut terkena cap */}
+        <div className="rs-blok rp-foto-ttd" style={{ marginTop: '6mm' }}>
           {a.foto ? <img className="rp-pasfoto" src={a.foto} alt="Pas foto" /> : <div className="rp-pasfoto kosong">Pas Foto<br />Ukuran 3x4</div>}
-          <div style={{ minWidth: '70mm' }}>
+          <div className="rp-ttd-kepsek">
             {d.tempat}, {tgl(d.tanggal)}<br />Kepala Sekolah,
             <div style={{ height: '20mm' }} />
             <b><u>{d.kepala || titik}</u></b><br />{d.kepalaNiy ? `NIY ${d.kepalaNiy}` : ''}
