@@ -8,7 +8,9 @@ import { normalisasiTanggalUntukInput } from '../../db/helpers';
 import ListField from '../common/ListField';
 import ImageField from '../common/ImageField';
 
-export default function GenericEditModal({ row, fields, updateFn, moduleLabel, labelKey, onClose, onSaved }) {
+// editInfo(row) -> [[label, nilai], ...] : ringkasan data yg diedit (read-only), mis. siswa & mapel.
+// labelFn(row) -> teks utk pesan konfirmasi (default: row[labelKey]).
+export default function GenericEditModal({ row, fields, updateFn, moduleLabel, labelKey, onClose, onSaved, editInfo, labelFn }) {
   const { toast } = useAppData();
   const { currentUser } = useAuth();
   const [form, setForm] = useState(() => {
@@ -66,7 +68,7 @@ export default function GenericEditModal({ row, fields, updateFn, moduleLabel, l
     return (
       <PasswordConfirmModal
         title="Konfirmasi Perubahan Data"
-        message={`Anda akan mengubah data "${form[labelKey]}".`}
+        message={`Anda akan mengubah data "${labelFn ? labelFn(row) : form[labelKey]}".`}
         onConfirm={doUpdate}
         onClose={() => setStep('form')}
       />
@@ -80,6 +82,11 @@ export default function GenericEditModal({ row, fields, updateFn, moduleLabel, l
         <button className="btn btn-primary" onClick={trySubmit} disabled={saving}>Lanjut ke Konfirmasi</button>
       </>
     }>
+      {editInfo && (
+        <div className="edit-info">
+          {editInfo(row).map(([k, v]) => <div key={k}><span>{k}</span><b>{v || '—'}</b></div>)}
+        </div>
+      )}
       <form onSubmit={trySubmit}>
         <div className="form-grid">
           {fields.map(f => (

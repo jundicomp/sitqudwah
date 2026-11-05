@@ -927,3 +927,45 @@ html,body{overscroll-behavior-y:none;}
 .pm-aksi td{border-bottom:0;text-align:center;padding-top:8px;}
 .pm-guru{font-size:11px;font-weight:500;opacity:.85;margin-top:5px;line-height:1.25;}
 .pm-guru:before{content:"👤 ";}
+.edit-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px 14px;background:#f4f8f5;border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin:0 0 14px;}
+.edit-info div{display:flex;flex-direction:column;font-size:13px;}
+.edit-info span{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.3px;}
+th.kolom-aksi,td.kolom-aksi{position:sticky;right:0;z-index:1;box-shadow:-6px 0 8px -6px rgba(0,0,0,.18);}
+td.kolom-aksi{background:#fff;}
+tr:nth-child(even) td.kolom-aksi{background:var(--yellow-stripe);}
+th.kolom-aksi{background:var(--green-dark);}
+
+/* v1.66.0 Infografis Nilai Akademik */
+.ifn{padding:16px 18px;}
+.ifn-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.ifn-head h3{margin:0;font-size:16px;}.ifn-head p{margin:2px 0 0;font-size:12.5px;color:var(--muted);}
+.ifn-filter{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.ifn-filter select{padding:5px 8px;font-size:12.5px;border-radius:8px;}
+.ifn-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px;}
+.ifn-k{border-radius:14px;padding:12px 14px;color:#fff;position:relative;overflow:hidden;}
+.ifn-k b{display:block;font-size:24px;line-height:1.15;}.ifn-k small{font-size:12px;opacity:.92;}
+.ifn-k i{position:absolute;right:10px;top:8px;font-style:normal;font-size:20px;opacity:.5;}
+.ifn-k.k1{background:linear-gradient(135deg,#1f6b4a,#123d2b);}.ifn-k.k2{background:linear-gradient(135deg,#2f6fd0,#1d4f9a);}
+.ifn-k.k3{background:linear-gradient(135deg,#7a4fd0,#5b2c9a);}.ifn-k.k4{background:linear-gradient(135deg,#d0503a,#9a1d1d);}
+.ifn-k.k5{background:linear-gradient(135deg,#d99a1f,#8a5a00);}
+.ifn-row{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:12px;}
+@media (max-width:1100px){.ifn-row{grid-template-columns:1fr;}}
+.ifn-pan{border:1px solid var(--border);border-radius:12px;padding:12px 14px;min-width:0;}
+.ifn-pan h4{margin:0 0 10px;font-size:13.5px;}
+.ifn-bar{display:grid;grid-template-columns:minmax(90px,140px) 1fr 42px;gap:8px;align-items:center;font-size:12.5px;margin-bottom:6px;}
+.ifn-bar span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ifn-bar .t{height:11px;background:#eef2ef;border-radius:6px;position:relative;}
+.ifn-bar .t i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:#1f6b4a;}
+.ifn-bar .t .kk{position:absolute;top:-3px;bottom:-3px;width:2px;background:#b3261e;}
+.ifn-bar b{text-align:right;}.ifn-bar b.lo{color:var(--red);}
+.ifn-lg{font-size:11.5px;color:var(--muted);margin-top:6px;}
+.ifn-dist{display:flex;align-items:flex-end;gap:8px;height:120px;border-bottom:1px solid var(--border);padding-bottom:2px;}
+.ifn-dist div{flex:1;text-align:center;font-size:11px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;}
+.ifn-dist div i{display:block;width:70%;border-radius:6px 6px 0 0;margin:2px 0;}
+.ifn-dist div b{font-size:12px;}.ifn-dist div span{font-weight:700;font-size:12px;}
+.ifn-akt{list-style:none;margin:0;padding:0;}
+.ifn-akt li{display:flex;gap:8px;font-size:12.5px;line-height:1.35;margin-bottom:8px;}
+.ifn-akt .dot{flex:none;width:8px;height:8px;border-radius:50%;background:#1f6b4a;margin-top:5px;}
+.ifn-akt small{display:block;color:var(--muted);}
+.ifn-warn{background:#fdecec;color:#b3261e;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:600;margin-top:6px;}
+.ifn-kosong{font-size:13px;color:var(--muted);margin:4px 0 0;}

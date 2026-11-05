@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Page from '../../components/layout/Page';
 import useTabAccess from '../../hooks/useTabAccess';
 import useAkademikOptions from '../../hooks/useAkademikOptions';
@@ -7,7 +7,7 @@ import { TabBar, AkademikBelumTersambung, Field, Select, Kosong } from '../../co
 import { useAppData } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import {
-  MAPEL_OPTIONS, mapelUntukTingkat, SEMESTER_OPTIONS, JENIS_NILAI_OPTIONS, NILAI_HEADERS,
+  MAPEL_OPTIONS, mapelUntukTingkat, SEMESTER_OPTIONS, JENIS_NILAI_OPTIONS,
   siswaDiRombel, semesterDariTanggal, predikatNilai, badgePredikat, PREDIKAT_LABEL, getSkalaPredikat,
 } from '../../db/akademikFields';
 import { todayWIB } from '../../db/helpers';
@@ -17,6 +17,8 @@ import {
 } from '../../services/googleSheets';
 import { exportToExcel } from '../../utils/exportTable';
 import { buatLookupKkm } from '../../db/akademikLanjutanFields';
+import { buatLingkupNilai } from '../../db/lingkupNilai';
+import InfografisNilai from './InfografisNilai';
 
 const TABS = [
   { id: 'input', label: 'INPUT NILAI' },
@@ -24,6 +26,8 @@ const TABS = [
   { id: 'tabel', label: 'DATA NILAI' },
   { id: 'mapel', label: 'PER MAPEL' },
 ];
+// Urutan kolom tampilan Data Nilai: siapa, mapel apa, nilai berapa -- di depan (v1.65.0).
+const URUT_DATA_NILAI = ['No', 'Nama Siswa', 'Mata Pelajaran', 'Jenis Nilai', 'Tanggal', 'Nilai', 'Tingkat', 'Rombel', 'Semester', 'Tahun Ajaran', 'NISN', 'Guru', 'Keterangan'];
 const EDIT_FIELDS = [
   { key: 'Nilai', label: 'Nilai (0–100)', type: 'number', required: true },
   { key: 'Keterangan', label: 'Keterangan', type: 'text' },
@@ -32,17 +36,27 @@ const EDIT_FIELDS = [
 const nilaiValid = (v) => v === '' || (Number.isFinite(Number(v)) && Number(v) >= 0 && Number(v) <= 100);
 const rata = (arr) => arr.length ? Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 10) / 10 : null;
 
+// v1.66.0: lingkup per guru (wali kelas + jadwal mengajar); Admin & Kepsek melihat semua.
+export function useLingkupNilai() {
+  const { jadwal, nilai } = useAppData();
+  const { currentUser } = useAuth();
+  const { rombelList } = useAkademikOptions();
+  return useMemo(() => buatLingkupNilai({ user: currentUser, jadwal, rombelList, nilai }), [currentUser, jadwal, rombelList, nilai]);
+}
+const saringMapel = (daftar, boleh) => (boleh ? daftar.filter(m => boleh.has(m)) : daftar);
+
 function useFilterPeriode(preset) {
   const { tahunAjaranOptions, taAktif, rombelList: semuaRombel } = useAkademikOptions();
+  const lingkup = useLingkupNilai();
   // Kelas berformat PAUD dinilai lewat menu Penilaian PAUD, bukan nilai angka per mapel.
-  const rombelList = useMemo(() => semuaRombel.filter(r => formatRaporTingkat(r.tingkat) !== 'PAUD'), [semuaRombel]);
+  const rombelList = useMemo(() => semuaRombel.filter(r => formatRaporTingkat(r.tingkat) !== 'PAUD' && lingkup.bolehRombel(r)), [semuaRombel, lingkup]);
   const [ta, setTa] = useState(preset?.ta || '');
   const [semester, setSemester] = useState(preset?.semester || semesterDariTanggal());
   const [rombelKey, setRombelKey] = useState(preset?.rombelKey || '');
   useEffect(() => { if (!ta && taAktif) setTa(taAktif); }, [taAktif, ta]);
   useEffect(() => { if (!rombelKey && rombelList.length) setRombelKey(rombelList[0].key); }, [rombelList, rombelKey]);
   const rombel = rombelList.find(r => r.key === rombelKey);
-  return { ta, setTa, semester, setSemester, rombelKey, setRombelKey, rombel, rombelList, tahunAjaranOptions };
+  return { ta, setTa, semester, setSemester, rombelKey, setRombelKey, rombel, rombelList, tahunAjaranOptions, lingkup, mapelBoleh: lingkup.mapelBoleh(rombel) };
 }
 
 // ---------------------------------------------------------------------------
@@ -53,7 +67,7 @@ function InputNilai({ preset }) {
   const f = useFilterPeriode(preset);
   const [mapel, setMapel] = useState(preset?.mapel || MAPEL_OPTIONS[0]);
   // Pilihan mapel mengikuti jenjang kelas yg dipilih (Kurikulum & KKM › Mata Pelajaran).
-  const mapelKelas = useMemo(() => (f.rombel ? mapelUntukTingkat(f.rombel.tingkat) : MAPEL_OPTIONS), [f.rombel, mapelList]); // eslint-disable-line react-hooks/exhaustive-deps
+  const mapelKelas = useMemo(() => saringMapel(f.rombel ? mapelUntukTingkat(f.rombel.tingkat) : MAPEL_OPTIONS, f.mapelBoleh), [f.rombel, mapelList, f.mapelBoleh]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (mapelKelas.length && !mapelKelas.includes(mapel)) setMapel(mapelKelas[0]); }, [mapelKelas, mapel]);
   const [jenis, setJenis] = useState(preset?.jenis || 'Harian');
   const [tanggal, setTanggal] = useState(preset?.tanggal || todayWIB());
@@ -205,9 +219,9 @@ function RekapNilai() {
   const periode = useMemo(() => nilai.filter(n => n.tahunAjaran === f.ta && n.semester === f.semester && n.nilai !== null), [nilai, f.ta, f.semester]);
   const nisnSet = useMemo(() => new Set(daftar.map(s => s.nisn)), [daftar]);
   const mapelAda = useMemo(
-    () => MAPEL_OPTIONS.filter(m => periode.some(n => n.mapel === m && nisnSet.has(n.nisn)))
-      .concat([...new Set(periode.filter(n => nisnSet.has(n.nisn) && !MAPEL_OPTIONS.includes(n.mapel)).map(n => n.mapel))]),
-    [periode, nisnSet],
+    () => saringMapel(MAPEL_OPTIONS.filter(m => periode.some(n => n.mapel === m && nisnSet.has(n.nisn)))
+      .concat([...new Set(periode.filter(n => nisnSet.has(n.nisn) && !MAPEL_OPTIONS.includes(n.mapel)).map(n => n.mapel))]), f.mapelBoleh),
+    [periode, nisnSet, f.mapelBoleh],
   );
 
   const baris = useMemo(() => {
@@ -293,7 +307,7 @@ const KELAS_JENIS = { Harian: 'kH', Tugas: 'kT', UTS: 'kU', UAS: 'kA' };
 function NilaiPerMapel({ onEdit }) {
   const { siswa, nilai, nilaiLoaded, kkm, mapelList, jadwal } = useAppData();
   const f = useFilterPeriode();
-  const mapelKelas = useMemo(() => (f.rombel ? mapelUntukTingkat(f.rombel.tingkat) : MAPEL_OPTIONS), [f.rombel, mapelList]); // eslint-disable-line react-hooks/exhaustive-deps
+  const mapelKelas = useMemo(() => saringMapel(f.rombel ? mapelUntukTingkat(f.rombel.tingkat) : MAPEL_OPTIONS, f.mapelBoleh), [f.rombel, mapelList, f.mapelBoleh]); // eslint-disable-line react-hooks/exhaustive-deps
   const daftar = useMemo(() => (f.rombel ? siswaDiRombel(siswa, f.rombel.tingkat, f.rombel.rombel) : []), [siswa, f.rombel]);
   const nisnKelas = useMemo(() => new Set(daftar.map(s => s.nisn).filter(Boolean)), [daftar]);
   // Semua nilai kelas ini di periode terpilih (termasuk siswa yg sudah pindah kelas: dicocokkan
@@ -305,7 +319,7 @@ function NilaiPerMapel({ onEdit }) {
     nilaiKelas.forEach(n => { (m[n.mapel] ||= new Set()).add(`${n.tanggal}|${n.jenis}`); });
     return m;
   }, [nilaiKelas]);
-  const daftarMapel = useMemo(() => [...mapelKelas, ...Object.keys(jumlahPerMapel).filter(m => !mapelKelas.includes(m))], [mapelKelas, jumlahPerMapel]);
+  const daftarMapel = useMemo(() => [...mapelKelas, ...saringMapel(Object.keys(jumlahPerMapel).filter(m => !mapelKelas.includes(m)), f.mapelBoleh)], [mapelKelas, jumlahPerMapel, f.mapelBoleh]);
   const [mapel, setMapel] = useState('');
   // Ganti kelas/periode -> pilih otomatis mapel pertama yang sudah punya nilai.
   useEffect(() => { setMapel(''); }, [f.rombelKey, f.ta, f.semester]);
@@ -437,7 +451,14 @@ function NilaiPerMapel({ onEdit }) {
 // ---------------------------------------------------------------------------
 export default function NilaiAkademik() {
   const { refreshNilai } = useAppData();
+  const lingkup = useLingkupNilai();
   const { tab, setTab, bolehTab } = useTabAccess('nilai', TABS.map(t => t.id));
+  // Data Nilai: guru hanya melihat baris dalam lingkupnya.
+  const fetchNilaiLingkup = useCallback(async () => {
+    const rows = await fetchNilaiFromSheet();
+    if (lingkup.semua) return rows;
+    return rows.filter(r => lingkup.bolehNilai({ guru: r.Guru, tingkat: r.Tingkat, rombel: r.Rombel, mapel: r['Mata Pelajaran'] }));
+  }, [lingkup]);
   const [preset, setPreset] = useState(null); // dari tombol Edit / Input di tab Per Mapel
   const bukaInput = (p) => { setPreset({ ...p, n: Date.now() }); setTab('input'); };
   const updateFn = (row) => {
@@ -447,6 +468,8 @@ export default function NilaiAkademik() {
   return (
     <Page pageId="nilai" title="Nilai Akademik" path="Akademik / Nilai Akademik">
       <AkademikBelumTersambung />
+      {lingkup.tanpaGuru && <div className="banner-info" style={{ marginBottom: 12 }}><span>Akun Anda belum terhubung ke data guru, jadi belum ada kelas yang bisa dibuka. Minta Admin mengisi "Terhubung ke Guru" di Manajemen User, lalu login ulang.</span></div>}
+      <InfografisNilai lingkup={lingkup} />
       <div className="card">
         <TabBar tabs={TABS} tab={tab} setTab={setTab} bolehTab={bolehTab} />
         <div className="card-body" style={{ background: 'transparent', padding: 20 }}>
@@ -456,14 +479,17 @@ export default function NilaiAkademik() {
           {tab === 'tabel' && bolehTab('tabel') && (
             <GenericStoredTable
               title="Data nilai"
-              subtitle="Semua baris nilai mentah dari seluruh kelas dan periode."
-              headers={NILAI_HEADERS}
+              subtitle={lingkup.semua ? 'Semua baris nilai mentah dari seluruh kelas dan periode.' : 'Baris nilai untuk kelas & mapel yang Anda ajar atau kelas yang Anda walikan.'}
+              headers={URUT_DATA_NILAI}
               fields={EDIT_FIELDS}
-              fetchFn={fetchNilaiFromSheet}
+              fetchFn={fetchNilaiLingkup}
+              refreshSignal={lingkup.semua ? 'semua' : lingkup.guru}
               updateFn={updateFn}
               deleteFn={deleteNilaiFromSheet}
               moduleLabel="Nilai Akademik"
               labelKey="Nama Siswa"
+              labelFn={r => `${r['Nama Siswa']} · ${r['Mata Pelajaran']} · ${r['Jenis Nilai']} ${String(r.Tanggal || '').slice(0, 10)}`}
+              editInfo={r => [['Siswa', `${r['Nama Siswa']} (${r.NISN || '-'})`], ['Kelas', `${r.Tingkat} · ${r.Rombel}`], ['Mata pelajaran', r['Mata Pelajaran']], ['Jenis nilai', r['Jenis Nilai']], ['Tanggal', String(r.Tanggal || '').slice(0, 10)], ['Periode', `${r['Tahun Ajaran']} ${r.Semester}`], ['Guru', r.Guru]]}
               target="akademik"
               columnRenderers={{ Nilai: r => { const p = predikatNilai(r.Nilai); return <span className={`badge ${badgePredikat(p)}`}>{r.Nilai}</span>; } }}
               searchFn={(r, t) => `${r['Nama Siswa']} ${r.NISN} ${r['Mata Pelajaran']} ${r.Rombel} ${r['Jenis Nilai']}`.toLowerCase().includes(t)}

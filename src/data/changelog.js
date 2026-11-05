@@ -4,12 +4,22 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.66.0',
+    tanggal: '2026-11-05',
+    poin: [
+      'Nilai Akademik: infografis "Ringkasan nilai" di atas halaman berisi jumlah nilai, mapel yang sudah dinilai, rata-rata, siswa di bawah KKM, rata-rata per mapel, sebaran predikat, dan input terbaru; bisa dilipat',
+      'Nilai Akademik sekarang mengikuti lingkup guru: guru hanya melihat kelas yang dia walikan (semua mapel) dan kelas+mapel yang dia ajar menurut Jadwal Pelajaran. Admin dan Kepala Sekolah tetap melihat semuanya',
+      'Lingkup ini berlaku di infografis dan keempat tab (Input, Rekap, Data Nilai, Per Mapel)',
+    ],
+  },
+  {
     versi: '1.65.0',
     tanggal: '2026-11-05',
     poin: [
       'Nilai Akademik: tab baru "Per Mapel". Pilih kelas dan mapel, lalu semua nilai tampil dalam satu tabel: siswa ke bawah, setiap kali input (tanggal + jenis) jadi satu kolom ke kanan',
       'Tabel Per Mapel menampilkan predikat, rata-rata tiap siswa, rata-rata kelas, dan jumlah siswa di bawah KKM; angka di bawah KKM berwarna merah',
       'Tombol Edit di bawah tiap kolom membuka penilaian itu di tab Input Nilai yang sudah terisi',
+      'Data Nilai: kolom Nama Siswa, Mata Pelajaran, Jenis, Tanggal, dan Nilai dipindah ke depan; form Edit kini menampilkan siswa, kelas, mata pelajaran, jenis, dan tanggal nilai yang sedang diedit',
       'Nama guru tampil di setiap kolom (siapa yang menginput penilaian itu) dan di ringkasan (guru pengampu mapel menurut Jadwal Pelajaran)',
     ],
   },

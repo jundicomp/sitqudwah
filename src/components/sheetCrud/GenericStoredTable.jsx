@@ -22,7 +22,7 @@ const ICON_DELETE = (
 export default function GenericStoredTable({
   title, subtitle, headers, fields, fetchFn, updateFn, deleteFn,
   moduleLabel, labelKey, searchFn, onChanged, extraActions, refreshSignal, target = 'master',
-  columnRenderers, headExtra, headerLabels = {},
+  columnRenderers, headExtra, headerLabels = {}, editInfo, labelFn,
 }) {
   const { toast } = useAppData();
   const { currentUser } = useAuth();
@@ -71,7 +71,7 @@ export default function GenericStoredTable({
         namaUser: currentUser.nama,
         aksi: 'Hapus Data',
         modul: moduleLabel,
-        detail: `Menghapus data "${deleteRow[labelKey]}" (No. ${deleteRow['No']})`,
+        detail: `Menghapus data "${labelFn ? labelFn(deleteRow) : deleteRow[labelKey]}" (No. ${deleteRow['No']})`,
       });
       toast('Data berhasil dihapus.');
       setDeleteRow(null);
@@ -93,7 +93,10 @@ export default function GenericStoredTable({
     {
       key: 'aksi',
       label: 'Aksi',
-      headerClassName: 'no-print',
+      // v1.65.0: kolom Aksi menempel di kanan, jadi tombol Edit/Hapus selalu terlihat
+      // walau tabelnya lebar dan perlu digeser.
+      headerClassName: 'no-print kolom-aksi',
+      cellClassName: 'kolom-aksi',
       render: (r) => {
         const ganda = noBermasalah.has(String(r['No'] ?? '').trim());
         return (
@@ -142,6 +145,8 @@ export default function GenericStoredTable({
           updateFn={updateFn}
           moduleLabel={moduleLabel}
           labelKey={labelKey}
+          editInfo={editInfo}
+          labelFn={labelFn}
           onClose={() => setEditRow(null)}
           onSaved={() => { load(); onChanged && onChanged(); }}
         />
@@ -150,7 +155,7 @@ export default function GenericStoredTable({
       {deleteRow && (
         <PasswordConfirmModal
           title="Konfirmasi Hapus Data"
-          message={`Anda akan menghapus data "${deleteRow[labelKey]}". Tindakan ini tidak bisa dibatalkan.`}
+          message={`Anda akan menghapus data "${labelFn ? labelFn(deleteRow) : deleteRow[labelKey]}". Tindakan ini tidak bisa dibatalkan.`}
           danger
           onConfirm={doDelete}
           onClose={() => setDeleteRow(null)}
