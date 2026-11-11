@@ -982,13 +982,23 @@ th.kolom-aksi{background:var(--green-dark);}
 .rp-ttd-kepsek{text-align:center;min-width:75mm;}
 .rp-ruang-ttd{height:20mm;flex:none;}
 
-/* v1.67.0 kop surat dokumen cetak */
-.kop-surat{display:flex;align-items:center;gap:14px;padding-bottom:8px;margin-bottom:12px;border-bottom:3px double #111;font-family:Cambria,Georgia,serif;color:#111;}
-.kop-logo{width:72px;height:72px;object-fit:contain;flex:none;}
-.kop-inisial{display:flex;align-items:center;justify-content:center;border:2px solid #111;border-radius:50%;font-weight:800;font-size:22px;}
-.kop-penyeimbang{visibility:hidden;}
-.kop-teks{flex:1;text-align:center;line-height:1.3;}
-.kop-nama{font-size:20px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;}
-.kop-npsn{font-size:12.5px;font-weight:700;}
-.kop-alamat,.kop-kontak{font-size:12.5px;}
-@media (max-width:600px){.kop-logo{width:52px;height:52px}.kop-penyeimbang{display:none}.kop-nama{font-size:16px}}
+/* v1.67.1 kop surat dokumen cetak */
+.kop-surat{margin-bottom:14px;color:#111;}
+.kop-isi{display:flex;align-items:center;gap:12px;}
+.kop-logo{width:96px;height:96px;flex:none;display:flex;align-items:center;justify-content:center;}
+.kop-logo img{max-width:100%;max-height:100%;object-fit:contain;}
+.kop-teks{flex:1;text-align:center;line-height:1.25;}
+.kop-atas,.kop-nama,.kop-npsn{font-family:Calibri,Carlito,'Segoe UI',Arial,sans-serif;}
+.kop-atas{font-size:16px;text-transform:uppercase;}
+.kop-nama{font-size:20px;text-transform:uppercase;font-weight:600;}
+.kop-npsn{font-size:14px;margin-bottom:1px;}
+.kop-pemisah{display:inline-block;margin:0 14px;}
+.kop-baris{font-family:'Times New Roman',Tinos,Cambria,serif;font-size:13.5px;}
+.kop-email{color:#1a4fd0;text-decoration:underline;}
+.kop-garis{margin-top:8px;}
+.kop-garis.g1{border-top:3px solid #111;}
+.kop-garis.g2{box-sizing:content-box;border-top:4px solid #111;border-bottom:1.5px solid #111;height:2px;}
+@media (max-width:600px){.kop-logo{width:52px;height:52px}.kop-nama{font-size:16px}.kop-pemisah{margin:0 6px}}
+.kop-cek{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 14px;margin:6px 0 14px;}
+.kop-cek label{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;}
+.kop-pratinjau{border:1px dashed var(--border);border-radius:12px;padding:18px 20px;background:#fff;margin-top:8px;}

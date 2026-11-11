@@ -4,9 +4,17 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.67.1',
+    tanggal: '2026-11-11',
+    poin: [
+      'Profil Sekolah: field baru untuk kop (baris yayasan, nama di kop, akreditasi, desa, kecamatan, kabupaten, provinsi, kode pos, website, logo yayasan/pemda)',
+      'Pengaturan Kop Surat: centang data yang dicantumkan, pilih garis 1 / garis 2 / tanpa garis, dan lihat pratinjaunya langsung',
+    ],
+  },
+  {
     versi: '1.67.0',
     tanggal: '2026-11-11',
-    poin: ['Naskah soal & kunci jawaban ujian kini memakai kop surat sekolah (logo, nama, NPSN, alamat, telepon, email) yang diambil dari Pengaturan Profil Sekolah'],
+    poin: ['Naskah soal & kunci jawaban ujian kini memakai kop surat sekolah'],
   },
   {
     versi: '1.66.3',

@@ -6,6 +6,7 @@ import { normalizeSheetGuru } from '../db/guruFields';
 import { normalizeSheetAset } from '../db/asetFields';
 import { normalizeSheetTahunAjaran } from '../db/tahunAjaranFields';
 import { normalizeSheetProfil } from '../db/profilFields';
+import { tambahanDariRows, kopDariRows } from '../db/kopFields';
 import { normalizeSheetTarif } from '../db/tarifFields';
 import { normalizeSheetTagihanSpp, normalizeSheetTagihanLain, hitungTerbayar } from '../db/tagihanHelpers';
 import { normalizeSheetPembayaran } from '../db/pembayaranFields';
@@ -677,6 +678,8 @@ export function AppProvider({ children }) {
     try { isiSistem(await fetchSistemFromSheet()); } catch { /* sheet belum ada -> anggap tidak ada pemeliharaan */ }
   }, [isiSistem]);
   // Simpan satu kunci di sheet Pengaturan Sistem tanpa menghapus kunci lain.
+  const tambahanProfil = useMemo(() => tambahanDariRows(sistemRows), [sistemRows]);
+  const pengaturanKop = useMemo(() => kopDariRows(sistemRows), [sistemRows]);
   const penandatangan = useMemo(() => ({ PAUD: ttdDariRows(sistemRows, 'PAUD'), SD: ttdDariRows(sistemRows, 'SD') }), [sistemRows]);
   const simpanKunciSistem = useCallback(async (kunci, nilai) => {
     let rows = sistemRows;
@@ -995,7 +998,7 @@ export function AppProvider({ children }) {
     rapor: raporRes.data, raporLoaded: raporRes.loaded, refreshRapor: raporRes.refresh,
     muatAkademik,
     allTagihan, tagihanTerbayar,
-    profilSekolah, profilLoading, profilExists, refreshProfil,
+    profilSekolah, profilLoading, profilExists, refreshProfil, tambahanProfil, pengaturanKop,
     permissions: permissionsUntukTampil, terapkanPerubahanHakAkses, addRole, simpanDaftarRole, muatRolesDanHakAkses,
     toast, toasts,
     HAK_AKSES_PAGES, HAK_AKSES_TABS, permissionRoles, halamanSensitif, ADMIN_ONLY_PAGES,
