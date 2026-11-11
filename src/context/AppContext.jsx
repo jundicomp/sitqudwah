@@ -6,7 +6,8 @@ import { normalizeSheetGuru } from '../db/guruFields';
 import { normalizeSheetAset } from '../db/asetFields';
 import { normalizeSheetTahunAjaran } from '../db/tahunAjaranFields';
 import { normalizeSheetProfil } from '../db/profilFields';
-import { tambahanDariRows, kopDariRows } from '../db/kopFields';
+import { tambahanDariRows, kopDariRows, kopPaudDariRows } from '../db/kopFields';
+import { stsbDariRows } from '../db/stsbFields';
 import { normalizeSheetTarif } from '../db/tarifFields';
 import { normalizeSheetTagihanSpp, normalizeSheetTagihanLain, hitungTerbayar } from '../db/tagihanHelpers';
 import { normalizeSheetPembayaran } from '../db/pembayaranFields';
@@ -73,6 +74,7 @@ const HAK_AKSES_PAGES = [
   { id: 'modul-ajar', label: 'Modul Ajar', grup: 'Akademik' },
   { id: 'rapor-paud', label: 'Rapor Digital PAUD (KB/TK)', grup: 'Akademik' },
   { id: 'rapor-sd', label: 'Rapor Digital SD', grup: 'Akademik' },
+  { id: 'stsb-paud', label: 'STSB PAUD (Surat Tanda Serta Belajar)', grup: 'Akademik' },
   { id: 'bank-soal', label: 'Bank Soal & Ujian', grup: 'Akademik' },
   { id: 'grafik-nilai', label: 'Grafik Nilai & Tren', grup: 'Laporan & Grafik' },
   { id: 'grafik-absensi', label: 'Grafik Absensi', grup: 'Laporan & Grafik' },
@@ -127,6 +129,7 @@ const ADMIN_ONLY_PAGES = ['koneksi-sheets', 'pengaturan-sistem'];
 // [key baru, key lama] -- izin lama dipakai sampai key baru disimpan eksplisit.
 const WARISAN_IZIN = [
   ['rapor-paud', 'rapor'], ['rapor-sd', 'rapor'],
+  ['stsb-paud', 'rapor-paud'], ['stsb-paud.daftar', 'rapor-paud.kelas'], ['stsb-paud.pengaturan', 'rapor-paud.pengaturan'],
   ['rapor-paud.kelas', 'rapor.kelas'], ['rapor-sd.kelas', 'rapor.kelas'],
   ['rapor-paud.arsip', 'rapor.arsip'], ['rapor-sd.arsip', 'rapor.arsip'],
   ['rapor-paud.pengaturan', 'rapor.pengaturan-paud'], ['rapor-sd.pengaturan', 'rapor.pengaturan-sd'],
@@ -227,6 +230,10 @@ const HAK_AKSES_TABS = {
     { id: 'arsip', label: 'Arsip Rapor PAUD' },
     { id: 'pengaturan', label: 'Pengaturan Rapor PAUD' },
     { id: 'penandatangan', label: 'Penandatangan' },
+  ],
+  'stsb-paud': [
+    { id: 'daftar', label: 'Daftar & Cetak STSB' },
+    { id: 'pengaturan', label: 'Pengaturan STSB' },
   ],
   'rapor-sd': [
     { id: 'kelas', label: 'Rapor per Kelas' },
@@ -680,6 +687,8 @@ export function AppProvider({ children }) {
   // Simpan satu kunci di sheet Pengaturan Sistem tanpa menghapus kunci lain.
   const tambahanProfil = useMemo(() => tambahanDariRows(sistemRows), [sistemRows]);
   const pengaturanKop = useMemo(() => kopDariRows(sistemRows), [sistemRows]);
+  const pengaturanKopPaud = useMemo(() => kopPaudDariRows(sistemRows), [sistemRows]);
+  const pengaturanStsb = useMemo(() => stsbDariRows(sistemRows), [sistemRows]);
   const penandatangan = useMemo(() => ({ PAUD: ttdDariRows(sistemRows, 'PAUD'), SD: ttdDariRows(sistemRows, 'SD') }), [sistemRows]);
   const simpanKunciSistem = useCallback(async (kunci, nilai) => {
     let rows = sistemRows;
@@ -998,7 +1007,7 @@ export function AppProvider({ children }) {
     rapor: raporRes.data, raporLoaded: raporRes.loaded, refreshRapor: raporRes.refresh,
     muatAkademik,
     allTagihan, tagihanTerbayar,
-    profilSekolah, profilLoading, profilExists, refreshProfil, tambahanProfil, pengaturanKop,
+    profilSekolah, profilLoading, profilExists, refreshProfil, tambahanProfil, pengaturanKop, pengaturanKopPaud, pengaturanStsb, sistemRows,
     permissions: permissionsUntukTampil, terapkanPerubahanHakAkses, addRole, simpanDaftarRole, muatRolesDanHakAkses,
     toast, toasts,
     HAK_AKSES_PAGES, HAK_AKSES_TABS, permissionRoles, halamanSensitif, ADMIN_ONLY_PAGES,

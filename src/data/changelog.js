@@ -4,6 +4,15 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.68.0',
+    tanggal: '2026-11-11',
+    poin: [
+      'Menu baru Akademik › STSB PAUD (Surat Tanda Serta Belajar): identitas anak otomatis dari Data Siswa, nilai A–D per aspek perkembangan, nomor surat berurutan otomatis, cetak per anak atau sekelas (2 halaman: STSB + Laporan Perkembangan Anak)',
+      'Pengaturan STSB: judul, format nomor surat, kalimat, penandatangan kiri (Ketua Yayasan) & kanan (Kepala Sekolah), pas foto, daftar aspek & keterangan nilai, lengkap dengan pratinjau',
+      'Kop surat kini ada 2: Kop Umum/SD dan Kop PAUD, masing-masing dengan pilihan gaya susunan',
+    ],
+  },
+  {
     versi: '1.67.1',
     tanggal: '2026-11-11',
     poin: [

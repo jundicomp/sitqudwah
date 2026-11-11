@@ -37,6 +37,7 @@ export const NAV_STRUCTURE = [
       { to: '/penilaian-paud', pageId: 'penilaian-paud', label: 'Penilaian PAUD' },
       { to: '/rapor-paud', pageId: 'rapor-paud', label: 'Rapor Digital PAUD' },
       { to: '/rapor-sd', pageId: 'rapor-sd', label: 'Rapor Digital SD' },
+      { to: '/stsb-paud', pageId: 'stsb-paud', label: 'STSB PAUD' },
       { to: '/bank-soal', pageId: 'bank-soal', label: 'Bank Soal & Ujian' },
     ],
   },

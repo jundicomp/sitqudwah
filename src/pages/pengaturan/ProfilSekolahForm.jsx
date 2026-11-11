@@ -4,7 +4,7 @@ import { saveProfilToSheet, isConfigured } from '../../services/googleSheets';
 import { useAppData } from '../../context/AppContext';
 import SaveProgressModal from '../../components/common/SaveProgressModal';
 import KopSurat from '../../components/common/KopSurat';
-import { TAMBAHAN_BAWAAN, TAMBAHAN_FIELDS, KOP_BAWAAN, KOP_PILIHAN, GARIS_OPSI, SEBUTAN_TELEPON } from '../../db/kopFields';
+import { TAMBAHAN_BAWAAN, TAMBAHAN_FIELDS, KOP_BAWAAN, KOP_PILIHAN, GARIS_OPSI, SEBUTAN_TELEPON, GAYA_KOP, KOP_PAUD_BAWAAN, KOP_PAUD_FIELDS } from '../../db/kopFields';
 
 // Unggah gambar kecil (logo) -> data URL, dgn batas ukuran sel Google Sheets.
 function bacaLogo(e, toast, setter) {
@@ -40,23 +40,30 @@ function UnggahLogo({ label, value, onChange, toast, catatan }) {
 }
 
 export default function ProfilSekolahForm() {
-  const { profilSekolah, profilLoading, profilExists, refreshProfil, toast, tambahanProfil, pengaturanKop, simpanKunciSistem } = useAppData();
+  const { profilSekolah, profilLoading, profilExists, refreshProfil, toast, tambahanProfil, pengaturanKop, pengaturanKopPaud, simpanKunciSistem } = useAppData();
   const [form, setForm] = useState(emptyProfilRow());
   const [tambahan, setTambahan] = useState(TAMBAHAN_BAWAAN);
-  const [kop, setKop] = useState(KOP_BAWAAN);
+  const [kopUmum, setKopUmum] = useState(KOP_BAWAAN);
+  const [kopPaud, setKopPaud] = useState(KOP_PAUD_BAWAAN);
+  const [jenjangKop, setJenjangKop] = useState('umum');
   const [simpanKop, setSimpanKop] = useState(false);
+  const paud = jenjangKop === 'PAUD';
+  const kop = paud ? kopPaud : kopUmum;
+  const setKop = paud ? setKopPaud : setKopUmum;
+  const setDataPaud = (key, v) => setKopPaud(k => ({ ...k, data: { ...k.data, [key]: v } }));
   // Sinkron hanya bila isi tersimpannya BERUBAH (auto-refresh 30 dtk tidak menimpa ketikan).
-  const jsonTambahan = JSON.stringify(tambahanProfil), jsonKop = JSON.stringify(pengaturanKop);
+  const jsonTambahan = JSON.stringify(tambahanProfil), jsonKop = JSON.stringify(pengaturanKop), jsonKopPaud = JSON.stringify(pengaturanKopPaud);
   useEffect(() => { setTambahan({ ...TAMBAHAN_BAWAAN, ...JSON.parse(jsonTambahan) }); }, [jsonTambahan]);
-  useEffect(() => { setKop(JSON.parse(jsonKop)); }, [jsonKop]);
+  useEffect(() => { setKopUmum(JSON.parse(jsonKop)); }, [jsonKop]);
+  useEffect(() => { setKopPaud(JSON.parse(jsonKopPaud)); }, [jsonKopPaud]);
   const setTmb = (key, value) => setTambahan(t => ({ ...t, [key]: value }));
   const profilPratinjau = { nama: form['Nama Sekolah'], npsn: form['NPSN'], alamat: form['Alamat'], telepon: form['Telepon'], email: form['Email'], logo: form['Logo'] };
 
   async function submitKop() {
     setSimpanKop(true);
     try {
-      await simpanKunciSistem('kop', { ...kop, pada: new Date().toISOString() });
-      toast('Pengaturan kop surat disimpan.');
+      await simpanKunciSistem(paud ? 'kop-PAUD' : 'kop', { ...kop, pada: new Date().toISOString() });
+      toast(`Kop surat ${paud ? 'PAUD' : 'umum/SD'} disimpan.`);
     } catch (err) { toast(err.message, 'error'); }
     finally { setSimpanKop(false); }
   }
@@ -138,9 +145,31 @@ export default function ProfilSekolahForm() {
 
     <div className="card" style={{ marginTop: 18 }}>
       <div className="card-head">
-        <div><h3>Kop Surat</h3><p>Centang data yang dicantumkan di kop surat dokumen cetak (naskah soal, kunci jawaban, dll). Isi datanya di Profil Sekolah di atas.</p></div>
+        <div><h3>Kop Surat</h3><p>{paud
+          ? 'Kop PAUD dipakai di dokumen PAUD (STSB, dll). Isian yang dikosongkan otomatis ikut kop umum.'
+          : 'Kop umum/SD dipakai di naskah soal, kunci jawaban, dll. Isi datanya di Profil Sekolah di atas.'}</p></div>
       </div>
       <div className="card-body">
+        <div className="seg-tabs" style={{ marginBottom: 14 }}>
+          <button type="button" className={`seg-tab ${!paud ? 'active' : ''}`} onClick={() => setJenjangKop('umum')}>KOP UMUM / SD</button>
+          <button type="button" className={`seg-tab ${paud ? 'active' : ''}`} onClick={() => setJenjangKop('PAUD')}>KOP PAUD</button>
+        </div>
+        {paud && (
+          <>
+            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+              <UnggahLogo label="Logo kiri (mis. Pemda)" value={kopPaud.data.logoKiri} onChange={v => setDataPaud('logoKiri', v)} toast={toast} catatan="Kosong = logo yayasan/pemda kop umum." />
+              <UnggahLogo label="Logo kanan" value={kopPaud.data.logoKanan} onChange={v => setDataPaud('logoKanan', v)} toast={toast} catatan="Kosong = logo sekolah." />
+            </div>
+            <div className="form-grid" style={{ marginBottom: 10 }}>
+              {KOP_PAUD_FIELDS.map(f => (
+                <div key={f.key} className="field">
+                  <label>{f.label}</label>
+                  <input type="text" value={kopPaud.data[f.key] || ''} placeholder={f.ph || 'Kosong = ikut kop umum'} onChange={e => setDataPaud(f.key, e.target.value)} />
+                </div>
+              ))}
+            </div>
+          </>
+        )}
         <div className="kop-cek">
           {KOP_PILIHAN.map(o => (
             <label key={o.key}>
@@ -157,6 +186,12 @@ export default function ProfilSekolahForm() {
             </select>
           </div>
           <div className="field">
+            <label>Gaya susunan</label>
+            <select value={kop.gaya || '1'} onChange={e => setKop(k => ({ ...k, gaya: e.target.value }))}>
+              {GAYA_KOP.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+            </select>
+          </div>
+          <div className="field">
             <label>Sebutan nomor telepon</label>
             <select value={kop.sebutanTelepon} onChange={e => setKop(k => ({ ...k, sebutanTelepon: e.target.value }))}>
               {SEBUTAN_TELEPON.map(x => <option key={x} value={x}>{x}</option>)}
@@ -164,11 +199,13 @@ export default function ProfilSekolahForm() {
           </div>
         </div>
         <label style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--muted)', display: 'block', marginTop: 6 }}>Pratinjau (ikut berubah saat Anda mengetik)</label>
-        <div className="kop-pratinjau"><KopSurat profil={profilPratinjau} tambahan={tambahan} kop={kop} /></div>
+        <div className="kop-pratinjau">{paud
+          ? <KopSurat jenjang="PAUD" profil={profilPratinjau} tambahan={tambahan} kopPaud={kopPaud} />
+          : <KopSurat profil={profilPratinjau} tambahan={tambahan} kop={kopUmum} />}</div>
       </div>
       <div className="card-body" style={{ borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-        <button type="button" className="btn" onClick={() => setKop(KOP_BAWAAN)}>Kembalikan bawaan</button>
-        <button type="button" className="btn btn-primary" onClick={submitKop} disabled={simpanKop}>{simpanKop ? 'Menyimpan...' : 'Simpan Kop Surat'}</button>
+        <button type="button" className="btn" onClick={() => setKop(k => (paud ? { ...KOP_PAUD_BAWAAN, data: k.data } : KOP_BAWAAN))}>Kembalikan bawaan</button>
+        <button type="button" className="btn btn-primary" onClick={submitKop} disabled={simpanKop}>{simpanKop ? 'Menyimpan...' : `Simpan Kop ${paud ? 'PAUD' : 'Umum/SD'}`}</button>
       </div>
     </div>
     </>

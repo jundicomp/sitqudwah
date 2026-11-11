@@ -44,14 +44,19 @@ export const GARIS_OPSI = [
   { value: '2', label: 'Garis 2 (tebal + tipis)' },
   { value: '0', label: 'Tanpa garis' },
 ];
-export const SEBUTAN_TELEPON = ['HP', 'Telp.', 'WA', 'Telp/HP'];
+export const SEBUTAN_TELEPON = ['HP', 'HP.', 'Telp.', 'WA', 'Telp/HP'];
+export const GAYA_KOP = [
+  { value: '1', label: 'Gaya 1 — alamat per baris (seperti kop SDIT)' },
+  { value: '2', label: 'Gaya 2 — "Alamat: ..." bersambung (seperti kop KB/PAUD)' },
+];
+export const teleponDenganSebutan = (sebutan, tel) => (!tel ? '' : /\.$/.test(sebutan || '') ? `${sebutan}${tel}` : `${sebutan || 'HP'} ${tel}`);
 
 export const KOP_BAWAAN = {
   tampil: {
     logoKiri: true, logoKanan: true, barisAtas: true, nama: true, npsn: true, akreditasi: true, alamat: true,
     desa: true, kecamatan: true, kabupaten: true, provinsi: true, kodePos: true, telepon: true, email: true, website: true,
   },
-  garis: '1', sebutanTelepon: 'HP', oleh: '', pada: '',
+  garis: '1', sebutanTelepon: 'HP', gaya: '1', oleh: '', pada: '',
 };
 
 export const tambahanDariRows = (rows) => nilaiKunci(rows, 'profil-tambahan', TAMBAHAN_BAWAAN);
@@ -81,8 +86,52 @@ export function susunKop(profil, tambahan, kop, akreditasiTerbaru = '') {
     sebutanTelepon: k.sebutanTelepon || 'HP',
     website: ya('website', t.website),
     garis: ['0', '1', '2'].includes(String(k.garis)) ? String(k.garis) : '1',
+    gaya: String(k.gaya) === '2' ? '2' : '1',
   };
 }
 
 // Peringkat dari tab Akreditasi (tahun terbaru) -- dipakai bila field Akreditasi kosong.
 export const peringkatTerbaru = (list) => ([...(list || [])].sort((a, b) => String(b.tahun).localeCompare(String(a.tahun)))[0]?.peringkat || '');
+
+// ---------------------------------------------------------------------
+// v1.68.0: KOP PAUD terpisah (Kunci = kop-PAUD). Isian kosong = ikut kop umum/SD.
+// ---------------------------------------------------------------------
+export const KOP_PAUD_FIELDS = [
+  { key: 'barisAtas', label: 'Baris atas kop', ph: 'mis. PENDIDIKAN ANAK USIA DINI' },
+  { key: 'namaKop', label: 'Nama satuan di kop', ph: 'mis. KB ISLAM TERPADU QUDWAH' },
+  { key: 'npsn', label: 'NPSN', ph: 'mis. 60080719' },
+  { key: 'akreditasi', label: 'Akreditasi', ph: 'mis. B' },
+  { key: 'alamat', label: 'Alamat', ph: 'mis. Jalan Qudwah Raya RT 4 RW 2' },
+  { key: 'desa', label: 'Desa / Kelurahan', ph: 'mis. Desa Sungai Rengit' },
+  { key: 'kecamatan', label: 'Kecamatan', ph: 'mis. Kecamatan Talang Kelapa' },
+  { key: 'kabupaten', label: 'Kabupaten / Kota', ph: 'mis. Kabupaten Banyuasin' },
+  { key: 'provinsi', label: 'Provinsi', ph: '' },
+  { key: 'kodePos', label: 'Kode Pos', ph: '' },
+  { key: 'telepon', label: 'Telepon / HP', ph: 'mis. 0811714717' },
+  { key: 'email', label: 'Email', ph: '' },
+  { key: 'website', label: 'Website', ph: '' },
+];
+const DATA_PAUD_KOSONG = Object.fromEntries([...KOP_PAUD_FIELDS.map(f => [f.key, '']), ['logoKiri', ''], ['logoKanan', '']]);
+export const KOP_PAUD_BAWAAN = {
+  data: DATA_PAUD_KOSONG,
+  tampil: { ...KOP_BAWAAN.tampil, provinsi: false, kodePos: false, email: false, website: false },
+  garis: '2', sebutanTelepon: 'HP.', gaya: '2', oleh: '', pada: '',
+};
+export function kopPaudDariRows(rows) {
+  const k = nilaiKunci(rows, 'kop-PAUD', KOP_PAUD_BAWAAN);
+  return { ...KOP_PAUD_BAWAAN, ...k, data: { ...DATA_PAUD_KOSONG, ...(k.data || {}) }, tampil: { ...KOP_PAUD_BAWAAN.tampil, ...(k.tampil || {}) } };
+}
+// Nilai PAUD bila diisi, selain itu nilai kop umum.
+export function gabungKopPaud(profil, tambahan, kopPaud) {
+  const p = profil || {}, t = tambahan || TAMBAHAN_BAWAAN, d = kopPaud?.data || {};
+  const pilih = (x, y) => (String(x ?? '').trim() ? x : y);
+  return {
+    profil: { ...p, npsn: pilih(d.npsn, p.npsn), alamat: pilih(d.alamat, p.alamat), telepon: pilih(d.telepon, p.telepon), email: pilih(d.email, p.email), logo: pilih(d.logoKanan, p.logo) },
+    tambahan: {
+      ...t, logoPemda: pilih(d.logoKiri, t.logoPemda),
+      ...Object.fromEntries(['barisAtas', 'namaKop', 'akreditasi', 'desa', 'kecamatan', 'kabupaten', 'provinsi', 'kodePos', 'website'].map(key => [key, pilih(d[key], t[key])])),
+      namaKop: pilih(d.namaKop, t.namaKop || p.nama),
+    },
+    kop: kopPaud || KOP_PAUD_BAWAAN,
+  };
+}

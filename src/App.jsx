@@ -62,6 +62,7 @@ import PelatihanSertifikasi from './pages/kepegawaian/PelatihanSertifikasi';
 import KalenderAkademik from './pages/akademik/KalenderAkademik';
 import KurikulumKkm from './pages/akademik/KurikulumKkm';
 import RaporDigital, { RaporLamaRedirect } from './pages/akademik/RaporDigital';
+import StsbPaud from './pages/akademik/stsb/StsbPaud';
 import PenilaianPaud from './pages/akademik/PenilaianPaud';
 import BankSoalUjian from './pages/akademik/BankSoalUjian';
 import ComingSoon from './pages/ComingSoon';
@@ -109,6 +110,7 @@ function Gate() {
         <Route path="/rapor" element={<RaporLamaRedirect />} />
         <Route path="/rapor-paud" element={<RaporDigital key="paud" jenis="PAUD" />} />
         <Route path="/rapor-sd" element={<RaporDigital key="sd" jenis="SD" />} />
+        <Route path="/stsb-paud" element={<StsbPaud />} />
         <Route path="/penilaian-paud" element={<PenilaianPaud />} />
         <Route path="/modul-ajar" element={<ModulAjar />} />
         <Route path="/bank-soal" element={<BankSoalUjian />} />

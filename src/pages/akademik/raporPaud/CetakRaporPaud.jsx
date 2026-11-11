@@ -4,6 +4,7 @@ import { SatuRaporPaud } from './DokumenRaporPaud';
 import { SatuRaporSd } from '../raporSd/DokumenRaporSd';
 import { SatuModul } from '../modulAjar/DokumenModul';
 import { SatuRencanaPaud } from '../modulAjar/DokumenRencanaPaud';
+import { SatuStsb } from '../stsb/DokumenStsb';
 
 // Cetak rapor (PAUD atau SD -- dilihat dari d.jenis; 1 anak atau banyak) lewat jendela cetak browser.
 // Dokumen dipasang langsung di <body> (bukan di dalam modal) supaya terpotong rapi
@@ -47,7 +48,7 @@ export default function CetakRaporPaud({ dokumen, onSelesai }) {
   }, []);
   const list = Array.isArray(dokumen) ? dokumen : [dokumen];
   return createPortal(
-    <div id="rp-print-root" className="rp-dok">{list.map((d, i) => (d?.jenis === 'SD' ? <SatuRaporSd key={i} d={d} /> : d?.jenis === 'MODUL' ? <SatuModul key={i} d={d} /> : d?.jenis === 'RPPM' ? <SatuRencanaPaud key={i} d={d} /> : <SatuRaporPaud key={i} d={d} />))}</div>,
+    <div id="rp-print-root" className="rp-dok">{list.map((d, i) => (d?.jenis === 'SD' ? <SatuRaporSd key={i} d={d} /> : d?.jenis === 'MODUL' ? <SatuModul key={i} d={d} /> : d?.jenis === 'RPPM' ? <SatuRencanaPaud key={i} d={d} /> : d?.jenis === 'STSB' ? <SatuStsb key={i} d={d} /> : <SatuRaporPaud key={i} d={d} />))}</div>,
     document.body,
   );
 }
