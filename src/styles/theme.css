@@ -981,3 +981,14 @@ th.kolom-aksi{background:var(--green-dark);}
 .rp-foto-ttd{display:flex;justify-content:flex-end;align-items:flex-end;gap:3mm;break-inside:avoid;page-break-inside:avoid;}
 .rp-ttd-kepsek{text-align:center;min-width:75mm;}
 .rp-ruang-ttd{height:20mm;flex:none;}
+
+/* v1.67.0 kop surat dokumen cetak */
+.kop-surat{display:flex;align-items:center;gap:14px;padding-bottom:8px;margin-bottom:12px;border-bottom:3px double #111;font-family:Cambria,Georgia,serif;color:#111;}
+.kop-logo{width:72px;height:72px;object-fit:contain;flex:none;}
+.kop-inisial{display:flex;align-items:center;justify-content:center;border:2px solid #111;border-radius:50%;font-weight:800;font-size:22px;}
+.kop-penyeimbang{visibility:hidden;}
+.kop-teks{flex:1;text-align:center;line-height:1.3;}
+.kop-nama{font-size:20px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;}
+.kop-npsn{font-size:12.5px;font-weight:700;}
+.kop-alamat,.kop-kontak{font-size:12.5px;}
+@media (max-width:600px){.kop-logo{width:52px;height:52px}.kop-penyeimbang{display:none}.kop-nama{font-size:16px}}

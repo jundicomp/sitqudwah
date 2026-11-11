@@ -4,6 +4,11 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.67.0',
+    tanggal: '2026-11-11',
+    poin: ['Naskah soal & kunci jawaban ujian kini memakai kop surat sekolah (logo, nama, NPSN, alamat, telepon, email) yang diambil dari Pengaturan Profil Sekolah'],
+  },
+  {
     versi: '1.66.3',
     tanggal: '2026-11-05',
     poin: [

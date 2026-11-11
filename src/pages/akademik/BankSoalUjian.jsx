@@ -20,7 +20,7 @@ import {
   fetchUjianFromSheet, addUjianToSheet, updateUjianInSheet, deleteUjianFromSheet, addLogEntry,
 } from '../../services/googleSheets';
 import { printElementById } from '../../utils/exportTable';
-import { APP_NAME } from '../../config/appInfo';
+import KopSurat from '../../components/common/KopSurat';
 
 const TABS = [
   { id: 'soal', label: 'BANK SOAL' },
@@ -92,7 +92,6 @@ function KelolaSoalModal({ ujian, bankSoal, onClose, onSaved }) {
 }
 
 function NaskahModal({ ujian, bankSoal, kunci, onClose }) {
-  const { profilSekolah } = useAppData();
   const byNo = Object.fromEntries(bankSoal.map(b => [b.no, b]));
   const soal = String(ujian['Soal No'] || '').split(',').map(x => byNo[x.trim()]).filter(Boolean);
   const total = soal.reduce((a, b) => a + b.poin, 0);
@@ -102,8 +101,9 @@ function NaskahModal({ ujian, bankSoal, kunci, onClose }) {
       actions={<><button className="btn" onClick={onClose}>Tutup</button><button className="btn btn-primary" onClick={() => printElementById(id)} disabled={!soal.length}>🖨️ Cetak / PDF</button></>}>
       {!soal.length ? <Kosong>Ujian ini belum punya soal. Atur lewat tombol Kelola Soal.</Kosong> : (
         <div id={id} className="doc-print">
+          <KopSurat />
           <h2>{ujian.Judul}{kunci ? ' — Kunci Jawaban' : ''}</h2>
-          <p className="doc-sub">{profilSekolah?.nama || APP_NAME} · Tahun Ajaran {ujian['Tahun Ajaran']} · Semester {ujian.Semester}</p>
+          <p className="doc-sub">Tahun Ajaran {ujian['Tahun Ajaran']} · Semester {ujian.Semester}</p>
           <div className="doc-meta">
             <div><b>Mata Pelajaran:</b> {ujian['Mata Pelajaran']}</div>
             <div><b>Kelas:</b> {labelRombel(ujian.Tingkat, ujian.Rombel)}</div>
