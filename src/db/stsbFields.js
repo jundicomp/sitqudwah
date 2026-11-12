@@ -50,7 +50,15 @@ export function lengkapiStsb(x) {
     digitNomor: Math.min(6, Math.max(1, Number(o.digitNomor) || b.digitNomor)),
   };
 }
-export const stsbDariRows = (rows) => lengkapiStsb(nilaiKunci(rows, 'stsb', STSB_BAWAAN));
+// Gambar tanda tangan disimpan di kunci tersendiri (1 sel per gambar).
+export const KUNCI_TTD_STSB = { kiri: 'stsb-ttd-kiri', kanan: 'stsb-ttd-kanan' };
+export function stsbDariRows(rows) {
+  const st = lengkapiStsb(nilaiKunci(rows, 'stsb', STSB_BAWAAN));
+  const ttd = (sisi) => String(nilaiKunci(rows, KUNCI_TTD_STSB[sisi], { gambar: '' }).gambar || '');
+  return { ...st, kiri: { ...st.kiri, ttd: ttd('kiri') }, kanan: { ...st.kanan, ttd: ttd('kanan') } };
+}
+// Pengaturan tanpa gambar ttd (utk disimpan di kunci 'stsb').
+export const tanpaGambarTtd = (st) => ({ ...st, kiri: { ...st.kiri, ttd: undefined }, kanan: { ...st.kanan, ttd: undefined } });
 
 // Isian per tahun ajaran: { tanggal, siswa: { [kunciAnak]: { urut, usia, nilai: { [aspek]: 'A' } } } }
 export const kunciDataStsb = (ta) => `stsb-${s(ta)}`;

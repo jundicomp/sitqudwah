@@ -4,6 +4,13 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.70.0',
+    tanggal: '2026-11-12',
+    poin: [
+      'STSB PAUD: unggah gambar tanda tangan Ketua Yayasan dan Kepala Sekolah — otomatis dipotong, diperkecil, dan latar putihnya dibuat transparan agar cap tetap terlihat',
+    ],
+  },
+  {
     versi: '1.69.0',
     tanggal: '2026-11-12',
     poin: [

@@ -1024,7 +1024,8 @@ th.kolom-aksi{background:var(--green-dark);}
 .stsb-ttd.tanpa-kiri .stsb-foto-sel{grid-column:2;}
 .stsb-blok{line-height:1.3;}
 .stsb-ttd .stsb-blok:last-child{justify-self:end;min-width:62mm;}
-.stsb-ruang{height:22mm;}
+.stsb-ruang{height:22mm;position:relative;}
+.stsb-ttd-img{position:absolute;left:-2mm;top:-1mm;height:24mm;max-width:60mm;object-fit:contain;object-position:left center;}
 .stsb-nama{font-weight:700;}
 .stsb-nomor{font-weight:700;}
 .stsb-foto-sel{display:flex;justify-content:center;}
@@ -1075,3 +1076,7 @@ th.kolom-aksi{background:var(--green-dark);}
 .atur-hal-mini .kertas{position:relative;width:42px;background:#fff;border:1px solid #9aa59f;box-shadow:0 1px 2px rgba(0,0,0,.12);}
 .atur-hal-mini .isi{position:absolute;background:repeating-linear-gradient(0deg,#cfe0d6 0 2px,transparent 2px 4px);border:1px dashed #1f6b4a;}
 @media (max-width:800px){.atur-hal-isi{grid-template-columns:repeat(2,minmax(0,1fr))}.atur-hal-isi .field:first-child{grid-column:1/-1}}
+.stsb-ttd-unggah{display:flex;gap:12px;align-items:center;}
+.stsb-ttd-unggah .pratinjau{width:150px;height:64px;flex:none;border:1px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(#f1f3f2 0 25%,#fff 0 50%) 0 0/14px 14px;overflow:hidden;}
+.stsb-ttd-unggah .pratinjau img{max-width:100%;max-height:100%;object-fit:contain;}
+.stsb-ttd-unggah .pratinjau span{font-size:11px;color:var(--muted);background:#fff;padding:2px 6px;border-radius:6px;}

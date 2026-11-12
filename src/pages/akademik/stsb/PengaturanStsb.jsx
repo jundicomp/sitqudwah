@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppData } from '../../../context/AppContext';
-import { STSB_BAWAAN, lengkapiStsb, nomorSurat, susunStsb } from '../../../db/stsbFields';
+import { STSB_BAWAAN, lengkapiStsb, nomorSurat, susunStsb, KUNCI_TTD_STSB, tanpaGambarTtd } from '../../../db/stsbFields';
+import { olahTtd } from '../../../utils/gambarTtd';
 import { kepalaPada } from '../../../db/penandatanganFields';
 import { useAuth } from '../../../context/AuthContext';
 import { SatuStsb } from './DokumenStsb';
@@ -15,6 +16,8 @@ export default function PengaturanStsb() {
   const [f, setF] = useState(pengaturanStsb);
   const [aspekTeks, setAspekTeks] = useState(pengaturanStsb.aspek.join('\n'));
   const [menyimpan, setMenyimpan] = useState(false);
+  const [buangPutih, setBuangPutih] = useState(true);
+  const [mengolah, setMengolah] = useState('');
   const json = JSON.stringify(pengaturanStsb);
   useEffect(() => { const x = JSON.parse(json); setF(x); setAspekTeks(x.aspek.join('\n')); }, [json]);
 
@@ -30,12 +33,38 @@ export default function PengaturanStsb() {
   async function simpan() {
     setMenyimpan(true);
     try {
-      await simpanKunciSistem('stsb', { ...hasil, oleh: currentUser?.nama || currentUser?.username || '', pada: new Date().toISOString() });
+      // Gambar ttd di kunci sendiri; hanya disimpan bila berubah.
+      for (const sisi of ['kiri', 'kanan']) {
+        if ((hasil[sisi].ttd || '') !== (pengaturanStsb[sisi].ttd || '')) await simpanKunciSistem(KUNCI_TTD_STSB[sisi], { gambar: hasil[sisi].ttd || '' });
+      }
+      await simpanKunciSistem('stsb', { ...tanpaGambarTtd(hasil), oleh: currentUser?.nama || currentUser?.username || '', pada: new Date().toISOString() });
       toast('Pengaturan STSB disimpan.');
     } catch (e) { toast(e.message, 'error'); }
     finally { setMenyimpan(false); }
   }
 
+  async function unggahTtd(sisi, e) {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    setMengolah(sisi);
+    try { setSisi(sisi, 'ttd', await olahTtd(file, { buangPutih })); }
+    catch (err) { toast(err.message, 'error'); }
+    finally { setMengolah(''); }
+  }
+  const kotakTtd = (k) => (
+    <div className="field">
+      <label>Gambar tanda tangan</label>
+      <div className="stsb-ttd-unggah">
+        <div className="pratinjau">{f[k].ttd ? <img src={f[k].ttd} alt="Tanda tangan" /> : <span>Belum ada</span>}</div>
+        <div>
+          <input type="file" accept="image/*" onChange={e => unggahTtd(k, e)} disabled={!!mengolah} style={{ fontSize: 12.5 }} />
+          {mengolah === k && <div style={{ fontSize: 12 }}>Mengolah gambar…</div>}
+          {f[k].ttd && <button type="button" className="btn btn-sm" style={{ marginTop: 6 }} onClick={() => setSisi(k, 'ttd', '')}>↺ Hapus tanda tangan</button>}
+        </div>
+      </div>
+    </div>
+  );
   const teks = (label, k, ph) => <div className="field"><label>{label}</label><input type="text" value={f[k] ?? ''} placeholder={ph} onChange={e => set(k, e.target.value)} /></div>;
   const cek = (label, k) => <label className="stsb-cek"><input type="checkbox" checked={!!f[k]} onChange={e => set(k, e.target.checked)} /> {label}</label>;
   const sisi = (judul, k, catatanNama, catatanNomor) => (
@@ -44,6 +73,7 @@ export default function PengaturanStsb() {
       {k === 'kiri' && <label className="stsb-cek"><input type="checkbox" checked={!!f.kiri.aktif} onChange={e => setSisi('kiri', 'aktif', e.target.checked)} /> Tampilkan tanda tangan ini</label>}
       {k === 'kiri' && <div className="field"><label>Kata pembuka</label><input type="text" value={f.kiri.pembuka} onChange={e => setSisi('kiri', 'pembuka', e.target.value)} /></div>}
       <div className="field"><label>Jabatan (boleh beberapa baris)</label><textarea rows={3} value={f[k].jabatan} onChange={e => setSisi(k, 'jabatan', e.target.value)} /></div>
+      {kotakTtd(k)}
       <div className="field"><label>Nama</label><input type="text" value={f[k].nama} placeholder={catatanNama} onChange={e => setSisi(k, 'nama', e.target.value)} /></div>
       <div className="form-grid">
         <div className="field"><label>Sebutan nomor</label><input type="text" value={f[k].labelNomor} placeholder="mis. NUPTK / NIY / NIP" onChange={e => setSisi(k, 'labelNomor', e.target.value)} /></div>
@@ -75,6 +105,8 @@ export default function PengaturanStsb() {
             {cek('Pakai foto siswa bila ada', 'fotoSiswa')}
             {cek('Cetak halaman 2 (Laporan Perkembangan Anak)', 'halaman2')}
           </div>
+          <div className="banner-info" style={{ marginBottom: 6 }}><span>✍️ <b>Tanda tangan:</b> foto/scan tanda tangan di kertas putih polos, lalu unggah di kotak penandatangan di bawah. Gambar otomatis dipotong, diperkecil{buangPutih ? ', dan latar putihnya dibuat transparan agar cap tetap terlihat' : ''}. Kosongkan bila ingin tanda tangan basah.
+            <label className="stsb-cek" style={{ marginLeft: 10 }}><input type="checkbox" checked={buangPutih} onChange={e => setBuangPutih(e.target.checked)} /> Buang latar putih</label></span></div>
           <div className="stsb-dua">
             {sisi('Tanda tangan kiri', 'kiri', 'mis. Muhammad Syahrussiyam, S.Pd.', 'kosongkan bila tidak perlu')}
             {sisi('Tanda tangan kanan (kepala sekolah)', 'kanan', kepala?.nama ? `Kosongkan = ${kepala.nama} (dari Penandatangan PAUD)` : 'Kosongkan = kepala dari Penandatangan PAUD', kepala?.niy ? `Kosongkan = ${kepala.niy}` : 'Kosongkan = NIY dari Penandatangan PAUD')}

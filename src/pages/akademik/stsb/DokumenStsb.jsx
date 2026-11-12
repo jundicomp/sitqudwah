@@ -20,6 +20,11 @@ function Identitas({ rows }) {
   );
 }
 
+// Ruang tanda tangan; gambar ttd (bila diunggah) ditaruh di ruang ini.
+function RuangTtd({ ttd }) {
+  return <div className="stsb-ruang">{ttd && <img className="stsb-ttd-img" src={ttd} alt="" />}</div>;
+}
+
 function NamaTtd({ nama, labelNomor, nomor }) {
   return (
     <>
@@ -54,7 +59,7 @@ export function SatuStsb({ d }) {
             <div className="stsb-blok">
               <div>{d.kiri.pembuka}</div>
               <Baris teks={d.kiri.jabatan} />
-              <div className="stsb-ruang" />
+              <RuangTtd ttd={d.kiri.ttd} />
               <NamaTtd nama={d.kiri.nama} labelNomor={d.kiri.labelNomor} nomor={d.kiri.nomor} />
             </div>
           )}
@@ -64,7 +69,7 @@ export function SatuStsb({ d }) {
           <div className="stsb-blok">
             <div>{st.tempat}{st.tempat ? ', ' : ''}{d.tanggal || '…'}</div>
             <Baris teks={d.kanan.jabatan} />
-            <div className="stsb-ruang" />
+            <RuangTtd ttd={d.kanan.ttd} />
             <NamaTtd nama={d.kanan.nama} labelNomor={d.kanan.labelNomor} nomor={d.kanan.nomor} />
           </div>
         </div>
@@ -90,7 +95,7 @@ export function SatuStsb({ d }) {
             <div className="stsb-blok">
               <div>{st.tempat}{st.tempat ? ', ' : ''}{d.tanggal || '…'}</div>
               <Baris teks={d.kanan.jabatan} />
-              <div className="stsb-ruang" />
+              <RuangTtd ttd={d.kanan.ttd} />
               <NamaTtd nama={d.kanan.nama} labelNomor={d.kanan.labelNomor} nomor={d.kanan.nomor} />
             </div>
           </div>
