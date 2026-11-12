@@ -1,4 +1,5 @@
 import KopSurat from '../../../components/common/KopSurat';
+import { ukuranHalaman, HALAMAN_STSB_BAWAAN } from '../../../db/halamanFields';
 
 // Dokumen cetak STSB PAUD (v1.68.0). d = hasil susunStsb().
 // Teks **tebal** di kalimat keikutsertaan dicetak tebal.
@@ -30,9 +31,12 @@ function NamaTtd({ nama, labelNomor, nomor }) {
 
 export function SatuStsb({ d }) {
   const { st, anak } = d;
+  const u = ukuranHalaman(st.halaman || HALAMAN_STSB_BAWAAN);
+  // Di layar: kertas & margin persis seperti pengaturan. Saat cetak, margin diambil alih @page.
+  const gayaHal = { width: `${u.w}mm`, minHeight: `${u.h}mm`, padding: `${u.atas}mm ${u.kanan}mm ${u.bawah}mm ${u.kiri}mm`, boxSizing: 'border-box' };
   return (
     <>
-      <div className="rp-hal stsb">
+      <div className="rp-hal stsb" style={gayaHal}>
         <KopSurat jenjang="PAUD" />
         <div className="stsb-judul">
           <h1>{st.judul}</h1>
@@ -66,7 +70,7 @@ export function SatuStsb({ d }) {
         </div>
       </div>
       {st.halaman2 && (
-        <div className="rp-hal stsb">
+        <div className="rp-hal stsb" style={gayaHal}>
           <div className="stsb-judul"><h1>{st.judul2}</h1></div>
           <Identitas rows={[
             ['Nama', anak.nama, true], ['No. Induk Siswa', anak.nis], ['No. Induk Siswa Nasional', anak.nisn],

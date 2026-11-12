@@ -4,6 +4,15 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.69.0',
+    tanggal: '2026-11-12',
+    poin: [
+      'Pengaturan kertas & margin (atas, bawah, kiri, kanan) dengan satuan cm atau inch — angka otomatis dikonversi saat satuan diganti',
+      'STSB PAUD: kertas & margin diatur di Pengaturan STSB (A4, F4, Letter, Legal)',
+      'Kop Surat Umum/SD: kertas & margin dipakai saat mencetak naskah soal dan kunci jawaban',
+    ],
+  },
+  {
     versi: '1.68.0',
     tanggal: '2026-11-11',
     poin: [

@@ -7,6 +7,7 @@
 // di sheet Pengaturan Sistem -> tanpa perubahan Apps Script.
 // =====================================================================
 import { nilaiKunci } from './sistemFields';
+import { HALAMAN_STSB_BAWAAN, lengkapiHalaman } from './halamanFields';
 
 const s = (v) => String(v ?? '').trim();
 
@@ -32,6 +33,7 @@ export const STSB_BAWAAN = {
     { kode: 'C', nama: 'Mulai Berkembang' },
     { kode: 'D', nama: 'Belum Berkembang' },
   ],
+  halaman: HALAMAN_STSB_BAWAAN,
   oleh: '', pada: '',
 };
 
@@ -44,6 +46,7 @@ export function lengkapiStsb(x) {
     kanan: { ...b.kanan, ...(o.kanan || {}) },
     aspek: arr(o.aspek, b.aspek).map(s).filter(Boolean),
     skala: arr(o.skala, b.skala).map(k => ({ kode: s(k.kode), nama: s(k.nama) })).filter(k => k.kode),
+    halaman: lengkapiHalaman(o.halaman, HALAMAN_STSB_BAWAAN),
     digitNomor: Math.min(6, Math.max(1, Number(o.digitNomor) || b.digitNomor)),
   };
 }

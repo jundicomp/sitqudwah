@@ -4,6 +4,8 @@ import { saveProfilToSheet, isConfigured } from '../../services/googleSheets';
 import { useAppData } from '../../context/AppContext';
 import SaveProgressModal from '../../components/common/SaveProgressModal';
 import KopSurat from '../../components/common/KopSurat';
+import AturHalaman from '../../components/common/AturHalaman';
+import { Link } from 'react-router-dom';
 import { TAMBAHAN_BAWAAN, TAMBAHAN_FIELDS, KOP_BAWAAN, KOP_PILIHAN, GARIS_OPSI, SEBUTAN_TELEPON, GAYA_KOP, KOP_PAUD_BAWAAN, KOP_PAUD_FIELDS } from '../../db/kopFields';
 
 // Unggah gambar kecil (logo) -> data URL, dgn batas ukuran sel Google Sheets.
@@ -198,6 +200,9 @@ export default function ProfilSekolahForm() {
             </select>
           </div>
         </div>
+        {paud
+          ? <div className="atur-hal" style={{ fontSize: 13 }}><b>Kertas & margin</b> — untuk STSB diatur di <Link to="/stsb-paud?tab=pengaturan">STSB PAUD › Pengaturan STSB</Link>.</div>
+          : <AturHalaman judul="Kertas & margin dokumen ber-kop (naskah soal, kunci jawaban)" value={kopUmum.halaman} onChange={v => setKopUmum(k => ({ ...k, halaman: v }))} />}
         <label style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--muted)', display: 'block', marginTop: 6 }}>Pratinjau (ikut berubah saat Anda mengetik)</label>
         <div className="kop-pratinjau">{paud
           ? <KopSurat jenjang="PAUD" profil={profilPratinjau} tambahan={tambahan} kopPaud={kopPaud} />

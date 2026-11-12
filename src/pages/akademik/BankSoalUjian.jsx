@@ -92,13 +92,14 @@ function KelolaSoalModal({ ujian, bankSoal, onClose, onSaved }) {
 }
 
 function NaskahModal({ ujian, bankSoal, kunci, onClose }) {
+  const { pengaturanKop } = useAppData();
   const byNo = Object.fromEntries(bankSoal.map(b => [b.no, b]));
   const soal = String(ujian['Soal No'] || '').split(',').map(x => byNo[x.trim()]).filter(Boolean);
   const total = soal.reduce((a, b) => a + b.poin, 0);
   const id = 'naskah-ujian-print';
   return (
     <Modal wide title={kunci ? 'Kunci jawaban' : 'Naskah soal'} subtitle={ujian.Judul} onClose={onClose}
-      actions={<><button className="btn" onClick={onClose}>Tutup</button><button className="btn btn-primary" onClick={() => printElementById(id)} disabled={!soal.length}>🖨️ Cetak / PDF</button></>}>
+      actions={<><button className="btn" onClick={onClose}>Tutup</button><button className="btn btn-primary" onClick={() => printElementById(id, { halaman: pengaturanKop.halaman })} disabled={!soal.length}>🖨️ Cetak / PDF</button></>}>
       {!soal.length ? <Kosong>Ujian ini belum punya soal. Atur lewat tombol Kelola Soal.</Kosong> : (
         <div id={id} className="doc-print">
           <KopSurat />

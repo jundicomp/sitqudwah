@@ -5,6 +5,7 @@
 // Keduanya di sheet Pengaturan Sistem, jadi tanpa perubahan Apps Script.
 // =====================================================================
 import { nilaiKunci } from './sistemFields';
+import { HALAMAN_KOP_BAWAAN, lengkapiHalaman } from './halamanFields';
 
 export const TAMBAHAN_BAWAAN = {
   barisAtas: '', namaKop: '', akreditasi: '', desa: '', kecamatan: '', kabupaten: '',
@@ -56,13 +57,13 @@ export const KOP_BAWAAN = {
     logoKiri: true, logoKanan: true, barisAtas: true, nama: true, npsn: true, akreditasi: true, alamat: true,
     desa: true, kecamatan: true, kabupaten: true, provinsi: true, kodePos: true, telepon: true, email: true, website: true,
   },
-  garis: '1', sebutanTelepon: 'HP', gaya: '1', oleh: '', pada: '',
+  garis: '1', sebutanTelepon: 'HP', gaya: '1', halaman: HALAMAN_KOP_BAWAAN, oleh: '', pada: '',
 };
 
 export const tambahanDariRows = (rows) => nilaiKunci(rows, 'profil-tambahan', TAMBAHAN_BAWAAN);
 export function kopDariRows(rows) {
   const k = nilaiKunci(rows, 'kop', KOP_BAWAAN);
-  return { ...k, tampil: { ...KOP_BAWAAN.tampil, ...(k.tampil || {}) } };
+  return { ...k, tampil: { ...KOP_BAWAAN.tampil, ...(k.tampil || {}) }, halaman: lengkapiHalaman(k.halaman, HALAMAN_KOP_BAWAAN) };
 }
 
 // Susun isi kop dari profil + data tambahan + pengaturan tampil.

@@ -1,4 +1,5 @@
 import ExcelJS from 'exceljs';
+import { cssPage } from '../db/halamanFields';
 
 const HIJAU_HEADER = 'FF123D22'; // sama dgn --green-dark tema aplikasi
 const BORDER_TIPIS = { style: 'thin', color: { argb: 'FFAAAAAA' } };
@@ -103,9 +104,16 @@ export async function exportToExcel(headers, rows, filename, title, footer) {
 // Pola: tempel class "printing-mode" di <body> + "print-target" di elemen tujuan,
 // browser native print (Ctrl+P / window.print) cuma akan menampilkan elemen itu --
 // dari situ pengguna bisa pilih "Simpan sebagai PDF" di dialog cetaknya.
-export function printElementById(elementId) {
+// opsi.halaman (v1.69.0): ukuran kertas & margin dari pengaturan (lihat db/halamanFields).
+export function printElementById(elementId, opsi = {}) {
   const el = document.getElementById(elementId);
   if (!el) { console.warn('printElementById: elemen tidak ditemukan:', elementId); return; }
+  let gaya = null;
+  if (opsi.halaman) {
+    gaya = document.createElement('style');
+    gaya.textContent = `@media print { ${cssPage(opsi.halaman)} body.printing-mode .print-target { padding: 0 !important; } }`;
+    document.head.appendChild(gaya);
+  }
 
   document.body.classList.add('printing-mode');
   el.classList.add('print-target');
@@ -113,6 +121,7 @@ export function printElementById(elementId) {
   function cleanup() {
     document.body.classList.remove('printing-mode');
     el.classList.remove('print-target');
+    gaya?.remove(); gaya = null;
     window.removeEventListener('afterprint', cleanup);
   }
   window.addEventListener('afterprint', cleanup);

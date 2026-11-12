@@ -5,6 +5,7 @@ import { SatuRaporSd } from '../raporSd/DokumenRaporSd';
 import { SatuModul } from '../modulAjar/DokumenModul';
 import { SatuRencanaPaud } from '../modulAjar/DokumenRencanaPaud';
 import { SatuStsb } from '../stsb/DokumenStsb';
+import { cssPage, ukuranHalaman } from '../../../db/halamanFields';
 
 // Cetak rapor (PAUD atau SD -- dilihat dari d.jenis; 1 anak atau banyak) lewat jendela cetak browser.
 // Dokumen dipasang langsung di <body> (bukan di dalam modal) supaya terpotong rapi
@@ -21,7 +22,14 @@ export default function CetakRaporPaud({ dokumen, onSelesai }) {
     // @page tidak bisa dibedakan per class body, jadi aturan ukuran kertas F4 dipasang
     // sementara selama mencetak lalu dilepas lagi.
     let gaya = null;
-    if (f4) {
+    const hal = list0.find(d => d?.jenis === 'STSB')?.st?.halaman;
+    if (hal) {
+      const u = ukuranHalaman(hal);
+      gaya = document.createElement('style');
+      gaya.id = 'rp-kertas-stsb';
+      gaya.textContent = `@media print { ${cssPage(hal)} body.rp-printing .rp-hal.stsb { width: auto !important; min-height: ${u.tinggiIsi - 1}mm !important; padding: 0 !important; margin: 0 !important; } }`;
+      document.head.appendChild(gaya);
+    } else if (f4) {
       gaya = document.createElement('style');
       gaya.id = 'rp-kertas-f4';
       gaya.textContent = `@media print { @page { size: ${UKURAN_F4}; margin: 14mm 12mm; } body.rp-printing .rp-hal { min-height: 298mm; } }`;

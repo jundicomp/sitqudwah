@@ -5,6 +5,7 @@ import { STSB_BAWAAN, lengkapiStsb, nomorSurat, susunStsb } from '../../../db/st
 import { kepalaPada } from '../../../db/penandatanganFields';
 import { useAuth } from '../../../context/AuthContext';
 import { SatuStsb } from './DokumenStsb';
+import AturHalaman from '../../../components/common/AturHalaman';
 
 const CONTOH_ANAK = { nama: 'Nama Anak', idSiswa: '20202025001', nisn: '3209618850', tempatLahir: 'Banyuasin', tanggalLahir: '2020-02-12', namaIbu: 'Nama Ibu', alamat: 'Sungai Rengit', agama: 'Islam', foto: '' };
 
@@ -65,6 +66,7 @@ export default function PengaturanStsb() {
             {teks('Kelompok usia bawaan', 'kelompokUsia', '5 – 6 TAHUN')}
             {teks('Tempat tanda tangan', 'tempat', penandatangan.PAUD.tempat || 'Sungai Rengit')}
           </div>
+          <AturHalaman judul="Kertas & margin STSB" value={f.halaman} onChange={v => set('halaman', v)} />
           <div className="field"><label>Kalimat keikutsertaan <small style={{ fontWeight: 400, color: 'var(--muted)' }}>— apit dengan **dua bintang** untuk huruf tebal</small></label>
             <textarea rows={2} value={f.kalimat} onChange={e => set('kalimat', e.target.value)} /></div>
           <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', margin: '6px 0 14px' }}>

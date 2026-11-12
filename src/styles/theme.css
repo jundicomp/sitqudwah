@@ -1009,8 +1009,8 @@ th.kolom-aksi{background:var(--green-dark);}
 .kop-pratinjau{border:1px dashed var(--border);border-radius:12px;padding:18px 20px;background:#fff;margin-top:8px;}
 
 /* v1.68.0 STSB PAUD (A4) */
-.rp-hal.stsb{padding:8mm 14mm 6mm;font-size:12pt;line-height:1.35;}
-.stsb-judul{text-align:center;margin:8mm 0 12mm;}
+.rp-hal.stsb{font-size:12pt;line-height:1.35;max-width:none;}
+.stsb-judul{text-align:center;margin:6mm 0 12mm;}
 .stsb-judul h1{font-size:15pt;text-decoration:underline;text-underline-offset:3px;margin:0 0 1mm;letter-spacing:.3px;}
 .stsb-diberi{margin:0 0 5mm;}
 .stsb-idt{border-collapse:collapse;margin:0 0 14mm 12mm;}
@@ -1061,3 +1061,17 @@ th.kolom-aksi{background:var(--green-dark);}
 .stsb-tabel th.stsb-th-aspek{min-width:58px;max-width:78px;font-size:10px;}
 .stsb-tabel input[type=text]{width:96px !important;padding:4px 6px;}
 .stsb-tabel .stsb-nomor-teks{font-size:11px;color:var(--muted);white-space:nowrap;}
+
+/* v1.69.0 pengaturan kertas & margin */
+.atur-hal{border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin:12px 0;}
+.atur-hal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;}
+.atur-hal-head b{font-size:14px;}
+.seg-mini{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.seg-mini button{border:none;background:#fff;padding:5px 14px;font-weight:700;font-size:12.5px;cursor:pointer;color:var(--muted);}
+.seg-mini button.on{background:var(--green-900,#123d2b);color:#fff;}
+.atur-hal-isi{display:grid;grid-template-columns:minmax(0,2fr) repeat(4,minmax(0,1fr)) 54px;gap:10px;align-items:end;}
+.atur-hal-isi input,.atur-hal-isi select{width:100%;box-sizing:border-box;}
+.atur-hal-mini{display:flex;justify-content:center;align-items:flex-end;padding-bottom:2px;}
+.atur-hal-mini .kertas{position:relative;width:42px;background:#fff;border:1px solid #9aa59f;box-shadow:0 1px 2px rgba(0,0,0,.12);}
+.atur-hal-mini .isi{position:absolute;background:repeating-linear-gradient(0deg,#cfe0d6 0 2px,transparent 2px 4px);border:1px dashed #1f6b4a;}
+@media (max-width:800px){.atur-hal-isi{grid-template-columns:repeat(2,minmax(0,1fr))}.atur-hal-isi .field:first-child{grid-column:1/-1}}
