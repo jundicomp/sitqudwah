@@ -1,26 +1,23 @@
 import { useEffect, useState } from 'react';
-import { PROFIL_FIELDS, emptyProfilRow, LOGO_MAX_BYTES } from '../../db/profilFields';
+import { PROFIL_FIELDS, emptyProfilRow } from '../../db/profilFields';
 import { saveProfilToSheet, isConfigured } from '../../services/googleSheets';
 import { useAppData } from '../../context/AppContext';
 import SaveProgressModal from '../../components/common/SaveProgressModal';
 import KopSurat from '../../components/common/KopSurat';
+import { olahLogo } from '../../utils/gambarTtd';
+import SkalaKertas from '../../components/common/SkalaKertas';
 import AturHalaman from '../../components/common/AturHalaman';
 import { Link } from 'react-router-dom';
-import { TAMBAHAN_BAWAAN, TAMBAHAN_FIELDS, KOP_BAWAAN, KOP_PILIHAN, GARIS_OPSI, SEBUTAN_TELEPON, GAYA_KOP, KOP_PAUD_BAWAAN, KOP_PAUD_FIELDS, ukuranLogo, LOGO_MIN_MM, LOGO_MAKS_MM } from '../../db/kopFields';
+import { TAMBAHAN_BAWAAN, TAMBAHAN_FIELDS, KOP_BAWAAN, KOP_PILIHAN, GARIS_OPSI, SEBUTAN_TELEPON, GAYA_KOP, KOP_PAUD_BAWAAN, KOP_PAUD_FIELDS, ukuranLogo, LOGO_MIN_MM, LOGO_MAKS_MM, KUNCI_GAMBAR, kopPaudTanpaLogo, tambahanTanpaLogo } from '../../db/kopFields';
 
 // Unggah gambar kecil (logo) -> data URL, dgn batas ukuran sel Google Sheets.
-function bacaLogo(e, toast, setter) {
+// Unggah logo -> otomatis diperkecil agar muat di 1 sel Google Sheets (v1.71.1).
+async function bacaLogo(e, toast, setter) {
   const file = e.target.files[0];
   e.target.value = '';
   if (!file) return;
-  if (!file.type.startsWith('image/')) { toast('File harus berupa gambar.', 'error'); return; }
-  if (file.size > LOGO_MAX_BYTES) {
-    toast(`Ukuran logo maksimal ${Math.round(LOGO_MAX_BYTES / 1024)}KB (batasan sel Google Sheets). Kompres/perkecil dulu gambarnya.`, 'error');
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = (evt) => setter(evt.target.result);
-  reader.readAsDataURL(file);
+  try { setter(await olahLogo(file)); }
+  catch (err) { toast(err.message, 'error'); }
 }
 
 function UnggahLogo({ label, value, onChange, toast, catatan }) {
@@ -31,9 +28,9 @@ function UnggahLogo({ label, value, onChange, toast, catatan }) {
         <div style={{ width: 72, height: 72, border: '1px dashed var(--border)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#F6F8F5', flexShrink: 0 }}>
           {value ? <img src={value} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 11, color: 'var(--muted)' }}>Belum ada</span>}
         </div>
-        <div>
-          <input type="file" accept="image/*" onChange={e => bacaLogo(e, toast, onChange)} style={{ fontSize: 12.5 }} />
-          <p style={{ fontSize: 11.5, color: 'var(--muted)', margin: '6px 0 0' }}>{catatan || `Maks ${Math.round(LOGO_MAX_BYTES / 1024)}KB.`}</p>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <input type="file" accept="image/*" onChange={e => bacaLogo(e, toast, onChange)} style={{ fontSize: 12.5, width: '100%' }} />
+          <p style={{ fontSize: 11.5, color: 'var(--muted)', margin: '6px 0 0' }}>{catatan || 'Gambar otomatis diperkecil agar muat disimpan.'}</p>
           {value && <button type="button" className="btn btn-sm" style={{ marginTop: 6 }} onClick={() => onChange('')}>↺ Hapus Logo</button>}
         </div>
       </div>
@@ -64,7 +61,14 @@ export default function ProfilSekolahForm() {
   async function submitKop() {
     setSimpanKop(true);
     try {
-      await simpanKunciSistem(paud ? 'kop-PAUD' : 'kop', { ...kop, pada: new Date().toISOString() });
+      if (paud) {
+        // Logo di kunci sendiri (1 sel/gambar); disimpan hanya bila berubah.
+        if ((kopPaud.data.logoKiri || '') !== (pengaturanKopPaud.data.logoKiri || '')) await simpanKunciSistem(KUNCI_GAMBAR.paudKiri, { gambar: kopPaud.data.logoKiri || '' });
+        if ((kopPaud.data.logoKanan || '') !== (pengaturanKopPaud.data.logoKanan || '')) await simpanKunciSistem(KUNCI_GAMBAR.paudKanan, { gambar: kopPaud.data.logoKanan || '' });
+        await simpanKunciSistem('kop-PAUD', { ...kopPaudTanpaLogo(kopPaud), pada: new Date().toISOString() });
+      } else {
+        await simpanKunciSistem('kop', { ...kopUmum, pada: new Date().toISOString() });
+      }
       toast(`Kop surat ${paud ? 'PAUD' : 'umum/SD'} disimpan.`);
     } catch (err) { toast(err.message, 'error'); }
     finally { setSimpanKop(false); }
@@ -97,7 +101,8 @@ export default function ProfilSekolahForm() {
     setPhase('saving');
     try {
       await saveProfilToSheet(form, profilExists);
-      await simpanKunciSistem('profil-tambahan', tambahan);
+      if ((tambahan.logoPemda || '') !== (tambahanProfil.logoPemda || '')) await simpanKunciSistem(KUNCI_GAMBAR.logoPemda, { gambar: tambahan.logoPemda || '' });
+      await simpanKunciSistem('profil-tambahan', tambahanTanpaLogo(tambahan));
       setPhase('done');
       await new Promise(r => setTimeout(r, 1100));
       refreshProfil();
@@ -119,7 +124,7 @@ export default function ProfilSekolahForm() {
         <div className="card-body">
           <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
             <UnggahLogo label="Logo Sekolah (kanan kop)" value={form['Logo']} onChange={v => setField('Logo', v)} toast={toast}
-              catatan={`Maks ${Math.round(LOGO_MAX_BYTES / 1024)}KB — disimpan langsung di sel Google Sheets.`} />
+              catatan="PNG transparan paling bagus. Gambar otomatis diperkecil agar muat disimpan." />
             <UnggahLogo label="Logo Yayasan / Pemda (kiri kop)" value={tambahan.logoPemda} onChange={v => setTmb('logoPemda', v)} toast={toast} />
           </div>
 
@@ -219,9 +224,9 @@ export default function ProfilSekolahForm() {
           ? <div className="atur-hal" style={{ fontSize: 13 }}><b>Kertas & margin</b> — untuk STSB diatur di <Link to="/stsb-paud?tab=pengaturan">STSB PAUD › Pengaturan STSB</Link>.</div>
           : <AturHalaman judul="Kertas & margin dokumen ber-kop (naskah soal, kunci jawaban)" value={kopUmum.halaman} onChange={v => setKopUmum(k => ({ ...k, halaman: v }))} />}
         <label style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--muted)', display: 'block', marginTop: 6 }}>Pratinjau (ikut berubah saat Anda mengetik)</label>
-        <div className="kop-pratinjau">{paud
+        <div className="kop-pratinjau"><SkalaKertas lebarMm={180}>{paud
           ? <KopSurat jenjang="PAUD" profil={profilPratinjau} tambahan={tambahan} kopPaud={kopPaud} />
-          : <KopSurat profil={profilPratinjau} tambahan={tambahan} kop={kopUmum} />}</div>
+          : <KopSurat profil={profilPratinjau} tambahan={tambahan} kop={kopUmum} />}</SkalaKertas></div>
       </div>
       <div className="card-body" style={{ borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
         <button type="button" className="btn" onClick={() => setKop(k => (paud ? { ...KOP_PAUD_BAWAAN, data: k.data } : KOP_BAWAAN))}>Kembalikan bawaan</button>

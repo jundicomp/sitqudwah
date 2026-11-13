@@ -50,3 +50,23 @@ export async function olahTtd(file, { buangPutih = true } = {}) {
   }
   throw new Error('Gambar tanda tangan terlalu rumit/besar. Coba foto ulang dengan latar putih polos.');
 }
+
+// Olah logo (v1.71.1): perkecil seperlunya agar muat 1 sel Sheets, transparansi dijaga.
+// File besar pun boleh diunggah — tidak lagi ditolak karena ukuran file.
+export async function olahLogo(file) {
+  if (!file?.type?.startsWith('image/')) throw new Error('File harus berupa gambar (JPG/PNG).');
+  const im = await muat(file);
+  const coba = (sisi, tipe, q) => {
+    const s = Math.min(1, sisi / Math.max(im.width, im.height));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(im.width * s)); c.height = Math.max(1, Math.round(im.height * s));
+    c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+    return c.toDataURL(tipe, q);
+  };
+  for (const sisi of [600, 480, 400, 320]) { const u = coba(sisi, 'image/png'); if (u.length <= BATAS) return u; }
+  for (const [sisi, q] of [[600, 0.92], [480, 0.9], [400, 0.85], [320, 0.8]]) {
+    const u = coba(sisi, 'image/webp', q);
+    if (u.startsWith('data:image/webp') && u.length <= BATAS) return u;
+  }
+  throw new Error('Logo terlalu rumit untuk disimpan. Coba gambar dengan latar polos / ukuran lebih kecil.');
+}

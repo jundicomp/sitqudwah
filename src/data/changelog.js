@@ -4,6 +4,15 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.71.1',
+    tanggal: '2026-11-13',
+    poin: [
+      'Perbaikan "Failed to fetch" saat menyimpan Kop PAUD dengan 2 logo: tiap logo kini disimpan terpisah dan otomatis diperkecil, jadi file logo besar pun bisa dipakai',
+      'Pesan gagal simpan kini jelas (koneksi terputus / data terlalu besar), bukan lagi "Failed to fetch"',
+      'Tampilan HP: pratinjau kop surat tampil utuh seperti kop pada umumnya; form jadi 1 kolom, topbar tidak lagi melebarkan halaman',
+    ],
+  },
+  {
     versi: '1.71.0',
     tanggal: '2026-11-13',
     poin: [

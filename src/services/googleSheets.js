@@ -96,13 +96,30 @@ async function postToSheet(body, target = 'master') {
   // Kalau POST gagal, biarkan gagal & user yg putuskan mau coba lagi manual atau tidak.
   // Content-Type: text/plain sengaja dipakai (bukan application/json) supaya browser
   // tidak mengirim preflight OPTIONS -- Google Apps Script Web App tidak menanganinya dgn baik.
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ ...body, secret }),
-  });
-  return res.json();
+  // v1.71.1: Google Sheets menolak sel > 50.000 karakter (mis. gambar besar). Ditolaknya
+  // di server tanpa header CORS, sehingga browser hanya bilang "Failed to fetch". Cek dulu.
+  const baris = [body.row, ...(Array.isArray(body.rows) ? body.rows : [])].filter(Boolean);
+  for (const r of baris) {
+    for (const [kolom, v] of Object.entries(r)) {
+      if (typeof v === 'string' && v.length > BATAS_SEL) {
+        throw new Error(`Data "${kolom}" terlalu besar untuk 1 sel Google Sheets (${v.length.toLocaleString('id-ID')} dari maks ${BATAS_SEL.toLocaleString('id-ID')} karakter). Perkecil gambar/logo lalu simpan lagi.`);
+      }
+    }
+  }
+  let res;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ ...body, secret }),
+    });
+  } catch {
+    throw new Error('Gagal terhubung ke server Google Sheets — koneksi terputus atau data ditolak server. Periksa internet lalu coba lagi.');
+  }
+  try { return await res.json(); }
+  catch { throw new Error('Server Google Sheets mengirim jawaban yang tidak terbaca (biasanya karena data ditolak). Coba lagi; bila berulang, perkecil gambar yang diunggah.'); }
 }
+const BATAS_SEL = 49500;
 
 export async function addToSheet(sheetName, row, target = 'master') {
   const json = await postToSheet({ action: 'add', sheet: sheetName, row }, target);

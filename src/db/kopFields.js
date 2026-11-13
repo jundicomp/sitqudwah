@@ -63,7 +63,16 @@ export const KOP_BAWAAN = {
 export const LOGO_MIN_MM = 10, LOGO_MAKS_MM = 45;
 export const ukuranLogo = (v, d = 25) => Math.min(LOGO_MAKS_MM, Math.max(LOGO_MIN_MM, Number(v) || d));
 
-export const tambahanDariRows = (rows) => nilaiKunci(rows, 'profil-tambahan', TAMBAHAN_BAWAAN);
+// v1.71.1: tiap gambar (logo) disimpan di kuncinya SENDIRI — 1 sel Sheets maks 50 rb karakter.
+export const KUNCI_GAMBAR = { logoPemda: 'logo-pemda', paudKiri: 'kop-PAUD-logo-kiri', paudKanan: 'kop-PAUD-logo-kanan' };
+const gambarKunci = (rows, kunci) => String(nilaiKunci(rows, kunci, { gambar: '' }).gambar || '');
+export function tambahanDariRows(rows) {
+  const t = { ...TAMBAHAN_BAWAAN, ...nilaiKunci(rows, 'profil-tambahan', TAMBAHAN_BAWAAN) };
+  return { ...t, logoPemda: gambarKunci(rows, KUNCI_GAMBAR.logoPemda) || t.logoPemda || '' };
+}
+// Pisahkan gambar dari data teks sebelum disimpan.
+export const tambahanTanpaLogo = (t) => ({ ...t, logoPemda: '' });
+export const kopPaudTanpaLogo = (k) => ({ ...k, data: { ...k.data, logoKiri: '', logoKanan: '' } });
 export function kopDariRows(rows) {
   const k = nilaiKunci(rows, 'kop', KOP_BAWAAN);
   return { ...k, tampil: { ...KOP_BAWAAN.tampil, ...(k.tampil || {}) }, halaman: lengkapiHalaman(k.halaman, HALAMAN_KOP_BAWAAN) };
@@ -125,7 +134,10 @@ export const KOP_PAUD_BAWAAN = {
 };
 export function kopPaudDariRows(rows) {
   const k = nilaiKunci(rows, 'kop-PAUD', KOP_PAUD_BAWAAN);
-  return { ...KOP_PAUD_BAWAAN, ...k, data: { ...DATA_PAUD_KOSONG, ...(k.data || {}) }, tampil: { ...KOP_PAUD_BAWAAN.tampil, ...(k.tampil || {}) } };
+  const data = { ...DATA_PAUD_KOSONG, ...(k.data || {}) };
+  data.logoKiri = gambarKunci(rows, KUNCI_GAMBAR.paudKiri) || data.logoKiri || '';
+  data.logoKanan = gambarKunci(rows, KUNCI_GAMBAR.paudKanan) || data.logoKanan || '';
+  return { ...KOP_PAUD_BAWAAN, ...k, data, tampil: { ...KOP_PAUD_BAWAAN.tampil, ...(k.tampil || {}) } };
 }
 // Nilai PAUD bila diisi, selain itu nilai kop umum.
 export function gabungKopPaud(profil, tambahan, kopPaud) {

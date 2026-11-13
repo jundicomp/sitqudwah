@@ -7,6 +7,8 @@ import { kepalaPada } from '../../../db/penandatanganFields';
 import { useAuth } from '../../../context/AuthContext';
 import { SatuStsb } from './DokumenStsb';
 import AturHalaman from '../../../components/common/AturHalaman';
+import SkalaKertas from '../../../components/common/SkalaKertas';
+import { ukuranHalaman } from '../../../db/halamanFields';
 
 const CONTOH_ANAK = { nama: 'Nama Anak', idSiswa: '20202025001', nisn: '3209618850', tempatLahir: 'Banyuasin', tanggalLahir: '2020-02-12', namaIbu: 'Nama Ibu', alamat: 'Sungai Rengit', agama: 'Islam', foto: '' };
 
@@ -135,7 +137,7 @@ export default function PengaturanStsb() {
       </div>
       <div className="card">
         <div className="card-head"><div><h3>Pratinjau</h3><p>Contoh dengan data anak rekaan, ikut berubah saat Anda mengetik.</p></div></div>
-        <div className="card-body stsb-pratinjau"><div className="rp-dok"><SatuStsb d={contoh} /></div></div>
+        <div className="card-body stsb-pratinjau"><SkalaKertas lebarMm={ukuranHalaman(hasil.halaman).w + 4}><div className="rp-dok"><SatuStsb d={contoh} /></div></SkalaKertas></div>
       </div>
     </div>
   );
