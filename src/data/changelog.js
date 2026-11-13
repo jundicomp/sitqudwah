@@ -4,6 +4,16 @@
 // rilis baru, tambahkan 1 entri baru di PALING ATAS array ini.
 export const CHANGELOG = [
   {
+    versi: '1.71.0',
+    tanggal: '2026-11-13',
+    poin: [
+      'Naskah soal & kunci jawaban: perbaikan soal yang terpotong saat dicetak — kini soal yang tidak muat otomatis pindah ke lembar berikutnya',
+      'Pratinjau naskah per lembar kertas (persis seperti hasil print), lengkap dengan jumlah lembar dan nomor halaman',
+      'Kertas & margin bisa diatur langsung dari jendela naskah (cm / inch) dan disimpan sebagai bawaan',
+      'Kop Surat: ukuran logo kiri & kanan bisa diperbesar/diperkecil (1–4,5 cm), teks kop tetap di tengah',
+    ],
+  },
+  {
     versi: '1.70.0',
     tanggal: '2026-11-12',
     poin: [

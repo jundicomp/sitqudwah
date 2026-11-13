@@ -1,5 +1,5 @@
 import ClipCell from '../../components/common/ClipCell';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import Page from '../../components/layout/Page';
 import useTabAccess from '../../hooks/useTabAccess';
 import useAkademikOptions from '../../hooks/useAkademikOptions';
@@ -19,8 +19,10 @@ import {
   fetchBankSoalFromSheet, addBankSoalToSheet, updateBankSoalInSheet, deleteBankSoalFromSheet,
   fetchUjianFromSheet, addUjianToSheet, updateUjianInSheet, deleteUjianFromSheet, addLogEntry,
 } from '../../services/googleSheets';
-import { printElementById } from '../../utils/exportTable';
 import KopSurat from '../../components/common/KopSurat';
+import LembarCetak from '../../components/common/LembarCetak';
+import AturHalaman from '../../components/common/AturHalaman';
+import { lengkapiHalaman, ringkasHalaman, HALAMAN_KOP_BAWAAN } from '../../db/halamanFields';
 
 const TABS = [
   { id: 'soal', label: 'BANK SOAL' },
@@ -92,40 +94,76 @@ function KelolaSoalModal({ ujian, bankSoal, onClose, onSaved }) {
 }
 
 function NaskahModal({ ujian, bankSoal, kunci, onClose }) {
-  const { pengaturanKop } = useAppData();
+  const { pengaturanKop, simpanKunciSistem, toast } = useAppData();
+  const [hal, setHal] = useState(pengaturanKop.halaman);
+  const [aturBuka, setAturBuka] = useState(false);
+  const [jumlah, setJumlah] = useState(1);
+  const [menyimpan, setMenyimpan] = useState(false);
+  const lembarRef = useRef(null);
+  const halaman = lengkapiHalaman(hal, HALAMAN_KOP_BAWAAN);
   const byNo = Object.fromEntries(bankSoal.map(b => [b.no, b]));
   const soal = String(ujian['Soal No'] || '').split(',').map(x => byNo[x.trim()]).filter(Boolean);
   const total = soal.reduce((a, b) => a + b.poin, 0);
-  const id = 'naskah-ujian-print';
+  const berubah = JSON.stringify(halaman) !== JSON.stringify(pengaturanKop.halaman);
+
+  async function simpanBawaan() {
+    setMenyimpan(true);
+    try { await simpanKunciSistem('kop', { ...pengaturanKop, halaman }); toast('Kertas & margin disimpan sebagai bawaan dokumen ber-kop.'); }
+    catch (e) { toast(e.message, 'error'); }
+    finally { setMenyimpan(false); }
+  }
+
+  // Blok = satuan yg tidak boleh terbelah antar lembar: kepala naskah, lalu tiap soal.
+  const blok = useMemo(() => [
+    { key: 'kepala', node: (
+      <>
+        <KopSurat />
+        <h2>{ujian.Judul}{kunci ? ' — Kunci Jawaban' : ''}</h2>
+        <p className="doc-sub">Tahun Ajaran {ujian['Tahun Ajaran']} · Semester {ujian.Semester}</p>
+        <div className="doc-meta">
+          <div><b>Mata Pelajaran:</b> {ujian['Mata Pelajaran']}</div>
+          <div><b>Kelas:</b> {labelRombel(ujian.Tingkat, ujian.Rombel)}</div>
+          <div><b>Hari/Tanggal:</b> {ujian.Tanggal ? formatTanggal(String(ujian.Tanggal).slice(0, 10) + 'T00:00:00') : '-'}</div>
+          <div><b>Waktu:</b> {ujian['Durasi (Menit)']} menit</div>
+          {!kunci && <div><b>Nama:</b> ........................................</div>}
+          <div><b>Jumlah Soal / Poin:</b> {soal.length} soal / {total} poin</div>
+        </div>
+      </>
+    ) },
+    ...soal.map((b, i) => ({ key: `s${b.no}`, node: (
+      <div className="soal">
+        <b>{i + 1}.</b> {b.pertanyaan} <span style={{ color: '#666', fontSize: 12 }}>({b.poin} poin)</span>
+        {b.jenis === 'Pilihan Ganda' ? (
+          <div className="opsi">{b.pilihan.map(p => <div key={p.huruf} style={kunci && p.huruf === b.kunci ? { fontWeight: 700, textDecoration: 'underline' } : undefined}>{p.huruf}. {p.teks}</div>)}</div>
+        ) : kunci ? (
+          <div style={{ marginLeft: 20 }}><i>Jawaban/rubrik:</i> {b.kunci}</div>
+        ) : (
+          <div style={{ marginLeft: 20, marginTop: 6, borderBottom: '1px dotted #555', height: b.jenis === 'Esai' ? 70 : 22 }} />
+        )}
+      </div>
+    ) })),
+  ], [ujian, soal.map(b => b.no).join(','), kunci, pengaturanKop]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <Modal wide title={kunci ? 'Kunci jawaban' : 'Naskah soal'} subtitle={ujian.Judul} onClose={onClose}
-      actions={<><button className="btn" onClick={onClose}>Tutup</button><button className="btn btn-primary" onClick={() => printElementById(id, { halaman: pengaturanKop.halaman })} disabled={!soal.length}>🖨️ Cetak / PDF</button></>}>
+      actions={<><button className="btn" onClick={onClose}>Tutup</button><button className="btn btn-primary" onClick={() => lembarRef.current?.cetak()} disabled={!soal.length}>🖨️ Cetak / PDF ({jumlah} lembar)</button></>}>
       {!soal.length ? <Kosong>Ujian ini belum punya soal. Atur lewat tombol Kelola Soal.</Kosong> : (
-        <div id={id} className="doc-print">
-          <KopSurat />
-          <h2>{ujian.Judul}{kunci ? ' — Kunci Jawaban' : ''}</h2>
-          <p className="doc-sub">Tahun Ajaran {ujian['Tahun Ajaran']} · Semester {ujian.Semester}</p>
-          <div className="doc-meta">
-            <div><b>Mata Pelajaran:</b> {ujian['Mata Pelajaran']}</div>
-            <div><b>Kelas:</b> {labelRombel(ujian.Tingkat, ujian.Rombel)}</div>
-            <div><b>Hari/Tanggal:</b> {ujian.Tanggal ? formatTanggal(String(ujian.Tanggal).slice(0, 10) + 'T00:00:00') : '-'}</div>
-            <div><b>Waktu:</b> {ujian['Durasi (Menit)']} menit</div>
-            {!kunci && <div><b>Nama:</b> ........................................</div>}
-            <div><b>Jumlah Soal / Poin:</b> {soal.length} soal / {total} poin</div>
+        <>
+          <div className="naskah-alat">
+            <span className="naskah-info">📄 {jumlah} lembar · {ringkasHalaman(halaman)}</span>
+            <button type="button" className="btn btn-sm" onClick={() => setAturBuka(x => !x)} aria-expanded={aturBuka}>{aturBuka ? '▴ Tutup pengaturan' : '⚙️ Kertas & margin'}</button>
           </div>
-          {soal.map((b, i) => (
-            <div key={b.no} className="soal">
-              <b>{i + 1}.</b> {b.pertanyaan} <span style={{ color: '#666', fontSize: 12 }}>({b.poin} poin)</span>
-              {b.jenis === 'Pilihan Ganda' ? (
-                <div className="opsi">{b.pilihan.map(p => <div key={p.huruf} style={kunci && p.huruf === b.kunci ? { fontWeight: 700, textDecoration: 'underline' } : undefined}>{p.huruf}. {p.teks}</div>)}</div>
-              ) : kunci ? (
-                <div style={{ marginLeft: 20 }}><i>Jawaban/rubrik:</i> {b.kunci}</div>
-              ) : (
-                <div style={{ marginLeft: 20, marginTop: 6, borderBottom: '1px dotted #555', height: b.jenis === 'Esai' ? 70 : 22 }} />
-              )}
-            </div>
-          ))}
-        </div>
+          {aturBuka && (
+            <>
+              <AturHalaman judul="Kertas & margin naskah" value={hal} onChange={setHal} />
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', margin: '-4px 0 12px' }}>
+                {berubah && <button type="button" className="btn btn-sm" onClick={() => setHal(pengaturanKop.halaman)}>↺ Kembalikan</button>}
+                <button type="button" className="btn btn-sm btn-primary" disabled={!berubah || menyimpan} onClick={simpanBawaan}>{menyimpan ? 'Menyimpan...' : 'Simpan sebagai bawaan'}</button>
+              </div>
+            </>
+          )}
+          <LembarCetak ref={lembarRef} blok={blok} halaman={halaman} onJumlah={setJumlah} />
+        </>
       )}
     </Modal>
   );

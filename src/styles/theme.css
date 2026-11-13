@@ -985,8 +985,10 @@ th.kolom-aksi{background:var(--green-dark);}
 /* v1.67.1 kop surat dokumen cetak */
 .kop-surat{margin-bottom:14px;color:#111;}
 .kop-isi{display:flex;align-items:center;gap:12px;}
-.kop-logo{width:96px;height:96px;flex:none;display:flex;align-items:center;justify-content:center;}
-.kop-logo img{max-width:100%;max-height:100%;object-fit:contain;}
+.kop-isi.ada-logo{display:grid;gap:3mm;}
+.kop-logo{display:flex;align-items:center;justify-content:center;min-width:0;}
+.kop-logo.kiri{justify-content:flex-start;}.kop-logo.kanan{justify-content:flex-end;}
+.kop-logo img{width:auto;object-fit:contain;display:block;}
 .kop-teks{flex:1;text-align:center;line-height:1.25;}
 .kop-atas,.kop-nama,.kop-npsn{font-family:Calibri,Carlito,'Segoe UI',Arial,sans-serif;}
 .kop-atas{font-size:16px;text-transform:uppercase;}
@@ -998,7 +1000,7 @@ th.kolom-aksi{background:var(--green-dark);}
 .kop-garis{margin-top:8px;}
 .kop-garis.g1{border-top:3px solid #111;}
 .kop-garis.g2{box-sizing:content-box;border-top:4px solid #111;border-bottom:1.5px solid #111;height:2px;}
-@media (max-width:600px){.kop-logo{width:52px;height:52px}.kop-nama{font-size:16px}.kop-pemisah{margin:0 6px}}
+@media (max-width:600px){.kop-nama{font-size:16px}.kop-pemisah{margin:0 6px}}
 .kop-gaya2 .kop-atas{font-size:14px;font-weight:700;}
 .kop-gaya2 .kop-nama{font-family:'Arial Black','Arial Rounded MT Bold',Arial,sans-serif;font-weight:900;font-size:20px;}
 .kop-gaya2 .kop-npsn{font-family:'Times New Roman',Tinos,serif;font-weight:700;font-size:13px;text-transform:uppercase;}
@@ -1080,3 +1082,25 @@ th.kolom-aksi{background:var(--green-dark);}
 .stsb-ttd-unggah .pratinjau{width:150px;height:64px;flex:none;border:1px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(#f1f3f2 0 25%,#fff 0 50%) 0 0/14px 14px;overflow:hidden;}
 .stsb-ttd-unggah .pratinjau img{max-width:100%;max-height:100%;object-fit:contain;}
 .stsb-ttd-unggah .pratinjau span{font-size:11px;color:var(--muted);background:#fff;padding:2px 6px;border-radius:6px;}
+.kop-ukuran-logo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 20px;margin-bottom:6px;}
+.kop-slider{display:flex;align-items:center;gap:8px;}
+.kop-slider input[type=range]{flex:1;accent-color:#1f6b4a;}
+@media (max-width:700px){.kop-ukuran-logo{grid-template-columns:1fr}}
+
+/* v1.71.0 pratinjau per lembar (naskah soal, dll) */
+.lembar-wadah{position:relative;background:#dfe5e1;padding:14px 12px;border-radius:12px;overflow:auto;max-height:68vh;}
+.lembar-ukur{position:absolute !important;left:-10000px;top:0;visibility:hidden;max-width:none !important;margin:0 !important;}
+.lembar-tumpuk{display:flex;flex-direction:column;align-items:center;gap:16px;}
+.lembar{position:relative;flex:none;box-sizing:border-box;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.18);overflow:hidden;}
+.lembar-isi{max-width:none !important;margin:0 !important;}
+.lembar-blok{display:flow-root;}
+.lembar-nomor{position:absolute;font-family:Cambria,Georgia,serif;font-size:9pt;color:#555;}
+.naskah-alat{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:10px;}
+.naskah-info{font-size:13px;background:#eef5f1;color:#123d2b;border-radius:20px;padding:5px 12px;font-weight:600;}
+@media print{
+  body.lb-printing > *:not(#lembar-print-root){display:none !important;}
+  body.lb-printing{background:#fff !important;margin:0 !important;}
+  body.lb-printing .lembar{box-shadow:none;margin:0;height:auto !important;break-after:page;page-break-after:always;}
+  body.lb-printing .lembar:last-child{break-after:auto;page-break-after:auto;}
+  body.lb-printing *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+}

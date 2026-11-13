@@ -6,7 +6,7 @@ import SaveProgressModal from '../../components/common/SaveProgressModal';
 import KopSurat from '../../components/common/KopSurat';
 import AturHalaman from '../../components/common/AturHalaman';
 import { Link } from 'react-router-dom';
-import { TAMBAHAN_BAWAAN, TAMBAHAN_FIELDS, KOP_BAWAAN, KOP_PILIHAN, GARIS_OPSI, SEBUTAN_TELEPON, GAYA_KOP, KOP_PAUD_BAWAAN, KOP_PAUD_FIELDS } from '../../db/kopFields';
+import { TAMBAHAN_BAWAAN, TAMBAHAN_FIELDS, KOP_BAWAAN, KOP_PILIHAN, GARIS_OPSI, SEBUTAN_TELEPON, GAYA_KOP, KOP_PAUD_BAWAAN, KOP_PAUD_FIELDS, ukuranLogo, LOGO_MIN_MM, LOGO_MAKS_MM } from '../../db/kopFields';
 
 // Unggah gambar kecil (logo) -> data URL, dgn batas ukuran sel Google Sheets.
 function bacaLogo(e, toast, setter) {
@@ -179,6 +179,21 @@ export default function ProfilSekolahForm() {
               {o.label}
             </label>
           ))}
+        </div>
+        <div className="kop-ukuran-logo">
+          {[['logoKiriMm', 'Ukuran logo kiri'], ['logoKananMm', 'Ukuran logo kanan']].map(([key, label]) => {
+            const mm = ukuranLogo(kop[key]);
+            return (
+              <div key={key} className="field">
+                <label>{label}: <b>{String(mm / 10).replace('.', ',')} cm</b></label>
+                <div className="kop-slider">
+                  <button type="button" className="btn btn-sm" onClick={() => setKop(k => ({ ...k, [key]: ukuranLogo(mm - 1) }))} aria-label="Perkecil">−</button>
+                  <input type="range" min={LOGO_MIN_MM} max={LOGO_MAKS_MM} step="1" value={mm} onChange={e => setKop(k => ({ ...k, [key]: Number(e.target.value) }))} />
+                  <button type="button" className="btn btn-sm" onClick={() => setKop(k => ({ ...k, [key]: ukuranLogo(mm + 1) }))} aria-label="Perbesar">+</button>
+                </div>
+              </div>
+            );
+          })}
         </div>
         <div className="form-grid">
           <div className="field">

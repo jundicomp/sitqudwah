@@ -57,8 +57,11 @@ export const KOP_BAWAAN = {
     logoKiri: true, logoKanan: true, barisAtas: true, nama: true, npsn: true, akreditasi: true, alamat: true,
     desa: true, kecamatan: true, kabupaten: true, provinsi: true, kodePos: true, telepon: true, email: true, website: true,
   },
-  garis: '1', sebutanTelepon: 'HP', gaya: '1', halaman: HALAMAN_KOP_BAWAAN, oleh: '', pada: '',
+  garis: '1', sebutanTelepon: 'HP', gaya: '1', logoKiriMm: 25, logoKananMm: 25, halaman: HALAMAN_KOP_BAWAAN, oleh: '', pada: '',
 };
+// Ukuran logo (tinggi, mm) — dibatasi agar kop tetap wajar.
+export const LOGO_MIN_MM = 10, LOGO_MAKS_MM = 45;
+export const ukuranLogo = (v, d = 25) => Math.min(LOGO_MAKS_MM, Math.max(LOGO_MIN_MM, Number(v) || d));
 
 export const tambahanDariRows = (rows) => nilaiKunci(rows, 'profil-tambahan', TAMBAHAN_BAWAAN);
 export function kopDariRows(rows) {
@@ -88,6 +91,8 @@ export function susunKop(profil, tambahan, kop, akreditasiTerbaru = '') {
     website: ya('website', t.website),
     garis: ['0', '1', '2'].includes(String(k.garis)) ? String(k.garis) : '1',
     gaya: String(k.gaya) === '2' ? '2' : '1',
+    logoKiriMm: ukuranLogo(k.logoKiriMm),
+    logoKananMm: ukuranLogo(k.logoKananMm),
   };
 }
 
@@ -116,7 +121,7 @@ const DATA_PAUD_KOSONG = Object.fromEntries([...KOP_PAUD_FIELDS.map(f => [f.key,
 export const KOP_PAUD_BAWAAN = {
   data: DATA_PAUD_KOSONG,
   tampil: { ...KOP_BAWAAN.tampil, provinsi: false, kodePos: false, email: false, website: false },
-  garis: '2', sebutanTelepon: 'HP.', gaya: '2', oleh: '', pada: '',
+  garis: '2', sebutanTelepon: 'HP.', gaya: '2', logoKiriMm: 25, logoKananMm: 25, oleh: '', pada: '',
 };
 export function kopPaudDariRows(rows) {
   const k = nilaiKunci(rows, 'kop-PAUD', KOP_PAUD_BAWAAN);

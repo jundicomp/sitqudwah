@@ -49,10 +49,16 @@ export default function KopSurat({ jenjang, profil, tambahan, kop, kopPaud, clas
     );
   }
 
+  // Kolom logo kiri & kanan dibuat sama lebar -> teks kop selalu tepat di tengah.
+  const lebarKolom = Math.max(k.logoKiri ? k.logoKiriMm : 0, k.logoKanan ? k.logoKananMm : 0) * 1.2;
+  const gayaIsi = adaLogo ? { gridTemplateColumns: `${lebarKolom}mm minmax(0,1fr) ${lebarKolom}mm` } : undefined;
+  const logo = (src, mm, sisi) => (
+    <div className={`kop-logo ${sisi}`}>{src && <img src={src} alt="" style={{ height: `${mm}mm`, maxWidth: `${lebarKolom}mm` }} />}</div>
+  );
   return (
     <div className={`kop-surat ${gaya2 ? 'kop-gaya2' : ''} ${className}`}>
-      <div className="kop-isi">
-        {adaLogo && <div className="kop-logo">{k.logoKiri && <img src={k.logoKiri} alt="" />}</div>}
+      <div className={`kop-isi ${adaLogo ? 'ada-logo' : ''}`} style={gayaIsi}>
+        {adaLogo && logo(k.logoKiri, k.logoKiriMm, 'kiri')}
         <div className="kop-teks">
           {k.barisAtas && <div className="kop-atas">{k.barisAtas}</div>}
           {k.nama && <div className="kop-nama">{k.nama}</div>}
@@ -65,7 +71,7 @@ export default function KopSurat({ jenjang, profil, tambahan, kop, kopPaud, clas
           )}
           {baris}
         </div>
-        {adaLogo && <div className="kop-logo">{k.logoKanan && <img src={k.logoKanan} alt="" />}</div>}
+        {adaLogo && logo(k.logoKanan, k.logoKananMm, 'kanan')}
       </div>
       {k.garis !== '0' && <div className={`kop-garis g${k.garis}`} />}
     </div>
